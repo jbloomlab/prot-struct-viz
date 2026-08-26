@@ -11,13 +11,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.11", "3.14"]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -25,9 +25,11 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: pytest
-        # Network tests hit RCSB; run them only on the newer interpreter so a
+        # Network tests hit RCSB; run them only on the newest interpreter so a
         # transient RCSB outage fails one job rather than the whole matrix.
-        run: pytest tests/ ${{ matrix.python-version == '3.13' && '' || '-m "not network"' }}
+        # Both branches must be non-empty: `cond && '' || x` always yields x,
+        # because the empty string is falsy and `||` falls through to it.
+        run: pytest ${{ matrix.python-version == '3.14' && 'tests/' || 'tests/ -m "not network"' }}
 
       - name: ruff
         run: ruff check .
