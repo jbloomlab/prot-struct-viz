@@ -15,6 +15,7 @@ All notable changes to this project are documented here, in
 
 ### Added
 
+- Support for Python 3.14.
 - `label_color` and `label_size` CSV columns styling the on-structure label text,
   defaulting to black and to a 2 A text height.
 
