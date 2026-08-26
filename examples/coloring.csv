@@ -1,0 +1,20 @@
+chain,residue,color,label,show_label,representation,label_color,label_size,notes
+A,118,#67000d,Arg118,True,ball-and-stick,gray,2.5,Direct contact with DANA at 2.68 A
+A,152,#67000d,Arg152,True,ball-and-stick,gray,2.5,Direct contact with DANA at 2.74 A
+A,276,#67000d,Glu276,True,ball-and-stick,gray,2.5,Direct contact with DANA at 2.65 A
+A,371,#67000d,Arg371,True,ball-and-stick,gray,2.5,Direct contact with DANA at 2.79 A
+A,406,#67000d,Tyr406,True,ball-and-stick,gray,2.5,Direct contact with DANA at 2.72 A
+A,119,#cb181d,Glu119,,ball-and-stick,,,Within 3.5 A of DANA (3.18 A)
+A,151,#cb181d,Asp151,,ball-and-stick,,,Within 3.5 A of DANA (3.10 A)
+A,246,#cb181d,Ala246,,ball-and-stick,,,Within 3.5 A of DANA (3.18 A)
+A,178,#fb6a4a,Trp178,,ball-and-stick,,,Within 4 A of DANA (3.59 A)
+A,222,#fb6a4a,Ile222,,ball-and-stick,,,Within 4 A of DANA (3.66 A)
+A,224,#fb6a4a,Arg224,,ball-and-stick,,,Within 4 A of DANA (3.65 A)
+A,277,#fb6a4a,Glu277,,ball-and-stick,,,Within 4 A of DANA (3.66 A)
+A,292,#fb6a4a,Arg292,,ball-and-stick,,,Within 4 A of DANA (3.53 A)
+A,294,#fb6a4a,Asn294,,ball-and-stick,,,Within 4 A of DANA (3.94 A)
+A,0,#6a51a3,DANA,True,ball-and-stick,black,5,Sialic-acid analogue inhibitor; PDB chemical component DAN. Colored from the CSV rather than by element
+A,169A,#2171b5,,,ball-and-stick,,,Insertion-coded site; shown to check author numbering with insertion codes
+A,412A,#2171b5,,,ball-and-stick,,,Insertion-coded site; shown to check author numbering with insertion codes
+A,412B,#2171b5,,,ball-and-stick,,,Insertion-coded site; shown to check author numbering with insertion codes
+B,1,#238b45,,,ball-and-stick,,,First sugar of the N-glycan; naming it here replaces its SNFG symbol with the CSV color

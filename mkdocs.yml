@@ -1,0 +1,34 @@
+site_name: prot-struct-viz
+site_description: Render a protein structure as a self-contained static HTML Mol* view.
+site_url: https://jbloomlab.github.io/prot-struct-viz/
+repo_url: https://github.com/jbloomlab/prot-struct-viz
+edit_uri: ""
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Overview: index.md
+  - CSV schema: csv-schema.md
+  - CLI reference: cli.md
+  - Python API: python-api.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.superfences
+  - mkdocs-click
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: false
+            show_root_heading: true
+            heading_level: 3

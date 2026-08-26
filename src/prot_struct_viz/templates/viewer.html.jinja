@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page_title }}</title>
+<script src="https://cdn.jsdelivr.net/npm/molstar@{{ molstar_version }}/build/viewer/molstar.js"></script>
+<link rel="stylesheet" type="text/css"
+      href="https://cdn.jsdelivr.net/npm/molstar@{{ molstar_version }}/build/viewer/molstar.css">
+<style>
+  body { margin: 0; padding: 0 1rem 1rem;
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+         color: #24292f; }
+  #header { max-width: 60rem; }
+  #header:empty { display: none; }
+  #controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
+  #controls button { font: inherit; padding: 0.3rem 0.7rem; cursor: pointer;
+                     border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
+  #controls button:hover { background: #eaeef2; }
+  #status { color: #57606a; font-size: 0.9rem; }
+  /* Mol* fills this box and positions its own UI inside it. */
+  #viewer { position: relative; width: 100%; height: 70vh; min-height: 30rem; }
+</style>
+</head>
+<body>
+
+<div id="header">{{ title_html | safe }}</div>
+
+<div id="controls">
+  <button id="export-image" type="button"
+          title="Download a PNG. Set size, resolution, and transparent background
+first with the camera icon in the viewport.">Export image</button>
+  <span id="status">Loading structure&hellip;</span>
+</div>
+
+<div id="viewer"></div>
+
+{# The whole view -- coordinates, annotations, and the MVS state -- as a base64
+   MVSX archive. Kept in a non-executing script block so the payload is never
+   parsed as JavaScript. #}
+<script id="mvsx-payload" type="text/plain">{{ mvsx_base64 }}</script>
+
+<script>
+(function () {
+    var status = document.getElementById('status');
+    var payload = document.getElementById('mvsx-payload').textContent.trim();
+
+    molstar.Viewer.create('viewer', {
+        layoutIsExpanded: false,
+        // Leave the Mol* UI enabled: everything this file sets is the initial
+        // state, not a lock, so representations and colors stay editable.
+        layoutShowControls: true,
+        layoutShowSequence: true,
+        layoutShowLog: false,
+        layoutShowRemoteState: false,
+        layoutShowLeftPanel: true,
+        collapseLeftPanel: true,
+        viewportShowScreenshotControls: true,
+        viewportShowExpand: true,
+        viewportShowSelectionMode: true,
+        viewportShowAnimation: false
+    }).then(function (viewer) {
+        window.viewer = viewer;
+        document.getElementById('export-image').addEventListener('click', function () {
+            // Downloads at whatever size, resolution, and transparency are set in
+            // Mol*'s own screenshot panel (the camera icon in the viewport).
+            viewer.plugin.helpers.viewportScreenshot.download();
+        });
+        return viewer.loadMvsData('base64,' + payload, 'mvsx');
+    }).then(function () {
+        status.textContent = '';
+    }).catch(function (err) {
+        status.textContent = 'Failed to load: ' + err;
+        console.error(err);
+    });
+})();
+</script>
+
+</body>
+</html>

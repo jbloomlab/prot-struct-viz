@@ -1,0 +1,14 @@
+# Lab default: ignore dotfiles but keep .gitignore, .gitmodules, and .github/
+.*
+!.git*
+# Scratch files. Anchored to the repository root so that Python's own
+# underscore-prefixed modules (__init__.py, _config.py) stay tracked.
+/_*
+# Cluster job output
+*.out
+
+# Project-specific
+__pycache__/
+*.pyc
+site/
+examples/output/
