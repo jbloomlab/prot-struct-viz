@@ -9,10 +9,10 @@ from prot_struct_viz import ViewConfig, render
 
 render(
     "1F8B",
-    "examples/coloring.csv",
+    "coloring.csv",
     "view.html",
     config=ViewConfig(assembly="1", waters="hide"),
-    title_md="examples/title.md",
+    title_md="title.md",
 )
 ```
 

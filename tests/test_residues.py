@@ -1,5 +1,7 @@
 """Tests for CSV parsing: the schema, the fail-fast rules, and normalization."""
 
+import pathlib
+
 import pytest
 
 from prot_struct_viz._config import InputError
@@ -213,17 +215,30 @@ def test_chain_representations_ignore_extra_columns(write_csv):
     assert parse_chain_representations(path) == {"A": "cartoon"}
 
 
-def test_the_shipped_example_csv_parses():
-    """examples/coloring.csv is documentation; it must stay valid."""
-    import pathlib
+EXAMPLES_DIR = pathlib.Path(__file__).parent.parent / "examples"
 
-    example = pathlib.Path(__file__).parent.parent / "examples" / "coloring.csv"
-    coloring = parse_csv(example)
+#: Every example directory, so a new one cannot land with an unparseable CSV.
+EXAMPLE_DIRS = sorted(p.parent for p in EXAMPLES_DIR.glob("*/command.sh"))
+
+
+def test_examples_are_discoverable():
+    """Guard the glob above: a rename would otherwise make the sweep vacuous."""
+    assert EXAMPLE_DIRS, f"no examples/*/command.sh under {EXAMPLES_DIR}"
+
+
+@pytest.mark.parametrize("example", EXAMPLE_DIRS, ids=lambda p: p.name)
+def test_shipped_example_csvs_parse(example):
+    """The examples are documentation; their inputs must stay valid."""
+    coloring = parse_csv(example / "coloring.csv")
     assert coloring.scheme_names == ["Default"]
     # Persistent labels are only on the short residue-name labels.
     for spec in coloring.specs:
         if spec.show_label:
             assert spec.label is not None
+
+    chains = example / "chains.csv"
+    if chains.is_file():
+        assert parse_chain_representations(chains)
 
 
 def test_label_color_and_size_parse(write_csv):

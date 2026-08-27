@@ -11,5 +11,9 @@ if [[ ! -x "$VENV_PY" ]]; then
     exit 2
 fi
 
+# The examples page links and embeds these; docs/examples/ is gitignored, so
+# they must be rendered before mkdocs runs or --strict fails on a dead link.
+scripts/build_examples.sh docs/examples
+
 .venv/bin/mkdocs build --strict
 echo "docs built into site/"

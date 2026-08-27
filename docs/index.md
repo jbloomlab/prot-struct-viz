@@ -1,51 +1,67 @@
 # prot-struct-viz
 
 Render a protein structure as a **self-contained static HTML file** using
-[Mol*](https://molstar.org/), with residues colored, labeled, and styled from a CSV.
+[Mol\*](https://molstar.org/), with residues colored, labeled, and styled from a CSV.
 
-The whole view — coordinates, colors, tooltips, labels, and the Mol* state that ties
-them together — is embedded in the one HTML file, so it can be hosted on GitHub Pages
-with no backend. Mol* itself is loaded from a CDN, so viewing needs an internet
-connection.
+Everything the view needs — coordinates, colors, tooltips, labels — is embedded in the
+one file, so it can be dropped on any static host with no backend. See the
+[examples](examples.md) for a live one.
 
 ## Install
 
 ```bash
-pip install -e .
+pip install prot-struct-viz
+```
+
+Or from a checkout, which is also how you get the development and docs extras:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,docs]"
 ```
 
 ## Quick start
 
+Write a CSV naming the residues you want to say something about:
+
+```csv
+chain,residue,color,label,show_label
+A,118,#67000d,Arg118,True
+A,119,#cb181d,Glu119,
+```
+
+Then render it:
+
 ```bash
 prot-struct-viz \
   --structure 1F8B \
-  --csv examples/coloring.csv \
+  --csv coloring.csv \
   --assembly 1 \
   --out view.html
 ```
 
-This writes `view.html` and `view_report.txt`. See the
-[CSV schema](csv-schema.md) for what goes in the CSV, and the
-[CLI reference](cli.md) for the full set of options.
+That writes `view.html` (the view) and `view_report.txt` (the progress log, and a report
+on any disagreement between the CSV and the structure).
 
-## How it works
+## Sharing the view
 
-1. The structure is fetched from RCSB (or read from a local file) and its deposited
-   residues are enumerated in author numbering, each classified as polymer, glycan,
-   ligand, ion, or water.
-2. The CSV is parsed strictly, and its residue set is checked against the structure's
-   addressable residues. The result goes into the report file.
-3. A [MolViewSpec](https://molstar.org/mol-view-spec-docs/) state plus a JSON annotation
-   table are zipped with the coordinates into an MVSX archive, embedded base64 in the
-   HTML, and loaded by Mol* in the browser.
+The output is a single file with no server side, so committing it to a repository with
+GitHub Pages enabled is all that is needed:
 
-Because the annotations are MVS tables rather than baked-in colors, the Mol* UI stays
-fully usable: everything the file sets is the *initial* state, and representations and
-colorings can be changed live in the Components panel.
+```bash
+mkdir -p docs && cp view.html docs/
+git add docs/view.html && git commit -m "Add structure view" && git push
+```
 
-## Assemblies
+Set Pages to serve from `/docs` on the default branch, and the view is at
+`https://<org>.github.io/<repo>/view.html`.
 
-Only the deposited asymmetric unit is embedded, alongside an assembly id. Mol* generates
-the symmetry copies in the browser, so a high-symmetry entry does not blow up the file
-size. A CSV row applies to every symmetry copy of the chain it names, and validation
-always runs against the deposited chains, so it does not change with `--assembly`.
+## Where to go next
+
+- **[Examples](examples.md)** — rendered views, with the exact command and inputs.
+- **[CSV schema](csv-schema.md)** — every column, and what makes a CSV invalid.
+- **[Rendering options](rendering.md)** — assemblies, representations, heteroatoms, and
+  checking the CSV against the structure.
+- **[CLI reference](cli.md)** and **[Python API](python-api.md)** — the full surface.
+- **[How it works](internals.md)** — the MolViewSpec pipeline, for anyone extending this.

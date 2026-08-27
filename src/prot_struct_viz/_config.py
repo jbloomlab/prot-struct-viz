@@ -9,7 +9,6 @@ about what an option means.
 from __future__ import annotations
 
 import dataclasses
-import pathlib
 
 #: Default color for structure residues that have no CSV row.
 DEFAULT_COLOR = "#d9d9d9"
@@ -81,11 +80,7 @@ OPTION_DOCS = {
     ),
     "ions": "Show or hide ions not named in the CSV (element-colored spacefill).",
     "title_md": "Optional Markdown file rendered into a header block above the viewer.",
-    "cache_dir": "Directory for structures downloaded from RCSB.",
 }
-
-#: Where structures fetched from RCSB are cached.
-DEFAULT_CACHE_DIR = pathlib.Path.home() / ".cache" / "prot-struct-viz"
 
 
 class InputError(Exception):

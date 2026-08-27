@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pathlib
 
-from ._config import DEFAULT_CACHE_DIR, InputError, ViewConfig
+from ._config import InputError, ViewConfig
 from .viewer import (
     build_annotations,
     build_mvsx,
@@ -45,7 +45,6 @@ def render(
     config: ViewConfig | None = None,
     chain_representation: str | pathlib.Path | None = None,
     title_md: str | pathlib.Path | None = None,
-    cache_dir: str | pathlib.Path = DEFAULT_CACHE_DIR,
 ) -> pathlib.Path:
     """Render one structure to a self-contained HTML file.
 
@@ -64,8 +63,6 @@ def render(
         Optional path to a ``chain,representation`` override file.
     title_md
         Optional path to a Markdown file rendered above the viewer.
-    cache_dir
-        Where structures fetched from RCSB are cached.
 
     Returns
     -------
@@ -84,7 +81,7 @@ def render(
 
     with Reporter(report_path) as reporter:
         reporter.log(f"structure source: {structure}")
-        coordinate_text, fmt = resolve_structure(structure, pathlib.Path(cache_dir))
+        coordinate_text, fmt = resolve_structure(structure)
         reporter.log(f"format: {fmt}")
 
         parsed = load_structure(coordinate_text, fmt)

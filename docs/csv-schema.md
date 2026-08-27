@@ -15,10 +15,16 @@ beside a residue.
 
 ## Columns
 
+`chain` and `residue` are **author** numbering: the chain ID and residue number as they
+appear in the deposited PDB entry, and as shown by the RCSB website and by Mol\* itself.
+In mmCIF terms these are `auth_asym_id` and `auth_seq_id`, not the `label_*` numbering,
+which runs sequentially from 1 per entity and rarely matches what a paper cites. If you
+read a residue number off a figure or a structure viewer, it is the author number.
+
 | column | required | meaning |
 | --- | --- | --- |
-| `chain` | yes | Deposited **author** chain ID, e.g. `A`. |
-| `residue` | yes | **Author** residue number, read as a string so insertion codes work. |
+| `chain` | yes | PDB (author) chain ID, e.g. `A`. |
+| `residue` | yes | PDB (author) residue number, read as a string so insertion codes work. |
 | `color` | yes | Hex (`#1f77b4`, `#abc`) or a CSS color name (`red`), normalized to `#rrggbb`. |
 | `label` | no | Text shown on **mouseover**. |
 | `show_label` | no | `True` also draws `label` permanently on the structure. |
@@ -38,21 +44,19 @@ crowds out the structure. Put the explanation in a column of your own instead:
 
 ## Your own columns
 
-Any column that is not one of the six above is ignored by the renderer. `examples/coloring.csv`
-uses a `notes` column this way, recording what each site is while the `label` column stays
-down to `Arg118`. Nothing stops you adding an alternative numbering, a source citation, or
-a p-value alongside.
+Any column not listed above is ignored by the renderer. A `notes` column is the usual
+use: it records what each site is, while `label` stays short enough to draw. Nothing
+stops you adding an alternative numbering, a source citation, or a p-value alongside.
 
-`representation` is additive, drawn on top of the base representation. That is how you
-get the standard figure of a cartoon backbone with sticks on a handful of key residues.
-Allowed values are `cartoon`, `ball-and-stick`, `spacefill`, `surface`, and
-`carbohydrate`.
+`representation` is described under
+[rendering options](rendering.md#representations-and-heteroatoms), since it is one layer
+of a model that the command-line flags also feed into.
 
 ## Styling the on-structure label
 
 `label_color` and `label_size` control how a persistent label is drawn. Size is a text
 height in **Angstroms of world space**, not screen pixels, so a label keeps its size
-relative to the structure as you zoom. Mol*'s own default of 1 A is about a bond length
+relative to the structure as you zoom. Mol\*'s own default of 1 A is about a bond length
 and reads very small beside a residue, so the default here is 2.
 
 Both columns style the persistent label only, so they do nothing on a row whose
@@ -85,18 +89,3 @@ These are all fatal, and name the CSV line and column:
 Every offending line is reported at once, so one run tells you everything to fix. No
 value is ever substituted for a missing one — the only default that applies to *cells*
 is `show_label`, which is `False` when absent.
-
-## Per-chain representations
-
-`--chain-representation` takes a small CSV that overrides the base representation for
-whole chains:
-
-```csv
-chain,representation
-A,cartoon
-B,surface
-```
-
-This sets the base for each chain's **polymer**. A CSV-named ligand or ion on that chain
-still gets ball-and-stick, because a cartoon or surface draws nothing for a single
-heteroatom residue.

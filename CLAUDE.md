@@ -37,8 +37,29 @@ commit of that submodule; update periodically with
   `__init__.py`.
 - **Record user-facing changes in `CHANGELOG.md`** under `## [Unreleased]` as you make
   them, in [Keep a Changelog](https://keepachangelog.com/) format.
+- **`docs/` is the single source; `README.md` is a front door.** New reference material
+  goes in `docs/` and is linked from the README, never written into both. The two prose
+  copies that preceded this rule had already drifted in four places.
+- **Escape `Mol\*` in every Markdown file.** Python-Markdown -- unlike CommonMark, whose
+  flanking rules reject it -- pairs a bare `Mol*` with the next `*` in the same paragraph
+  and silently italicizes the wrong span. `tests/test_docs.py` enforces this.
+- **Examples are CLI-driven directories**: `examples/<name>/` holds the inputs plus
+  `command.sh`, the literal invocation. `docs/examples.md` includes `command.sh` and the
+  CSVs verbatim via `pymdownx.snippets`, so the documented command cannot drift from the
+  one that ran. The rendered HTML is generated into a gitignored `docs/examples/` and
+  must be built before `mkdocs` -- both `scripts/build_docs.sh` and `.github/workflows/
+  docs.yml` do this. Adding an example is a new directory plus a section in
+  `docs/examples.md`.
+- **Releases are tag-driven.** Push a `v*` tag matching `pyproject.toml`'s `version` and
+  `release.yml` publishes to PyPI by trusted publishing (OIDC, no stored token). The
+  recipe is in that workflow's header comment.
+- **Structures fetched from RCSB are not cached**, deliberately: only the coordinate text
+  is used, so a cache bought one HTTP request in exchange for a stale-file failure mode.
+  A local path to `--structure` is the escape hatch. Relatedly, never put
+  `show_default=True` on a click option whose default is home-relative -- `mkdocs-click`
+  would bake the docs builder's `$HOME` into the published CLI reference.
 
-## Mol* / MolViewSpec (read this before writing any viewer code)
+## Mol\* / MolViewSpec (read this before writing any viewer code)
 
 - **Pinned Mol\* version: 5.11.0**, declared once as `viewer.MOLSTAR_VERSION` and loaded
   from the jsDelivr CDN by the template. Do not mix versions. Bump it to the latest
@@ -49,7 +70,7 @@ commit of that submodule; update periodically with
   accepts a base64 MVSX archive, which covers the self-contained-file requirement, and
   MVS covers all the annotation work. Reach for a wrapper only if a feature genuinely
   cannot be expressed in MVS.
-- **`molviewspec` lags Mol\*.** It accepts fewer representation types than Mol* can draw
+- **`molviewspec` lags Mol\*.** It accepts fewer representation types than Mol\* can draw
   (no `backbone`, `line`, `putty`). Offer only what it validates; if the project needs
   one of the others, open an issue on `molstar/mol-view-spec` rather than emitting a
   state that fails validation.
@@ -80,6 +101,8 @@ commit of that submodule; update periodically with
 Mol\* code is easy to write so that it looks right and silently does nothing, so after
 any change to `viewer.py` or the template:
 
+0. `scripts/build_examples.sh`, then look at the report it writes. A state that renders
+   nothing still exits zero, so the report's residue counts are the first sanity check.
 1. `scripts/check.sh`. The test suite validates generated states against the MVS schema
    with `molviewspec.validate_state_tree` and asserts every annotation row lands in some
    component — which catches a state that would render blank.

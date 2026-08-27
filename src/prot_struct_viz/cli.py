@@ -15,7 +15,6 @@ import click
 
 from . import render
 from ._config import (
-    DEFAULT_CACHE_DIR,
     DEFAULT_COLOR,
     DEFAULT_REPRESENTATION,
     MISMATCH_MODES,
@@ -104,13 +103,6 @@ from ._config import (
     default=None,
     help=OPTION_DOCS["title_md"],
 )
-@click.option(
-    "--cache-dir",
-    type=click.Path(path_type=pathlib.Path),
-    default=DEFAULT_CACHE_DIR,
-    show_default=True,
-    help=OPTION_DOCS["cache_dir"],
-)
 def main(
     structure,
     csv,
@@ -126,7 +118,6 @@ def main(
     glycans,
     ions,
     title_md,
-    cache_dir,
 ):
     """Render a protein structure as a self-contained static HTML Mol* view."""
     try:
@@ -152,7 +143,6 @@ def main(
             config=config,
             chain_representation=chain_representation,
             title_md=title_md,
-            cache_dir=cache_dir,
         )
     except InputError as err:
         click.echo(f"\nERROR: {err}", err=True)

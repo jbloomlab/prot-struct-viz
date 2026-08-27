@@ -52,6 +52,11 @@ docs = [
 [project.scripts]
 prot-struct-viz = "prot_struct_viz.cli:main"
 
+[tool.hatch.build.targets.sdist]
+# The coding-standards submodule is another repository's content and is only
+# relevant to developing here, so it does not belong in a published artifact.
+exclude = ["/bloomlab-coding-standards"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/prot_struct_viz"]
 dev-mode-dirs = ["src"]
