@@ -487,8 +487,14 @@ A,499,#bdbdbd,170_HA2,,,,,HA2 site 170; not in a defined antigenic site
 A,500,#bdbdbd,171_HA2,,,,,HA2 site 171; not in a defined antigenic site
 A,501,#bdbdbd,172_HA2,,,,,HA2 site 172; not in a defined antigenic site
 A,502,#bdbdbd,173_HA2,,,,,HA2 site 173; not in a defined antigenic site
-D,1,#252525,BGC,,ball-and-stick,,,LSTc sugar 1 of 5 (BGC); named here so it is drawn in this color rather than as an SNFG symbol
-D,2,#252525,GAL,,ball-and-stick,,,LSTc sugar 2 of 5 (GAL); named here so it is drawn in this color rather than as an SNFG symbol
-D,3,#252525,NAG,,ball-and-stick,,,LSTc sugar 3 of 5 (NAG); named here so it is drawn in this color rather than as an SNFG symbol
-D,4,#252525,GAL,,ball-and-stick,,,LSTc sugar 4 of 5 (GAL); named here so it is drawn in this color rather than as an SNFG symbol
-D,5,#252525,LSTc,True,ball-and-stick,#252525,1.6,LSTc sugar 5 of 5 (SIA); named here so it is drawn in this color rather than as an SNFG symbol
+A,601,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+A,602,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+B,1,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+B,2,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+C,1,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+C,2,#ffd700,NAG,,ball-and-stick,,,Host N-glycan sugar (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+D,1,#000000,BGC,,ball-and-stick,,,LSTc sugar 1 of 5 (BGC); named here so it is drawn in this color rather than as an SNFG symbol
+D,2,#000000,GAL,,ball-and-stick,,,LSTc sugar 2 of 5 (GAL); named here so it is drawn in this color rather than as an SNFG symbol
+D,3,#000000,NAG,,ball-and-stick,,,LSTc sugar 3 of 5 (NAG); named here so it is drawn in this color rather than as an SNFG symbol
+D,4,#000000,GAL,,ball-and-stick,,,LSTc sugar 4 of 5 (GAL); named here so it is drawn in this color rather than as an SNFG symbol
+D,5,#000000,LSTc,True,ball-and-stick,#252525,1.6,LSTc sugar 5 of 5 (SIA); named here so it is drawn in this color rather than as an SNFG symbol

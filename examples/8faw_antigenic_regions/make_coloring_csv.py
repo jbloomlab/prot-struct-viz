@@ -41,8 +41,10 @@ STRUCTURE_URL = f"https://files.rcsb.org/download/{PDB_ID}.cif"
 POLYMER_CHAIN = "A"
 
 #: The LSTc receptor analogue, Neu5Ac-a2,6-Gal-b1,4-GlcNAc-b1,3-Gal-b1,4-Glc,
-#: reducing end first. Naming it in the CSV is what replaces its 3D-SNFG symbols
-#: with a plain colored ball-and-stick; the host N-glycans keep theirs.
+#: reducing end first. Naming a sugar in the CSV is what replaces its 3D-SNFG
+#: symbols with a plain colored ball-and-stick. Every sugar in the entry is named
+#: here -- the receptor analogue and the host N-glycans alike -- so nothing is
+#: left to the --glycans default.
 RECEPTOR_CHAIN = "D"
 
 #: Antigenic sites A-E of H3 HA1, from Table 2 ("Amino acids assigned to
@@ -140,7 +142,8 @@ SITE_COLORS = {
 #: what the _HA1 and _HA2 label suffixes exist to tell you about.
 HA1_COLOR = "#e8e8e8"
 HA2_COLOR = "#bdbdbd"
-RECEPTOR_COLOR = "#252525"
+RECEPTOR_COLOR = "#000000"
+GLYCAN_COLOR = "#ffd700"
 
 #: Label text sits on top of a residue already painted its site color, so it
 #: must not inherit that color. The size is below the 2.0 default because the
@@ -204,22 +207,44 @@ def load_structure():
     return structure[0]
 
 
-def modeled_residues(model, chain_name):
-    """Return ``[(residue_number, component_name), ...]`` for one chain, in order.
+def partition_residues(model):
+    """Split the modeled residues into polymer, host glycans and receptor.
 
-    Only the first chain of that name is used. gemmi splits waters and
-    heteroatoms into a second chain reusing the author ID, and those are not
-    part of either the polymer or the receptor.
+    gemmi splits waters and heteroatoms into a second chain reusing the author
+    ID, so the polymer and the two N-glycans that hang off it both appear under
+    chain A. Classify by component rather than by chain: amino acids on the
+    polymer chain are the protein, everything on the receptor chain is the
+    receptor, and every other non-water residue is a host glycan.
+
+    Returns three ``[(chain, residue_number, component_name), ...]`` lists.
     """
+    polymer, glycans, receptor = [], [], []
     for chain in model:
-        if chain.name == chain_name:
-            return [(residue.seqid.num, residue.name) for residue in chain]
-    raise SystemExit(f"{PDB_ID} has no chain {chain_name!r}")
+        for residue in chain:
+            info = gemmi.find_tabulated_residue(residue.name)
+            if info is not None and info.is_water():
+                continue
+            entry = (chain.name, residue.seqid.num, residue.name)
+            if chain.name == RECEPTOR_CHAIN:
+                receptor.append(entry)
+            elif (
+                chain.name == POLYMER_CHAIN
+                and info is not None
+                and info.is_amino_acid()
+            ):
+                polymer.append(entry)
+            else:
+                glycans.append(entry)
+    if not polymer:
+        raise SystemExit(f"{PDB_ID} has no polymer on chain {POLYMER_CHAIN!r}")
+    if not receptor:
+        raise SystemExit(f"{PDB_ID} has no receptor on chain {RECEPTOR_CHAIN!r}")
+    return polymer, glycans, receptor
 
 
 def check_frame(polymer):
     """Fail loudly if author numbering is not H3 HA1 numbering after all."""
-    seen = dict(polymer)
+    seen = {number: component for _, number, component in polymer}
     wrong = {
         num: (expected, seen.get(num))
         for num, expected in FRAME_CHECKS.items()
@@ -258,7 +283,7 @@ def polymer_rows(polymer, numbering):
         seq for seq, (protein, _) in numbering.items() if protein == "HA2"
     ) - max(site for protein, site in numbering.values() if protein == "HA2")
     rows = []
-    for number, _ in polymer:
+    for _, number, _component in polymer:
         if number in numbering:
             protein, site = numbering[number]
         else:
@@ -306,7 +331,7 @@ def polymer_rows(polymer, numbering):
 def receptor_rows(receptor):
     """One row per LSTc sugar, with the assembled name drawn on the last one."""
     rows = []
-    for index, (number, component) in enumerate(receptor, start=1):
+    for index, (_, number, component) in enumerate(receptor, start=1):
         last = index == len(receptor)
         rows.append(
             [
@@ -325,16 +350,45 @@ def receptor_rows(receptor):
     return rows
 
 
+def glycan_rows(glycans):
+    """One row per host N-glycan sugar, drawn in one color rather than as SNFG.
+
+    These are not labeled: several shield an antigenic region, which is the
+    point of showing them, and adding a dozen more labels to a view that
+    already draws 83 per protomer would obscure the thing they shield.
+    """
+    return [
+        [
+            chain,
+            number,
+            GLYCAN_COLOR,
+            component,
+            "",
+            "ball-and-stick",
+            "",
+            "",
+            f"Host N-glycan sugar ({component}); named here so it is drawn in "
+            "this color rather than as an SNFG symbol",
+        ]
+        for chain, number, component in sorted(glycans)
+    ]
+
+
 def main():
     check_sites()
     numbering = load_numbering_map()
     model = load_structure()
 
-    polymer = modeled_residues(model, POLYMER_CHAIN)
+    polymer, glycans, receptor = partition_residues(model)
     check_frame(polymer)
-    receptor = modeled_residues(model, RECEPTOR_CHAIN)
 
-    rows = polymer_rows(polymer, numbering) + receptor_rows(receptor)
+    # Ordered so the file sorts by chain then residue, which is also what the
+    # docs' snippet line range depends on: the polymer block starts on line 2.
+    rows = (
+        polymer_rows(polymer, numbering)
+        + glycan_rows(glycans)
+        + receptor_rows(receptor)
+    )
 
     out_path = pathlib.Path(__file__).parent / "coloring.csv"
     with out_path.open("w", newline="") as handle:
@@ -343,7 +397,11 @@ def main():
         writer.writerows(rows)
 
     labeled = sum(1 for row in rows if row[4] == "True")
-    print(f"wrote {out_path} ({len(rows)} rows, {labeled} with a drawn label)")
+    print(
+        f"wrote {out_path} ({len(rows)} rows: {len(polymer)} polymer, "
+        f"{len(glycans)} host glycan, {len(receptor)} receptor; "
+        f"{labeled} with a drawn label)"
+    )
 
 
 if __name__ == "__main__":

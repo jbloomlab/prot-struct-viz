@@ -14,7 +14,7 @@ Rebuild them all with `scripts/build_examples.sh`.
 
 ## Antigenic regions of influenza H3 hemagglutinin
 
-Colors a whole molecule from a generated CSV — 493 rows, one per residue — with 83 of them
+Colors a whole molecule from a generated CSV — 499 rows, one per residue — with 83 of them
 carrying a label drawn into the 3D scene.
 
 <!-- The src is a bare filename, not "examples/...", because MkDocs does not rewrite

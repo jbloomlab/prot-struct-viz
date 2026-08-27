@@ -13,12 +13,13 @@ colored by the classical antigenic region each site belongs to, taken from Table
 - **light gray** — HA1, not in a defined antigenic region
 - **mid gray** — HA2
 - **black** — the LSTc receptor analogue
+- **yellow** — host N-glycans
 
 The site number is drawn on every antigenic-site residue. Mousing over any residue gives
 its site in HA1 or HA2 numbering, such as `145_HA1` or `1_HA2`, following the
 [H3N2 site numbering map](https://github.com/jbloomlab/flu-seqneut-2026/blob/main/data/nextstrain-prot-titers-tree_data/H3N2_site_numbering_map.tsv).
-The sugars still drawn as 3D-SNFG symbols are host N-glycans, several of which shield
-antigenic regions.
+The protein is drawn as a surface, so each antigenic region reads as a contiguous patch an
+antibody could land on. Several of the yellow N-glycans sit over one.
 
 The view shows **assembly 1**, the biological trimer, which Mol\* generates in the browser
 from three crystal symmetry operations — the file embeds only the deposited protomer, so
