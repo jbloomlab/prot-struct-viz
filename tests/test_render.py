@@ -282,6 +282,10 @@ def test_render_writes_html_and_report(tmp_path, write_csv, fixture_cif):
     assert "loadMvsData('base64,' + payload, 'mvsx')" in html
     # Mol*'s own UI stays enabled so the view can be re-styled interactively.
     assert "layoutShowControls: true" in html
+    # Reset view is the only way back from a UI-added representation, which MVS
+    # cannot color. It reloads the embedded payload, so the two go together.
+    assert 'id="reset-view"' in html
+    assert 'id="mvsx-payload"' in html
 
 
 def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, fixture_cif):

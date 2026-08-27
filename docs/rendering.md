@@ -92,3 +92,19 @@ Downloads are **not** cached. Only the coordinate text is used, and it ends up e
 in the output, so a cache would save one HTTP request at the price of a stale-file
 failure mode. If you are re-rendering the same entry repeatedly, download it once and
 pass the path.
+
+## In the viewer
+
+The generated page has two buttons above the structure.
+
+**Export image** downloads a PNG at whatever size, resolution, and background
+transparency are set in Mol\*'s own screenshot panel — the camera icon in the viewport.
+
+**Reset view** reloads the view as generated. It is there because of one limitation worth
+knowing: the Mol\* Components panel stays live, but a representation you *add* from it
+arrives in Mol\*'s default element coloring, not the CSV's, and there is no way to color
+it from the UI. Mouseover tooltips and the persistent labels keep working on it; only the
+color is missing. Reset view puts the original coloring and camera back.
+
+See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why, and for
+what the entries in the Components panel are named after.
