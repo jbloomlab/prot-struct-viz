@@ -5,6 +5,14 @@ All notable changes to this project are documented here, in
 
 ## [Unreleased]
 
+### Added
+
+- A second example, `8faw_antigenic_regions`: influenza H3 hemagglutinin with its receptor
+  analogue bound (PDB 8FAW), as the biological trimer, with HA1 colored by classical
+  antigenic region and every residue labeled with its HA1 or HA2 site number. At 493 CSV
+  rows and 83 drawn labels it is the first example to exercise the package at the scale of
+  a whole molecule rather than a handful of sites.
+
 ### Fixed
 
 - Persistent on-structure labels are drawn beside the residue they name. They previously
