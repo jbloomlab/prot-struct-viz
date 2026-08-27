@@ -17,6 +17,10 @@ All notable changes to this project are documented here, in
   antigenic region and every residue labeled with its HA1 or HA2 site number. At 499 CSV
   rows and 83 drawn labels it is the first example to exercise the package at the scale of
   a whole molecule rather than a handful of sites.
+- A third example, `9gsp_antigenic_regions`: influenza H1 hemagglutinin, uncleaved (PDB
+  9GSP), with HA1 colored by classical antigenic site from Table 2 of Wilson et al. 2015
+  Virology 485:252-62. 9GSP deposits the whole trimer rather than one protomer, so its 1491
+  CSV rows and 150 drawn labels cover three chains without any assembly being generated.
 - Support for Python 3.14.
 - `label_color` and `label_size` CSV columns styling the on-structure label text,
   defaulting to black and to a 2 A text height.

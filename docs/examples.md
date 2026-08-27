@@ -48,6 +48,39 @@ Far too long to show whole, so these are the rows for antigenic site A.
 [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md)
 supplies the caption above the viewer.
 
+## Antigenic regions of influenza H1 hemagglutinin
+
+The same job across a deposited assembly rather than a generated one: 9GSP contains all three
+protomers, so the CSV annotates every one of them — 1491 rows and 150 drawn labels.
+
+<!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
+     on the first example for why the two differ. -->
+<iframe src="9gsp_antigenic_regions.html" width="100%" height="640"
+        style="border: 1px solid #ddd; border-radius: 4px;"
+        title="Antigenic regions of influenza H1 hemagglutinin"></iframe>
+
+[Open this view on its own](examples/9gsp_antigenic_regions.html)
+
+### The command
+
+```bash
+--8<-- "examples/9gsp_antigenic_regions/command.sh"
+```
+
+### The inputs
+
+Far too long to show whole, so these are chain A's rows for antigenic site Sb.
+
+<!-- Rows are sorted by chain then residue and chain A starts at residue 1 on line 2, so
+     HA1 residue n is on line n + 1; site Sb is residues 184-195, hence lines 185-196.
+     Recompute these bounds if coloring.csv is ever regenerated. -->
+```csv
+--8<-- "examples/9gsp_antigenic_regions/coloring.csv:1:1,185:196"
+```
+
+[`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/title.md)
+supplies the caption above the viewer.
+
 ## Influenza B neuraminidase active site
 
 A handful of hand-picked residues instead: insertion-coded author numbering, a ligand and a
