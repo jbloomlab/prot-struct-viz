@@ -21,9 +21,39 @@ residues and carrying a value — a color, a tooltip. The Mol\* state references
 rather than naming every atom, and Mol\* resolves the rows at load time.
 
 The consequence is worth knowing even as a user: everything the file sets is the
-*initial* state, not a frozen picture. The Components panel stays fully usable, so a
-reader of your figure can change representations and colorings live, add a
-representation you did not think of, or turn off the one you did.
+*initial* state, not a frozen picture. The Components panel stays usable, so a reader of
+your figure can restyle what is there or turn a component off.
+
+There is one real limit, and it follows from where the colors hang. `color_from_uri` is a
+child of each **representation** node, so Mol\* resolves the annotation rows into the
+representations the file created and nowhere else. A representation you add yourself from
+the Components panel is a new node with no annotation attached: it arrives in Mol\*'s own
+element coloring and cannot be recolored from the CSV through the UI. This is a property
+of MolViewSpec rather than a setting — the format has no structure-level or global color
+node, only per-representation ones.
+
+Tooltips and labels are unaffected, because they attach higher up: `tooltip_from_uri` is
+on the structure node, and the persistent labels are primitives on the structure. So a
+representation you add still shows the CSV tooltips on mouseover; only the color is
+missing.
+
+The **Reset view** button reloads the state from the archive still embedded in the page,
+which restores the coloring and the starting camera.
+
+## What the components are called
+
+Mol\* names each entry in the Components panel after the annotation field and value it
+selects on, which is why they read as `MVS Annotation Component (base_rep: surface)`
+rather than something friendlier. The fields are ours:
+
+- `base_rep` — the base representation for a group of residues: from
+  `--default-representation` or `--chain-representation`, or ball-and-stick for a
+  heteroatom the CSV names.
+- `extra_rep` — the additive layer from the CSV's `representation` column.
+- `het_layer` — a default heteroatom group (`ligand`, `glycan`, `ion`, `water`) holding
+  residues the CSV does not name.
+
+Mol\* composes that label itself, and MolViewSpec has no field for overriding it.
 
 ## Why only the asymmetric unit is embedded
 

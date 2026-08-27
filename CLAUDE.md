@@ -56,6 +56,13 @@ commit of that submodule; update periodically with
   assembly note written onto the page is shown twice a few hundred pixels apart and has to
   be maintained in both places. Keep the section to one framing sentence plus the included
   `command.sh` and inputs.
+- **MVS color is per representation; tooltips and labels are not.** `color_from_uri` is a
+  child of each `representation` node, so a representation the user adds from Mol\*'s
+  Components panel arrives uncolored and cannot be colored from the UI -- MolViewSpec has
+  no structure-level or global color node. `tooltip_from_uri` and the label primitives
+  attach to the structure and do survive. The template's **Reset view** button reloads the
+  state from the payload still in the DOM, which is the only way back. Do not describe the
+  Mol\* UI as freely editable without this caveat; `docs/internals.md` once did.
 - **Releases are tag-driven.** Push a `v*` tag matching `pyproject.toml`'s `version` and
   `release.yml` publishes to PyPI by trusted publishing (OIDC, no stored token). The
   recipe is in that workflow's header comment.
