@@ -50,9 +50,12 @@ jobs:
           path: site
 
   deploy:
-    # Only on push to main. A PR (especially from a fork) lacks `pages: write`,
-    # and would publish PR-only content to the live site if it did not.
-    if: github.event_name == 'push'
+    # Everything except pull requests. A PR (especially from a fork) lacks
+    # `pages: write` and would publish PR-only content to the live site if it
+    # did not. Written as a != so that workflow_dispatch still deploys --
+    # `== 'push'` silently made the manual trigger unable to publish, which is
+    # exactly when you reach for it.
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
