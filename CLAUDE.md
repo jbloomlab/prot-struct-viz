@@ -50,6 +50,12 @@ commit of that submodule; update periodically with
   must be built before `mkdocs` -- both `scripts/build_docs.sh` and `.github/workflows/
   docs.yml` do this. Adding an example is a new directory plus a section in
   `docs/examples.md`.
+- **A `docs/examples.md` section says what the example demonstrates about the package, not
+  what the structure is.** Each rendered view already embeds its own
+  `examples/<name>/title.md` as a caption, so a structure description, color key or
+  assembly note written onto the page is shown twice a few hundred pixels apart and has to
+  be maintained in both places. Keep the section to one framing sentence plus the included
+  `command.sh` and inputs.
 - **Releases are tag-driven.** Push a `v*` tag matching `pyproject.toml`'s `version` and
   `release.yml` publishes to PyPI by trusted publishing (OIDC, no stored token). The
   recipe is in that workflow's header comment.
