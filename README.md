@@ -1,7 +1,12 @@
 # prot-struct-viz
 
+[![PyPI version](https://img.shields.io/pypi/v/prot-struct-viz.svg)](https://pypi.org/project/prot-struct-viz/)
+[![Python versions](https://img.shields.io/pypi/pyversions/prot-struct-viz.svg)](https://pypi.org/project/prot-struct-viz/)
 [![tests](https://github.com/jbloomlab/prot-struct-viz/actions/workflows/tests.yml/badge.svg)](https://github.com/jbloomlab/prot-struct-viz/actions/workflows/tests.yml)
-[![docs](https://github.com/jbloomlab/prot-struct-viz/actions/workflows/docs.yml/badge.svg)](https://jbloomlab.github.io/prot-struct-viz/)
+[![Docs](https://img.shields.io/github/deployments/jbloomlab/prot-struct-viz/github-pages?label=docs)](https://jbloomlab.github.io/prot-struct-viz/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Render a protein structure as a **self-contained static HTML file** using
 [Mol\*](https://molstar.org/), with residues colored, labeled, and styled from a CSV.
