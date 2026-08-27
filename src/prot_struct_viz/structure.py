@@ -64,19 +64,21 @@ def _format_from_path(path: pathlib.Path) -> str:
     return _SUFFIX_FORMATS[suffixes[-1]]
 
 
-def resolve_structure(source: str, cache_dir: pathlib.Path) -> tuple[str, str]:
+def resolve_structure(source: str) -> tuple[str, str]:
     """Resolve ``source`` to coordinate text plus its format.
 
     An existing path is read as-is. Otherwise a PDB ID is downloaded as mmCIF
-    from RCSB into ``cache_dir`` and reused on later runs. Anything that is
-    neither is an error: the source is never guessed at.
+    from RCSB. Anything that is neither is an error: the source is never
+    guessed at.
+
+    Downloads are not cached. Only the coordinate *text* is used downstream, so
+    a cache would buy one HTTP request at the cost of a stale-file failure mode;
+    pass a local file to ``source`` to render the same coordinates repeatedly.
 
     Parameters
     ----------
     source
         A PDB ID (e.g. ``1F8B``) or a path to a local ``.cif``/``.pdb`` file.
-    cache_dir
-        Directory in which downloaded structures are cached.
 
     Returns
     -------
@@ -94,19 +96,13 @@ def resolve_structure(source: str, cache_dir: pathlib.Path) -> tuple[str, str]:
             "(a 4-character id like '1F8B', or 'pdb_' plus 8 characters)"
         )
 
-    pdb_id = source.lower()
-    cache_dir = pathlib.Path(cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    cached = cache_dir / f"{pdb_id}.cif"
-    if not cached.is_file():
-        url = RCSB_URL.format(pdb_id=pdb_id)
-        try:
-            with urllib.request.urlopen(url) as response:
-                text = response.read().decode("utf-8")
-        except urllib.error.URLError as err:
-            raise InputError(f"could not download {url}: {err}") from err
-        cached.write_text(text, encoding="utf-8")
-    return _read_text(cached), "mmcif"
+    url = RCSB_URL.format(pdb_id=source.lower())
+    try:
+        with urllib.request.urlopen(url) as response:
+            text = response.read().decode("utf-8")
+    except urllib.error.URLError as err:
+        raise InputError(f"could not download {url}: {err}") from err
+    return text, "mmcif"
 
 
 def load_structure(coordinate_text: str, fmt: str) -> gemmi.Structure:

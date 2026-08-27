@@ -3,6 +3,12 @@ name: docs
 on:
   push:
     branches: [main]
+  # Build (but do not deploy) on PRs. The docs build renders the examples,
+  # which fetches from RCSB and runs the renderer end to end -- catching a
+  # break on the PR rather than after it has already shipped to the site.
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -10,7 +16,10 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  # Scoped to the ref now that PRs build too, so concurrent PRs do not queue
+  # behind each other. Deploys to `main` still serialize, which is what the
+  # Pages action requires.
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -28,6 +37,11 @@ jobs:
       - name: Install
         run: pip install -e ".[docs]"
 
+      - name: Render examples
+        # docs/examples/ is gitignored; docs/examples.md links to what this
+        # writes, so --strict fails on a dead link if it is skipped.
+        run: scripts/build_examples.sh docs/examples
+
       - name: Build
         run: mkdocs build --strict
 
@@ -36,6 +50,9 @@ jobs:
           path: site
 
   deploy:
+    # Only on push to main. A PR (especially from a fork) lacks `pages: write`,
+    # and would publish PR-only content to the live site if it did not.
+    if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     environment:

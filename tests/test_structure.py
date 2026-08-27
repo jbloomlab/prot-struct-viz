@@ -1,7 +1,6 @@
 """Tests for loading structures and enumerating deposited residues."""
 
 import collections
-import pathlib
 
 import pytest
 
@@ -18,21 +17,21 @@ from prot_struct_viz.structure import (
 
 
 def test_resolve_local_file(fixture_cif):
-    text, fmt = resolve_structure(str(fixture_cif), pathlib.Path("/nonexistent"))
+    text, fmt = resolve_structure(str(fixture_cif))
     assert fmt == "mmcif"
     assert text.startswith("data_")
 
 
-def test_resolve_rejects_non_id_non_path(tmp_path):
+def test_resolve_rejects_non_id_non_path():
     with pytest.raises(InputError, match="neither an existing file nor a PDB ID"):
-        resolve_structure("not a structure", tmp_path)
+        resolve_structure("not a structure")
 
 
 def test_resolve_rejects_unknown_suffix(tmp_path):
     path = tmp_path / "coords.xyzzy"
     path.write_text("nonsense")
     with pytest.raises(InputError, match="cannot tell the format"):
-        resolve_structure(str(path), tmp_path)
+        resolve_structure(str(path))
 
 
 def test_all_residue_classes_present(deposited):
@@ -100,10 +99,10 @@ def test_no_models_is_fatal():
 
 
 @pytest.mark.network
-def test_fetch_from_rcsb(tmp_path):
-    text, fmt = resolve_structure("1F8B", tmp_path)
+def test_fetch_from_rcsb():
+    text, fmt = resolve_structure("1F8B")
     assert fmt == "mmcif"
-    assert (tmp_path / "1f8b.cif").is_file()
-    # A second call is served from the cache.
-    again, _ = resolve_structure("1F8B", tmp_path)
-    assert again == text
+    # Enough of the entry to prove we got mmCIF for the right structure, not an
+    # RCSB error page (which would also decode cleanly).
+    assert text.startswith("data_1F8B")
+    assert "_atom_site." in text

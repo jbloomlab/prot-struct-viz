@@ -12,3 +12,5 @@ __pycache__/
 *.pyc
 site/
 examples/output/
+# Rendered examples, built into the docs by scripts/build_examples.sh.
+docs/examples/
