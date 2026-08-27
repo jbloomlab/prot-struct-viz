@@ -297,13 +297,17 @@ def polymer_rows(polymer, numbering):
                 f"of {ha2_offset}"
             )
         region = site_of(site) if protein == "HA1" else None
+        # One label for every residue, antigenic site or not: the site number
+        # alone is ambiguous across HA1 and HA2, and this is both the mouseover
+        # text and, on an antigenic-site residue, the text drawn into the scene.
+        label = f"{site}_{protein}"
         if region is not None:
             rows.append(
                 [
                     POLYMER_CHAIN,
                     number,
                     SITE_COLORS[region],
-                    site,
+                    label,
                     "True",
                     "",
                     LABEL_COLOR,
@@ -317,7 +321,7 @@ def polymer_rows(polymer, numbering):
                     POLYMER_CHAIN,
                     number,
                     HA1_COLOR if protein == "HA1" else HA2_COLOR,
-                    f"{site}_{protein}",
+                    label,
                     "",
                     "",
                     "",

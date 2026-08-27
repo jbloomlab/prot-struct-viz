@@ -15,9 +15,9 @@ colored by the classical antigenic region each site belongs to, taken from Table
 - **black** — the LSTc receptor analogue
 - **yellow** — host N-glycans
 
-The site number is drawn on every antigenic-site residue. Mousing over any residue gives
-its site in HA1 or HA2 numbering, such as `145_HA1` or `1_HA2`, following the
-[H3N2 site numbering map](https://github.com/jbloomlab/flu-seqneut-2026/blob/main/data/nextstrain-prot-titers-tree_data/H3N2_site_numbering_map.tsv).
+Every residue carries its site in HA1 or HA2 numbering — `145_HA1`, `1_HA2` — shown on
+mouseover, and drawn into the scene on the antigenic-site residues. The numbering follows
+the [H3N2 site numbering map](https://github.com/jbloomlab/flu-seqneut-2026/blob/main/data/nextstrain-prot-titers-tree_data/H3N2_site_numbering_map.tsv).
 The protein is drawn as a surface, so each antigenic region reads as a contiguous patch an
 antibody could land on. Several of the yellow N-glycans sit over one.
 
