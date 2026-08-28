@@ -6,14 +6,15 @@ committed files. Run this by hand when the inputs below change::
 
     .venv/bin/python examples/8faw_antigenic_regions/make_coloring_csv.py
 
-It writes one CSV per view of ``spec.yaml``:
+It writes one CSV per view of ``spec.yaml``, each named after the view that
+reads it -- so a name here that no view claims is a name that has gone stale:
 
-* ``antigenic_regions.csv`` -- every residue, HA1 colored by antigenic region,
-  plus the host N-glycans and the LSTc receptor analogue;
-* ``antigenic_regions_no_glycans.csv`` -- the same without the host-glycan rows,
-  so that the view's ``glycans: hide`` can take them away;
-* ``perth_to_subclade_k.csv`` and ``dc_2023_to_darwin_2025.csv`` -- the sites
-  that differ between two HAs, in red, plus the same LSTc rows.
+* ``antigenic-regions-w-glycans.csv`` -- every residue, HA1 colored by antigenic
+  region, plus the host N-glycans and the LSTc receptor analogue;
+* ``antigenic-regions.csv`` -- the same without the host-glycan rows, so that the
+  view's ``glycans: hide`` can take them away;
+* ``perth-2009-to-subclade-k.csv`` and ``2025-26-to-2026-27-vaccine.csv`` -- the
+  sites that differ between two HAs, in red, plus the same LSTc rows.
 
 It exists because the ~490 rows of the first two are derived from two external
 sources, and a table that large is only auditable if its derivation ships with
@@ -567,23 +568,23 @@ def main():
     lstc = receptor_rows(receptor)
 
     write_csv(
-        "antigenic_regions.csv",
+        "antigenic-regions-w-glycans.csv",
         protein + host + lstc,
         f"{len(protein)} polymer, {len(host)} host glycan, {len(lstc)} receptor",
     )
     write_csv(
-        "antigenic_regions_no_glycans.csv",
+        "antigenic-regions.csv",
         protein + lstc,
         f"{len(protein)} polymer, {len(lstc)} receptor; host glycans left out so "
         "the view's `glycans: hide` can take them away",
     )
     write_csv(
-        "perth_to_subclade_k.csv",
+        "perth-2009-to-subclade-k.csv",
         mutation_rows(PERTH_TO_SUBCLADE_K, PERTH, SUBCLADE_K) + lstc,
         f"{len(PERTH_TO_SUBCLADE_K)} differing sites, {len(lstc)} receptor",
     )
     write_csv(
-        "dc_2023_to_darwin_2025.csv",
+        "2025-26-to-2026-27-vaccine.csv",
         mutation_rows(DC_2023_TO_DARWIN_2025, DC_2023, DARWIN_2025) + lstc,
         f"{len(DC_2023_TO_DARWIN_2025)} differing sites, {len(lstc)} receptor",
     )

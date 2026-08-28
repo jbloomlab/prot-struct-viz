@@ -6,6 +6,7 @@ import pytest
 
 from prot_struct_viz import load_spec
 from prot_struct_viz._config import InputError
+from prot_struct_viz.spec import _slug
 from prot_struct_viz.residues import (
     normalize_color,
     parse_chain_representations,
@@ -237,6 +238,39 @@ def test_shipped_example_csvs_parse(example):
         if view.chain_representation is not None:
             assert parse_chain_representations(view.chain_representation)
     assert seen, f"{example.name}'s spec names no CSV"
+
+
+def test_some_example_has_several_views():
+    """Guard the sweep below: with one view each it would assert nothing."""
+    counts = {
+        example.name: len(load_spec(example / "spec.yaml").views)
+        for example in EXAMPLE_DIRS
+    }
+    assert max(counts.values()) > 1, counts
+
+
+@pytest.mark.parametrize("example", EXAMPLE_DIRS, ids=lambda p: p.name)
+def test_multi_view_example_inputs_are_named_after_their_view(example):
+    """In a multi-view example, a view's CSV and caption are named after it.
+
+    With several views in one directory, `coloring.csv` and `title.md` stop
+    saying which view they belong to, and a reader has to hold the spec open to
+    tell. Naming both after the view -- by the same `_slug` the page already uses
+    for its option values and the MVSX member names -- makes the directory
+    readable on its own and makes a leftover file obvious.
+
+    Single-view examples are left alone: there is nothing to disambiguate.
+    """
+    spec = load_spec(example / "spec.yaml")
+    if len(spec.views) < 2:
+        pytest.skip(f"{example.name} has one view")
+    wrong = [
+        f"{view.name!r}: csv={view.csv.name}, title_md={getattr(view.title_md, 'name', None)}"
+        for view in spec.views
+        if view.csv.stem != _slug(view.name)
+        or (view.title_md is not None and view.title_md.stem != _slug(view.name))
+    ]
+    assert not wrong, "name these after their view:\n" + "\n".join(wrong)
 
 
 def test_label_color_and_size_parse(write_csv):

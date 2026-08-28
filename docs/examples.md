@@ -5,8 +5,8 @@ Each example is a directory under
 input files and a `spec.yaml`. The links in each section go to the exact directory that
 produced the view above them, so what is documented is what ran.
 
-Every view carries its own caption, rendered from a `title.md`, which is where the
-structure and the color scheme are explained. This page only says what each example shows
+Every view carries its own caption, rendered from the Markdown file its `title_md`
+names, which is where the structure and the color scheme are explained. This page only says what each example shows
 you how to do.
 
 Rebuild them all with `scripts/build_examples.sh`.
@@ -41,11 +41,11 @@ prot-struct-viz spec.yaml
 | file | what it is |
 | --- | --- |
 | [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: four views sharing one YAML anchor |
-| [`antigenic_regions.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic_regions.csv) | 499 rows: every modeled residue and every sugar |
-| [`antigenic_regions_no_glycans.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic_regions_no_glycans.csv) | 493 rows: the same without the host-glycan rows, which is what lets that view's `glycans: hide` take them away |
-| [`perth_to_subclade_k.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth_to_subclade_k.csv) | 45 rows: 40 sites to paint, and the receptor analogue it keeps. Everything unnamed falls back to `default_color` |
-| [`dc_2023_to_darwin_2025.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/dc_2023_to_darwin_2025.csv) | 13 rows, the same shape over a shorter span |
-| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md), [`title_no_glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_no_glycans.md), [`title_perth_to_subclade_k.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_perth_to_subclade_k.md), [`title_dc_to_darwin.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_dc_to_darwin.md) | the caption for each view |
+| [`antigenic-regions-w-glycans.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions-w-glycans.csv) | 499 rows: every modeled residue and every sugar |
+| [`antigenic-regions.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions.csv) | 493 rows: the same without the host-glycan rows, which is what lets that view's `glycans: hide` take them away |
+| [`perth-2009-to-subclade-k.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth-2009-to-subclade-k.csv) | 45 rows: 40 sites to paint, and the receptor analogue it keeps. Everything unnamed falls back to `default_color` |
+| [`2025-26-to-2026-27-vaccine.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/2025-26-to-2026-27-vaccine.csv) | 13 rows, the same shape over a shorter span |
+| [`antigenic-regions-w-glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions-w-glycans.md), [`antigenic-regions.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions.md), [`perth-2009-to-subclade-k.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth-2009-to-subclade-k.md), [`2025-26-to-2026-27-vaccine.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/2025-26-to-2026-27-vaccine.md) | the caption for each view — every input here is named after the view that reads it |
 | [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates all four CSVs from a numbering map |
 
 ## Antigenic regions of influenza H1 hemagglutinin

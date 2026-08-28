@@ -43,7 +43,7 @@ structure: 8FAW
 out: ../output/8faw_antigenic_regions.html
 assembly: "1"
 on_mismatch: error-extra-in-csv
-viewer_height: 70vh
+viewer_height: 60vh
 molstar_ui: hide
 
 definitions:
@@ -56,30 +56,29 @@ definitions:
 
 views:
   - <<: *base
-    name: Antigenic regions
-    csv: antigenic_regions.csv
-    title_md: title.md
+    name: antigenic regions w glycans
+    csv: antigenic-regions-w-glycans.csv
+    title_md: antigenic-regions-w-glycans.md
     # Every sugar in the entry is named in this view's CSV, so `snfg` never
     # applies here; it is stated because no view of this spec has a default.
     glycans: snfg
-    # orientation for view: Antigenic regions
     orientation:
       position: [-173.5, 39.86, 2.46]
       target: [-0.41, -57.45, 13.82]
       up: [0.1, 0.05, -0.99]
       radius: 76.11
   - <<: *base
-    name: Antigenic regions, no glycans
-    csv: antigenic_regions_no_glycans.csv
-    title_md: title_no_glycans.md
+    name: antigenic regions
+    csv: antigenic-regions.csv
+    title_md: antigenic-regions.md
     glycans: hide
   - <<: *base
     name: Perth/2009 to subclade K
-    csv: perth_to_subclade_k.csv
-    title_md: title_perth_to_subclade_k.md
+    csv: perth-2009-to-subclade-k.csv
+    title_md: perth-2009-to-subclade-k.md
     glycans: hide
   - <<: *base
     name: 2025-26 to 2026-27 vaccine
-    csv: dc_2023_to_darwin_2025.csv
-    title_md: title_dc_to_darwin.md
+    csv: 2025-26-to-2026-27-vaccine.csv
+    title_md: 2025-26-to-2026-27-vaccine.md
     glycans: hide

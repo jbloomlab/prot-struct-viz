@@ -71,11 +71,17 @@ commit of that submodule; update periodically with
   `scripts/build_docs.sh` and `.github/workflows/docs.yml` do this. Adding an example is a
   new directory plus a section in `docs/examples.md`.
 - **A `docs/examples.md` section says what the example demonstrates about the package, not
-  what the structure is.** Each rendered view already embeds its own
-  `examples/<name>/title.md` as a caption, so a structure description, color key or
-  assembly note written onto the page is shown twice a few hundred pixels apart and has to
-  be maintained in both places. Keep the section to one framing sentence, the command, and
-  the table of linked inputs.
+  what the structure is.** Each rendered view already embeds the Markdown file its
+  `title_md` names as a caption, so a structure description, color key or assembly note
+  written onto the page is shown twice a few hundred pixels apart and has to be maintained
+  in both places. Keep the section to one framing sentence, the command, and the table of
+  linked inputs.
+- **In a multi-view example, a view's CSV and caption are named after the view**, by the
+  same `spec._slug` the page uses for its option values -- `antigenic-regions.csv` and
+  `antigenic-regions.md` for a view named `antigenic regions`. With several views in one
+  directory, `coloring.csv` and `title.md` stop saying which view they belong to.
+  `tests/test_residues.py` enforces it, and skips single-view examples, which have nothing
+  to disambiguate.
 - **MVS color is per representation; tooltips and labels are not.** `color_from_uri` is a
   child of each `representation` node, so a representation the user adds from Mol\*'s
   Components panel arrives uncolored and cannot be colored from the UI -- MolViewSpec has

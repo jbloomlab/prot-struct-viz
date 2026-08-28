@@ -1,4 +1,4 @@
-# Antigenic regions of influenza H3 hemagglutinin, without the glycans
+# Antigenic regions of influenza H3 hemagglutinin
 
 The same structure and the same coloring as the previous view, with the host N-glycans
 taken away. Several of them stood over an antigenic region — a real glycan is bulkier and
