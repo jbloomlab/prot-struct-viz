@@ -40,6 +40,11 @@ missing.
 The **Reset view** button reloads the state from the archive still embedded in the page,
 which restores the coloring and the starting camera.
 
+Being primitives rather than components is also why the page carries its own **Labels**
+checkbox: the labels are not an entry in the Components panel that a reader would find and
+switch off. The checkbox hides the representation Mol\* builds for each primitives group, so
+one click covers every label and every symmetry copy of it.
+
 ## What the components are called
 
 Mol\* names each entry in the Components panel after the annotation field and value it

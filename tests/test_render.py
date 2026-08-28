@@ -286,6 +286,44 @@ def test_render_writes_html_and_report(tmp_path, write_csv, fixture_cif):
     # cannot color. It reloads the embedded payload, so the two go together.
     assert 'id="reset-view"' in html
     assert 'id="mvsx-payload"' in html
+    # The two APIs the Labels checkbox is built on: it finds the label
+    # representations by object type, then hides them. Lose either in a template edit
+    # and the checkbox still renders but moves nothing, which is how it shipped broken
+    # the first time.
+    assert "PSO.Shape.Representation3D.is(cell.obj)" in html
+    assert "updateCellState" in html
+
+
+def test_controls_and_caption_sit_below_the_viewer(tmp_path, write_csv, fixture_cif):
+    """The page should open on the structure, not on what surrounds it."""
+    title = tmp_path / "title.md"
+    title.write_text("# Neuraminidase\n")
+    out = tmp_path / "view.html"
+    render(str(fixture_cif), write_csv(CSV), out, title_md=title)
+    html = out.read_text()
+    assert (
+        html.index('id="viewer"')
+        < html.index('id="controls"')
+        < html.index('id="header"')
+    )
+
+
+def test_label_toggle_appears_only_when_labels_are_drawn(
+    tmp_path, write_csv, fixture_cif
+):
+    """A checkbox that would move nothing is worse than no checkbox."""
+    labelled = tmp_path / "labelled.html"
+    render(str(fixture_cif), write_csv(CSV), labelled)
+    assert 'id="label-toggle"' in labelled.read_text()
+
+    # Same rows, but nothing asks for a persistent label.
+    plain = tmp_path / "plain.html"
+    render(
+        str(fixture_cif),
+        write_csv(CSV.replace(",True,", ",,")),
+        plain,
+    )
+    assert 'id="label-toggle"' not in plain.read_text()
 
 
 def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, fixture_cif):
