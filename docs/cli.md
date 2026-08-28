@@ -59,7 +59,7 @@ per-chain overrides. There is nothing for you to state.
 
 ## Top-level keys
 
-All four are required, alongside `views`.
+These four are required, alongside `views`.
 
 | Key | Meaning |
 | --- | --- |
@@ -70,6 +70,17 @@ All four are required, alongside `views`.
 
 `views` is a non-empty list, in the order the page offers them. The first is shown on
 load. With one view the page renders no selector at all.
+
+These two are optional, and describe the page rather than any view:
+
+| Key | Meaning |
+| --- | --- |
+| `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. A `30rem` floor is added to viewport-relative heights, which are the ones a short window can collapse; an absolute height is taken exactly as written. |
+| `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels — Structure Tools, the left panel, and the sequence strip — start open. `hide` means closed, not gone: the wrench in the viewport still opens them. |
+
+They have defaults where per-view keys do not, and the distinction is deliberate: a view
+has to describe itself, because that is what makes a spec readable on its own, while these
+describe the page and default to what the package did before they existed.
 
 ## Per-view keys
 
@@ -93,6 +104,58 @@ Optional, where leaving the key out says something:
 | `chains` | Deposited chain IDs this view displays, as a list (`[A, B]`) or a comma-separated string. Omit to display every chain. |
 | `chain_representation` | CSV with columns `chain,representation`, overriding the base representation for those chains. Omit for none. |
 | `title_md` | Markdown file rendered into a caption below the viewer, shown while this view is on screen. Omit for no caption. |
+| `orientation` | Where the camera sits for this view. Omit to leave the camera wherever the reader put it. See below. |
+
+## Orientation
+
+A view may pin its own camera. Switching to it then glides the camera there over about
+400 ms; switching to a view *without* an `orientation` does not move the camera at all,
+which is the default and the reason a view has to opt in.
+
+```yaml
+views:
+  - <<: *base
+    name: Receptor site
+    csv: coloring.csv
+    orientation:
+      position: [11.2, -48.6, 187.3]
+      target: [-0.4, -57.4, 13.8]
+      up: [0, 1, 0]
+      radius: 76.1
+```
+
+`position` and `target` are required. `up` defaults to `[0, 1, 0]`, and omitting `radius`
+leaves the zoom to Mol\*'s own fit of the scene. Nothing else belongs here — field of view,
+clipping and the rest are properties of the scene, and pinning them in a spec only makes a
+view behave oddly on a structure of a different size.
+
+If the **first** view has an orientation it is also written into the MolViewSpec state, so
+the page opens already framed rather than snapping into place after loading.
+
+### Capturing one
+
+You are not expected to write those numbers. Get them from a rendered page:
+
+1. Render the spec with the view listed but no `orientation` yet.
+2. Open the HTML and **add `#camera` to the end of the URL**, then reload. A **Copy
+   camera** button appears next to *Reset view*.
+3. Choose the view you are posing from the **View** selector, then rotate and zoom until
+   it looks right.
+4. Click **Copy camera**. The block is copied to your clipboard and also shown in a box
+   below the controls, headed with the name of the view you are on.
+5. Paste it into that view in the spec, and re-render.
+
+`#camera` is a URL fragment, so it is never sent anywhere and works the same over
+`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on, and a
+link you share does not carry it — readers never see the button.
+
+The box matters as much as the clipboard: a rendered page is usually opened over `file://`,
+which browsers do not treat as a secure context, so the clipboard API may be unavailable.
+The button tries it, falls back, and shows the text either way; the status line says which
+happened.
+
+If you prefer the console, `psvCamera()` returns the same block, and
+`viewer.plugin.canvas3d.camera.getSnapshot()` gives the raw camera.
 
 ## What views share, and what they do not
 

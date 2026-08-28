@@ -91,6 +91,22 @@ OPTION_DOCS = {
         "glycan named in the CSV is never drawn as an SNFG symbol."
     ),
     "ions": "Show or hide ions not named in the CSV (element-colored spacefill).",
+    "viewer_height": (
+        "Height of the viewer box, as a CSS length (px, rem, em, vh, %). The width "
+        "always fills the page. A 30rem floor is applied to viewport-relative "
+        "heights, which are the ones a short window can collapse."
+    ),
+    "molstar_ui": (
+        "Whether Mol*'s own panels -- Structure Tools, the left panel, and the "
+        "sequence strip -- start open. Either way the wrench in the viewport "
+        "toggles them, so 'hide' means closed, not unavailable."
+    ),
+    "orientation": (
+        "Camera position for this view, as position/target/up vectors and an "
+        "optional radius. Capture one by opening the rendered page with #camera "
+        "appended to the URL and clicking Copy camera. Omit to leave the camera "
+        "wherever the reader put it."
+    ),
     "title_md": (
         "Optional Markdown file rendered into a caption below the viewer, shown "
         "while this view is on screen."

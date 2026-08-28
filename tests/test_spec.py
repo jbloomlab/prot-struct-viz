@@ -228,3 +228,121 @@ def test_empty_file_is_fatal(tmp_path):
 def test_missing_file_is_fatal(tmp_path):
     with pytest.raises(InputError, match="no such file"):
         load_spec(tmp_path / "absent.yaml")
+
+
+# --- page-level presentation keys ------------------------------------------------
+
+
+def test_page_keys_default_to_todays_behaviour(tmp_path):
+    """These have defaults, unlike per-view keys, so old specs keep working."""
+    spec = load_spec(_spec(tmp_path, _minimal()))
+    assert spec.viewer_height == "70vh"
+    assert spec.molstar_ui == "show"
+
+
+def test_page_keys_can_be_set(tmp_path):
+    body = _minimal().replace(
+        "on_mismatch: report\n",
+        "on_mismatch: report\nviewer_height: 800px\nmolstar_ui: hide\n",
+    )
+    spec = load_spec(_spec(tmp_path, body))
+    assert spec.viewer_height == "800px"
+    assert spec.molstar_ui == "hide"
+
+
+@pytest.mark.parametrize("value", ["800", "big", "800 px", "-3rem", "80vhh"])
+def test_bad_viewer_height_is_fatal(tmp_path, value):
+    """A bad length would silently collapse the viewport in the browser."""
+    body = _minimal().replace(
+        "on_mismatch: report\n", f"on_mismatch: report\nviewer_height: '{value}'\n"
+    )
+    with pytest.raises(InputError, match="is not a CSS length"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_bad_molstar_ui_is_fatal(tmp_path):
+    body = _minimal().replace(
+        "on_mismatch: report\n", "on_mismatch: report\nmolstar_ui: maybe\n"
+    )
+    with pytest.raises(InputError, match="molstar_ui must be one of"):
+        load_spec(_spec(tmp_path, body))
+
+
+# --- per-view orientation --------------------------------------------------------
+
+
+ORIENTED = """views:
+  - <<: *base
+    name: Only view
+    csv: coloring.csv
+    orientation:
+      position: [11.2, -48.6, 187.3]
+      target: [-0.4, -57.4, 13.8]
+      up: [0, 1, 0]
+      radius: 76.1
+"""
+
+
+def test_orientation_is_parsed(tmp_path):
+    view = load_spec(_spec(tmp_path, _minimal(ORIENTED))).views[0]
+    assert view.orientation.position == (11.2, -48.6, 187.3)
+    assert view.orientation.target == (-0.4, -57.4, 13.8)
+    assert view.orientation.up == (0.0, 1.0, 0.0)
+    assert view.orientation.radius == 76.1
+    assert view.orientation.as_dict()["radius"] == 76.1
+
+
+def test_orientation_is_optional(tmp_path):
+    """Omitting it means "leave the camera alone", which is the default behaviour."""
+    assert load_spec(_spec(tmp_path, _minimal())).views[0].orientation is None
+
+
+def test_orientation_up_and_radius_have_fallbacks(tmp_path):
+    """position and target define the view; the other two are conveniences."""
+    body = _minimal("""views:
+  - <<: *base
+    name: Only view
+    csv: coloring.csv
+    orientation:
+      position: [1, 2, 3]
+      target: [0, 0, 0]
+""")
+    orientation = load_spec(_spec(tmp_path, body)).views[0].orientation
+    assert orientation.up == (0.0, 1.0, 0.0)
+    assert orientation.radius is None
+    # radius is left out entirely rather than sent as null, so Mol* fits the scene.
+    assert "radius" not in orientation.as_dict()
+
+
+@pytest.mark.parametrize("key", ["position", "target"])
+def test_orientation_needs_position_and_target(tmp_path, key):
+    body = "\n".join(
+        line
+        for line in _minimal(ORIENTED).splitlines()
+        if not line.strip().startswith(f"{key}:")
+    )
+    with pytest.raises(InputError, match="orientation is missing"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_orientation_rejects_a_short_vector(tmp_path):
+    body = _minimal(ORIENTED).replace(
+        "position: [11.2, -48.6, 187.3]", "position: [1, 2]"
+    )
+    with pytest.raises(InputError, match="must be a list of 3 numbers"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_orientation_rejects_a_non_number(tmp_path):
+    body = _minimal(ORIENTED).replace(
+        "position: [11.2, -48.6, 187.3]", "position: [1, 2, x]"
+    )
+    with pytest.raises(InputError, match="must be 3 numbers"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_orientation_rejects_unknown_keys(tmp_path):
+    """A stray key here is a typo that would otherwise be silently ignored."""
+    body = _minimal(ORIENTED).replace("      radius: 76.1", "      zoom: 76.1")
+    with pytest.raises(InputError, match=r"unknown key in views\[0\] orientation"):
+        load_spec(_spec(tmp_path, body))

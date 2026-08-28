@@ -273,6 +273,7 @@ class ViewBuild:
     config: ViewConfig
     rows: list[dict]
     labels: tuple | None = None
+    orientation: dict | None = None
 
 
 def build_state(
@@ -301,6 +302,20 @@ def build_state(
         be placed.
     """
     builder = create_builder()
+
+    # MVS has exactly one camera -- the node is root-level and the loader keeps the
+    # last one it sees -- so only the view the page opens on can be expressed here.
+    # Every other view's orientation is applied by the page when you switch to it.
+    # Emitting this one means the page opens already framed rather than snapping
+    # into place after the load.
+    opening = builds[0].orientation if builds else None
+    if opening is not None:
+        builder.camera(
+            target=opening["target"],
+            position=opening["position"],
+            up=opening["up"],
+        )
+
     parsed = builder.download(url=_archive_uri(structure_member)).parse(format=fmt)
 
     unplaced: dict[str, list[ResidueKey]] = {}
@@ -396,6 +411,8 @@ def render_html(
     views: list[dict],
     page_title: str,
     show_label_toggle: bool,
+    viewer_height: str = "70vh",
+    molstar_ui: str = "show",
 ) -> str:
     """Render the viewer template around a base64 MVSX payload.
 
@@ -404,15 +421,20 @@ def render_html(
     mvsx
         The archive, embedded base64 in a non-executing script block.
     views
-        One dict per view, in page order, with ``name``, ``slug``, and
-        ``caption`` (an HTML fragment, possibly empty). The first is shown on
-        load; the selector is rendered only when there is more than one.
+        One dict per view, in page order, with ``name``, ``slug``, ``caption``
+        (an HTML fragment, possibly empty) and ``orientation`` (a camera snapshot
+        or ``None``). The first is shown on load; the selector is rendered only
+        when there is more than one.
     page_title
         The HTML ``<title>``.
     show_label_toggle
         Renders the Labels checkbox. It is the caller's job to pass ``False``
         when no view drew a persistent label: a checkbox that moves nothing is
         worse than no checkbox.
+    viewer_height
+        CSS length for the viewer box. The width always fills the page.
+    molstar_ui
+        ``"show"`` or ``"hide"``: whether Mol*'s own panels start open.
     """
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(_TEMPLATE_DIR),
@@ -426,4 +448,13 @@ def render_html(
         views=views,  # captions are already HTML; the template marks them safe
         page_title=page_title,
         show_label_toggle=show_label_toggle,
+        viewer_height=viewer_height,
+        # Only a viewport-relative height can collapse on a short window, so that
+        # is the only case that gets a floor. An absolute height is taken as meant.
+        viewer_min_height=("30rem" if viewer_height.endswith(("vh", "%")) else None),
+        molstar_ui_shown=molstar_ui == "show",
+        # An empty #header collapses to nothing via :empty, which stops a page with
+        # no captions from carrying a blank band under the structure.
+        has_captions=any(view["caption"] for view in views),
+        select_width=max((len(view["name"]) for view in views), default=0),
     )

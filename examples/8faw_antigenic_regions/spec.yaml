@@ -6,7 +6,8 @@
 # surface is how an antigenic region reads as a patch an antibody could land on;
 # the cartoon shows where those patches sit on the fold, and how the receptor
 # analogue reaches into the binding site. Both are drawn when the page loads, so
-# switching between them does not move the camera.
+# switching between them is instant; the second view pins its own camera, so it also
+# turns the trimer to face you.
 #
 # Every sugar is named in coloring.csv, so `glycans` never applies in either view:
 # the receptor analogue is black ball-and-stick and the host N-glycans are yellow.
@@ -25,6 +26,8 @@ structure: 8FAW
 out: ../output/8faw_antigenic_regions.html
 assembly: "1"
 on_mismatch: error-extra-in-csv
+viewer_height: 70vh
+molstar_ui: show
 
 definitions:
   base: &base
@@ -44,3 +47,11 @@ views:
     name: Fold and receptor
     title_md: title_fold.md
     default_representation: cartoon
+    # Looking down the three-fold axis from above, so the three protomers read as
+    # one trimer rather than a silhouette. Captured from the rendered page: open it
+    # with #camera appended to the URL and click Copy camera.
+    orientation:
+      position: [39.59, 152.55, 163.82]
+      target: [-0.41, -57.45, 13.82]
+      up: [0, 1, 0]
+      radius: 76.11

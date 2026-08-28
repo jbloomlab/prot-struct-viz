@@ -25,7 +25,7 @@ from .viewer import (
 )
 from .report import Reporter, display_path, report_path_for
 from .residues import keys, parse_chain_representations, parse_csv
-from .spec import Spec, View, load_spec
+from .spec import Orientation, Spec, View, load_spec
 from .structure import (
     addressable_residues,
     assembly_instance_transforms,
@@ -43,6 +43,7 @@ __version__ = "0.1.0"
 
 __all__ = [
     "InputError",
+    "Orientation",
     "Spec",
     "View",
     "ViewConfig",
@@ -173,7 +174,17 @@ def render(spec: Spec) -> pathlib.Path:
                 assembly_instance_transforms(parsed, spec.assembly),
             )
             builds.append(
-                ViewBuild(slug=view.slug, config=config, rows=rows, labels=labels)
+                ViewBuild(
+                    slug=view.slug,
+                    config=config,
+                    rows=rows,
+                    labels=labels,
+                    orientation=(
+                        view.orientation.as_dict()
+                        if view.orientation is not None
+                        else None
+                    ),
+                )
             )
             wanted_labels |= {
                 (view.slug, spec_.key) for spec_ in coloring.specs if spec_.show_label
@@ -183,6 +194,11 @@ def render(spec: Spec) -> pathlib.Path:
                     "name": view.name,
                     "slug": view.slug,
                     "caption": render_title(view.title_md),
+                    "orientation": (
+                        view.orientation.as_dict()
+                        if view.orientation is not None
+                        else None
+                    ),
                 }
             )
 
@@ -214,6 +230,8 @@ def render(spec: Spec) -> pathlib.Path:
             captions,
             out_path.stem,
             show_label_toggle=bool(drawn),
+            viewer_height=spec.viewer_height,
+            molstar_ui=spec.molstar_ui,
         )
 
         out_path.parent.mkdir(parents=True, exist_ok=True)

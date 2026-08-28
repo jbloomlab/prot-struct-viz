@@ -8,23 +8,46 @@
 <link rel="stylesheet" type="text/css"
       href="https://cdn.jsdelivr.net/npm/molstar@{{ molstar_version }}/build/viewer/molstar.css">
 <style>
+  /* Reserve the scrollbar gutter whether or not a scrollbar is showing. Without
+     this, anything that changes the page height -- switching to a shorter caption,
+     resizing the window -- can make the scrollbar appear or vanish, which changes
+     the content width, which resizes the Mol* canvas. The structure then appears
+     to jump sideways for reasons that have nothing to do with the structure. */
+  html { scrollbar-gutter: stable; }
   body { margin: 0; padding: 0.75rem 1rem 1rem;
          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
          color: #24292f; }
-  #header { max-width: 60rem; margin-top: 1rem; }
+  /* Every caption occupies the same grid cell, so the block is always as tall as
+     the longest one and switching views cannot change the page height. Hidden
+     captions keep their space -- hence visibility rather than display. */
+  #header { display: grid; max-width: 60rem; margin-top: 1rem; }
   #header:empty { display: none; }
-  .caption[hidden] { display: none; }
+  #header > .caption { grid-area: 1 / 1; visibility: hidden; }
+  #header > .caption.active { visibility: visible; }
   #controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
   #controls button { font: inherit; padding: 0.3rem 0.7rem; cursor: pointer;
                      border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
   #controls button:hover { background: #eaeef2; }
+  /* Sized for the longest view name, so choosing a different view does not widen
+     the select and shuffle everything to its right. */
   #controls select { font: inherit; padding: 0.3rem 0.4rem; cursor: pointer;
-                     border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
+                     border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa;
+                     min-width: {{ select_width + 4 }}ch; }
   #controls label { display: flex; gap: 0.3rem; align-items: center; cursor: pointer;
                     user-select: none; }
   #status { color: #57606a; font-size: 0.9rem; }
+  #camera-out { display: none; max-width: 60rem; margin: 0 0 0.75rem;
+                padding: 0.6rem 0.8rem; background: #f6f8fa; border: 1px solid #d0d7de;
+                border-radius: 6px; font-size: 0.85rem; overflow-x: auto;
+                white-space: pre; user-select: all; }
   /* Mol* fills this box and positions its own UI inside it. */
-  #viewer { position: relative; width: 100%; height: 70vh; min-height: 30rem; }
+  #viewer { position: relative; width: 100%; height: {{ viewer_height }};
+            {%- if viewer_min_height %} min-height: {{ viewer_min_height }};{% endif %} }
+  /* Mol*'s snapshot stepper. This package expresses views as one state with hidden
+     subtrees, never as MVS snapshots, so there is only ever the single snapshot the
+     loader registers -- and with no title it reads as "[1/1] <timestamp>" beside a
+     play button that cycles a list of one. No Mol* config option suppresses it. */
+  .msp-state-snapshot-viewport-controls { display: none; }
 </style>
 </head>
 <body>
@@ -37,7 +60,7 @@
 <div id="controls">
 {%- if views | length > 1 %}
   <label title="Switch between the views this page was built with. Every view is
-already drawn, so switching only changes what is shown -- the camera does not move.">
+already drawn, so switching only changes what is shown.">
     View
     <select id="view-select">
     {%- for view in views %}
@@ -53,14 +76,22 @@ Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</
 each symmetry mate. Mouseover tooltips are separate and keep working either way.">
     <input id="label-toggle" type="checkbox" checked> Labels</label>
 {%- endif %}
+  {# Authoring tool, not a reader's control: hidden unless the URL ends in #camera. #}
+  <button id="copy-camera" type="button" hidden
+          title="Copy the current camera as a spec-file orientation block, for the
+view now on screen.">Copy camera</button>
   <span id="status">Loading structure&hellip;</span>
 </div>
 
+<pre id="camera-out"></pre>
+
 {# One caption per view; the selector shows the one belonging to the view on screen. #}
 <div id="header">
+{%- if has_captions %}
 {%- for view in views %}
-  <div class="caption" data-view="{{ view.slug }}"{% if not loop.first %} hidden{% endif %}>{{ view.caption | safe }}</div>
+  <div class="caption{% if loop.first %} active{% endif %}" data-view="{{ view.slug }}">{{ view.caption | safe }}</div>
 {%- endfor %}
+{%- endif %}
 </div>
 
 {# The whole page -- coordinates, annotations, and the MVS state -- as a base64
@@ -73,6 +104,10 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
     var status = document.getElementById('status');
     var payload = document.getElementById('mvsx-payload').textContent.trim();
     var VIEWS = {{ views | map(attribute='slug') | list | tojson }};
+    var NAMES = {{ views | map(attribute='name') | list | tojson }};
+    // Per view: a camera snapshot to move to, or null to leave the camera alone.
+    var ORIENTATIONS = {{ views | map(attribute='orientation') | list | tojson }};
+    var CAMERA_MS = 400;
 
     function fail(err) {
         status.textContent = 'Failed to load: ' + err;
@@ -81,9 +116,10 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
 
     molstar.Viewer.create('viewer', {
         layoutIsExpanded: false,
-        // Leave the Mol* UI enabled: everything this file sets is the initial
-        // state, not a lock, so representations and colors stay editable.
-        layoutShowControls: true,
+        // Mol*'s own panels. false starts them closed rather than removing them:
+        // the wrench in the viewport is gated by a separate config and stays, so a
+        // reader can always open them.
+        layoutShowControls: {{ 'true' if molstar_ui_shown else 'false' }},
         layoutShowSequence: true,
         layoutShowLog: false,
         layoutShowRemoteState: false,
@@ -110,6 +146,10 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
         var PSO = molstar.lib.plugin.PluginStateObject;
         var toggle = document.getElementById('label-toggle');
         var select = document.getElementById('view-select');
+
+        function activeIndex() {
+            return select ? VIEWS.indexOf(select.value) : 0;
+        }
 
         // Which view each state cell belongs to, as {cell ref: view slug}.
         //
@@ -165,16 +205,80 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
             Array.prototype.forEach.call(
                 document.querySelectorAll('.caption'),
                 function (caption) {
-                    caption.hidden = caption.getAttribute('data-view') !== active;
+                    caption.classList.toggle(
+                        'active', caption.getAttribute('data-view') === active);
                 }
             );
         }
 
+        // setSnapshot rather than canvas3d.camera.setState: it merges the stored
+        // camera over a scene-fit baseline and recomputes radiusMax from the scene,
+        // so a radius captured on one structure cannot clip on another. The second
+        // argument is a transition duration, which is what animates the move.
+        function applyOrientation() {
+            var orientation = ORIENTATIONS[activeIndex()];
+            if (!orientation) return;   // this view has no opinion; leave the camera
+            viewer.plugin.managers.camera.setSnapshot(orientation, CAMERA_MS);
+        }
+
         if (toggle) { toggle.addEventListener('change', applyVisibility); }
-        // Switching views only writes isHidden, so the camera stays exactly where
-        // the reader left it. That is the whole reason the views are prebuilt
-        // rather than reloaded one at a time.
-        if (select) { select.addEventListener('change', applyVisibility); }
+        // Switching views writes isHidden and nothing else, so unless the view being
+        // shown carries an orientation the camera stays exactly where the reader
+        // left it. That is the whole reason the views are prebuilt rather than
+        // reloaded one at a time.
+        if (select) {
+            select.addEventListener('change', function () {
+                applyVisibility();
+                applyOrientation();
+            });
+        }
+
+        // --- authoring: capture the camera for a spec file ----------------------
+        //
+        // Shown only when the URL ends in #camera, so a published page never carries
+        // it. A fragment rather than a query string: fragments are never sent
+        // anywhere and behave the same over file://, a local server, and Pages.
+        function cameraBlock() {
+            var camera = viewer.plugin.canvas3d.camera.getSnapshot();
+            var round = function (value) { return Math.round(value * 100) / 100; };
+            var vec = function (v) { return '[' + [round(v[0]), round(v[1]), round(v[2])].join(', ') + ']'; };
+            return [
+                '# orientation for view: ' + NAMES[activeIndex()],
+                '    orientation:',
+                '      position: ' + vec(camera.position),
+                '      target: ' + vec(camera.target),
+                '      up: ' + vec(camera.up),
+                '      radius: ' + round(camera.radius)
+            ].join('\n');
+        }
+        window.psvCamera = function () {
+            var text = cameraBlock();
+            console.log(text);
+            return text;
+        };
+
+        var copyButton = document.getElementById('copy-camera');
+        var cameraOut = document.getElementById('camera-out');
+        if (window.location.hash === '#camera') {
+            copyButton.hidden = false;
+        }
+        copyButton.addEventListener('click', function () {
+            var text = cameraBlock();
+            // Always show it. A rendered page is usually opened over file://, which
+            // is not a secure context, so navigator.clipboard may not exist at all --
+            // the visible box is what makes select-and-copy work regardless.
+            cameraOut.textContent = text;
+            cameraOut.style.display = 'block';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                    status.textContent = 'Camera copied to the clipboard.';
+                }, function () {
+                    status.textContent = 'Camera shown below; copy it from there.';
+                });
+            } else {
+                status.textContent = 'Camera shown below; copy it from there.';
+            }
+        });
 
         document.getElementById('reset-view').addEventListener('click', function () {
             status.textContent = 'Resetting…';

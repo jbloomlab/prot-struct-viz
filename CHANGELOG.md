@@ -7,6 +7,18 @@ All notable changes to this project are documented here, in
 
 ### Added
 
+- `viewer_height`, setting how tall the viewer box is as a CSS length. The width still
+  fills the page. Viewport-relative heights keep a `30rem` floor, which is the case a short
+  window can collapse; an absolute height is used exactly as given.
+- `molstar_ui`, for whether Mol\*'s own panels -- Structure Tools, the left panel, and the
+  sequence strip -- start open. `hide` closes them without removing them: the wrench in the
+  viewport still opens them, because it is gated by a different setting.
+- A per-view `orientation`, pinning where the camera sits for that view. Switching to such a
+  view glides the camera there; a view without one still leaves the camera untouched. Get
+  the numbers by opening a rendered page with `#camera` appended to the URL, which reveals a
+  **Copy camera** button -- so a published page never carries an authoring control, and
+  capturing needs neither a re-render nor the browser console. `psvCamera()` returns the
+  same block for anyone who prefers the console.
 - Several named **views** of one structure in one page, each with its own CSV, colors,
   labels, representation, chains, heteroatom settings and caption. The page gets a
   **View** selector; every view is built when the page loads and switching only changes
@@ -54,6 +66,18 @@ All notable changes to this project are documented here, in
 
 ### Fixed
 
+- The structure no longer shifts when you switch views. Captions were hidden with
+  `display: none`, so a shorter one shortened the page: that scrolled it, and when it took
+  the vertical scrollbar away the content box widened by the scrollbar width, resizing the
+  Mol\* canvas sideways. Captions are now stacked in one grid cell and hidden with
+  `visibility`, so the page height cannot change, and the scrollbar gutter is reserved
+  either way. Measured on the H3 example: switching used to move the viewport 266 px
+  vertically and 15 px horizontally, and now moves it not at all.
+- Mol\*'s snapshot stepper is hidden. Views here are not MolViewSpec snapshots, so it always
+  read `[1/1]` and a timestamp beside a play button that cycled a list of one. Mol\* offers
+  no option to suppress it, so the page hides it with a stylesheet rule.
+- The view selector is sized for the longest view name, so choosing a different view no
+  longer widens it and shuffles the controls beside it.
 - Persistent on-structure labels are drawn beside the residue they name. They previously
   collapsed onto a single point at the centre of the structure whenever `--assembly` was
   used, because Mol\*'s annotation labels derive one position from every atom a row

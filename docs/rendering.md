@@ -3,9 +3,10 @@
 Everything on this page is a key in the [spec file](cli.md), which lists every key and
 where it goes; this page explains what they mean together.
 
-`structure`, `out`, `assembly` and `on_mismatch` are set once for the page. Everything
-else is set per view, so two views of one structure can differ in coloring,
-representation, labels, chains, and which heteroatoms they draw.
+`structure`, `out`, `assembly` and `on_mismatch` are set once for the page, as are the two
+presentation keys `viewer_height` and `molstar_ui`. Everything else is set per view, so two
+views of one structure can differ in coloring, representation, labels, chains, which
+heteroatoms they draw, and where the camera sits.
 
 ## Assemblies
 
@@ -103,9 +104,10 @@ The generated page has its own controls below the structure, under the viewport 
 holds Mol\*'s.
 
 **View** appears when the spec lists more than one view, and switches which is on screen.
-Every view is drawn when the page loads, so switching changes only what is visible: the
-camera does not move, and a site you framed stays framed. Each view brings its own
-caption with it.
+Every view is drawn when the page loads, so switching changes only what is visible: a site
+you framed stays framed. Each view brings its own caption with it. The exception is a view
+with its own `orientation`, which deliberately moves the camera — see
+[Orientation](cli.md#orientation).
 
 **Reset view** reloads the page as generated. It is there because of one limitation worth
 knowing: the Mol\* Components panel stays live, but a representation you *add* from it
@@ -120,6 +122,24 @@ separate and keep working while the labels are hidden.
 
 See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why, and for
 what the entries in the Components panel are named after.
+
+## The size of the viewer, and Mol\*'s panels
+
+`viewer_height` sets how tall the viewer box is, as a CSS length; the width always fills
+the page. The default `70vh` keeps a `30rem` floor so a short window cannot collapse it,
+which only applies to viewport-relative units — an absolute height like `800px` is used
+exactly as given.
+
+`molstar_ui: hide` starts the page with Mol\*'s own panels closed: Structure Tools on the
+right, the left panel, and the sequence strip along the top. They are closed, not removed —
+the wrench in the viewport opens them, and it stays whatever this is set to. Useful when the
+page is a figure first and a tool second.
+
+One control we deliberately suppress: Mol\* renders a snapshot stepper in the top-left of
+the viewport, which for these pages always reads `[1/1]` with a timestamp and a play button
+that cycles a list of one. Views here are not MolViewSpec snapshots, so there is never
+anything to step through, and Mol\* offers no option to turn it off — the generated page
+hides it with a stylesheet rule.
 
 ## Saving an image
 
