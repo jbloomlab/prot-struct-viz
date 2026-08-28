@@ -68,12 +68,12 @@ A,66,#e8e8e8,66_HA1,,,,,HA1 site 66; not in a defined antigenic site
 A,67,#e8e8e8,67_HA1,,,,,HA1 site 67; not in a defined antigenic site
 A,68,#e8e8e8,68_HA1,,,,,HA1 site 68; not in a defined antigenic site
 A,69,#e8e8e8,69_HA1,,,,,HA1 site 69; not in a defined antigenic site
-A,70,#ff7f00,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-A,71,#ff7f00,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-A,72,#ff7f00,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-A,73,#ff7f00,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-A,74,#ff7f00,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-A,75,#ff7f00,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,70,#44AA99,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,71,#44AA99,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,72,#44AA99,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,73,#44AA99,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,74,#44AA99,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+A,75,#44AA99,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
 A,76,#e8e8e8,76_HA1,,,,,HA1 site 76; not in a defined antigenic site
 A,77,#e8e8e8,77_HA1,,,,,HA1 site 77; not in a defined antigenic site
 A,78,#e8e8e8,78_HA1,,,,,HA1 site 78; not in a defined antigenic site
@@ -122,8 +122,8 @@ A,120,#e8e8e8,120_HA1,,,,,HA1 site 120; not in a defined antigenic site
 A,121,#e8e8e8,121_HA1,,,,,HA1 site 121; not in a defined antigenic site
 A,122,#e8e8e8,122_HA1,,,,,HA1 site 122; not in a defined antigenic site
 A,123,#e8e8e8,123_HA1,,,,,HA1 site 123; not in a defined antigenic site
-A,124,#e41a1c,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,125,#e41a1c,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,124,#332288,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,125,#332288,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 A,126,#e8e8e8,126_HA1,,,,,HA1 site 126; not in a defined antigenic site
 A,127,#e8e8e8,127_HA1,,,,,HA1 site 127; not in a defined antigenic site
 A,128,#e8e8e8,128_HA1,,,,,HA1 site 128; not in a defined antigenic site
@@ -135,12 +135,12 @@ A,133,#e8e8e8,133_HA1,,,,,HA1 site 133; not in a defined antigenic site
 A,134,#e8e8e8,134_HA1,,,,,HA1 site 134; not in a defined antigenic site
 A,135,#e8e8e8,135_HA1,,,,,HA1 site 135; not in a defined antigenic site
 A,136,#e8e8e8,136_HA1,,,,,HA1 site 136; not in a defined antigenic site
-A,137,#984ea3,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,138,#984ea3,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,139,#984ea3,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,140,#984ea3,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,141,#984ea3,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,142,#984ea3,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,137,#AA4499,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,138,#AA4499,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,139,#AA4499,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,140,#AA4499,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,141,#AA4499,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,142,#AA4499,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 A,143,#e8e8e8,143_HA1,,,,,HA1 site 143; not in a defined antigenic site
 A,144,#e8e8e8,144_HA1,,,,,HA1 site 144; not in a defined antigenic site
 A,145,#e8e8e8,145_HA1,,,,,HA1 site 145; not in a defined antigenic site
@@ -151,24 +151,24 @@ A,149,#e8e8e8,149_HA1,,,,,HA1 site 149; not in a defined antigenic site
 A,150,#e8e8e8,150_HA1,,,,,HA1 site 150; not in a defined antigenic site
 A,151,#e8e8e8,151_HA1,,,,,HA1 site 151; not in a defined antigenic site
 A,152,#e8e8e8,152_HA1,,,,,HA1 site 152; not in a defined antigenic site
-A,153,#e41a1c,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,154,#e41a1c,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,155,#e41a1c,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,156,#e41a1c,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,157,#e41a1c,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,153,#332288,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,154,#332288,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,155,#332288,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,156,#332288,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,157,#332288,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 A,158,#e8e8e8,158_HA1,,,,,HA1 site 158; not in a defined antigenic site
-A,159,#e41a1c,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,160,#e41a1c,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,161,#e41a1c,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,162,#e41a1c,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,163,#e41a1c,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-A,164,#e41a1c,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,159,#332288,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,160,#332288,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,161,#332288,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,162,#332288,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,163,#332288,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+A,164,#332288,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 A,165,#e8e8e8,165_HA1,,,,,HA1 site 165; not in a defined antigenic site
-A,166,#4daf4a,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,167,#4daf4a,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,168,#4daf4a,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,169,#4daf4a,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,170,#4daf4a,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,166,#117733,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,167,#117733,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,168,#117733,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,169,#117733,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,170,#117733,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 A,171,#e8e8e8,171_HA1,,,,,HA1 site 171; not in a defined antigenic site
 A,172,#e8e8e8,172_HA1,,,,,HA1 site 172; not in a defined antigenic site
 A,173,#e8e8e8,173_HA1,,,,,HA1 site 173; not in a defined antigenic site
@@ -182,18 +182,18 @@ A,180,#e8e8e8,180_HA1,,,,,HA1 site 180; not in a defined antigenic site
 A,181,#e8e8e8,181_HA1,,,,,HA1 site 181; not in a defined antigenic site
 A,182,#e8e8e8,182_HA1,,,,,HA1 site 182; not in a defined antigenic site
 A,183,#e8e8e8,183_HA1,,,,,HA1 site 183; not in a defined antigenic site
-A,184,#377eb8,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,185,#377eb8,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,186,#377eb8,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,187,#377eb8,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,188,#377eb8,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,189,#377eb8,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,190,#377eb8,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,191,#377eb8,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,192,#377eb8,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,193,#377eb8,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,194,#377eb8,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-A,195,#377eb8,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,184,#88CCEE,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,185,#88CCEE,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,186,#88CCEE,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,187,#88CCEE,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,188,#88CCEE,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,189,#88CCEE,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,190,#88CCEE,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,191,#88CCEE,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,192,#88CCEE,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,193,#88CCEE,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,194,#88CCEE,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+A,195,#88CCEE,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
 A,196,#e8e8e8,196_HA1,,,,,HA1 site 196; not in a defined antigenic site
 A,197,#e8e8e8,197_HA1,,,,,HA1 site 197; not in a defined antigenic site
 A,198,#e8e8e8,198_HA1,,,,,HA1 site 198; not in a defined antigenic site
@@ -201,9 +201,9 @@ A,199,#e8e8e8,199_HA1,,,,,HA1 site 199; not in a defined antigenic site
 A,200,#e8e8e8,200_HA1,,,,,HA1 site 200; not in a defined antigenic site
 A,201,#e8e8e8,201_HA1,,,,,HA1 site 201; not in a defined antigenic site
 A,202,#e8e8e8,202_HA1,,,,,HA1 site 202; not in a defined antigenic site
-A,203,#4daf4a,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,204,#4daf4a,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,205,#4daf4a,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,203,#117733,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,204,#117733,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,205,#117733,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 A,206,#e8e8e8,206_HA1,,,,,HA1 site 206; not in a defined antigenic site
 A,207,#e8e8e8,207_HA1,,,,,HA1 site 207; not in a defined antigenic site
 A,208,#e8e8e8,208_HA1,,,,,HA1 site 208; not in a defined antigenic site
@@ -219,8 +219,8 @@ A,217,#e8e8e8,217_HA1,,,,,HA1 site 217; not in a defined antigenic site
 A,218,#e8e8e8,218_HA1,,,,,HA1 site 218; not in a defined antigenic site
 A,219,#e8e8e8,219_HA1,,,,,HA1 site 219; not in a defined antigenic site
 A,220,#e8e8e8,220_HA1,,,,,HA1 site 220; not in a defined antigenic site
-A,221,#984ea3,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-A,222,#984ea3,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,221,#AA4499,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+A,222,#AA4499,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 A,223,#e8e8e8,223_HA1,,,,,HA1 site 223; not in a defined antigenic site
 A,224,#e8e8e8,224_HA1,,,,,HA1 site 224; not in a defined antigenic site
 A,225,#e8e8e8,225_HA1,,,,,HA1 site 225; not in a defined antigenic site
@@ -233,9 +233,9 @@ A,231,#e8e8e8,231_HA1,,,,,HA1 site 231; not in a defined antigenic site
 A,232,#e8e8e8,232_HA1,,,,,HA1 site 232; not in a defined antigenic site
 A,233,#e8e8e8,233_HA1,,,,,HA1 site 233; not in a defined antigenic site
 A,234,#e8e8e8,234_HA1,,,,,HA1 site 234; not in a defined antigenic site
-A,235,#4daf4a,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,236,#4daf4a,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-A,237,#4daf4a,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,235,#117733,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,236,#117733,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+A,237,#117733,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 A,238,#e8e8e8,238_HA1,,,,,HA1 site 238; not in a defined antigenic site
 A,239,#e8e8e8,239_HA1,,,,,HA1 site 239; not in a defined antigenic site
 A,240,#e8e8e8,240_HA1,,,,,HA1 site 240; not in a defined antigenic site
@@ -560,12 +560,12 @@ B,66,#e8e8e8,66_HA1,,,,,HA1 site 66; not in a defined antigenic site
 B,67,#e8e8e8,67_HA1,,,,,HA1 site 67; not in a defined antigenic site
 B,68,#e8e8e8,68_HA1,,,,,HA1 site 68; not in a defined antigenic site
 B,69,#e8e8e8,69_HA1,,,,,HA1 site 69; not in a defined antigenic site
-B,70,#ff7f00,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-B,71,#ff7f00,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-B,72,#ff7f00,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-B,73,#ff7f00,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-B,74,#ff7f00,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-B,75,#ff7f00,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,70,#44AA99,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,71,#44AA99,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,72,#44AA99,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,73,#44AA99,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,74,#44AA99,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+B,75,#44AA99,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
 B,76,#e8e8e8,76_HA1,,,,,HA1 site 76; not in a defined antigenic site
 B,77,#e8e8e8,77_HA1,,,,,HA1 site 77; not in a defined antigenic site
 B,78,#e8e8e8,78_HA1,,,,,HA1 site 78; not in a defined antigenic site
@@ -614,8 +614,8 @@ B,120,#e8e8e8,120_HA1,,,,,HA1 site 120; not in a defined antigenic site
 B,121,#e8e8e8,121_HA1,,,,,HA1 site 121; not in a defined antigenic site
 B,122,#e8e8e8,122_HA1,,,,,HA1 site 122; not in a defined antigenic site
 B,123,#e8e8e8,123_HA1,,,,,HA1 site 123; not in a defined antigenic site
-B,124,#e41a1c,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,125,#e41a1c,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,124,#332288,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,125,#332288,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 B,126,#e8e8e8,126_HA1,,,,,HA1 site 126; not in a defined antigenic site
 B,127,#e8e8e8,127_HA1,,,,,HA1 site 127; not in a defined antigenic site
 B,128,#e8e8e8,128_HA1,,,,,HA1 site 128; not in a defined antigenic site
@@ -627,12 +627,12 @@ B,133,#e8e8e8,133_HA1,,,,,HA1 site 133; not in a defined antigenic site
 B,134,#e8e8e8,134_HA1,,,,,HA1 site 134; not in a defined antigenic site
 B,135,#e8e8e8,135_HA1,,,,,HA1 site 135; not in a defined antigenic site
 B,136,#e8e8e8,136_HA1,,,,,HA1 site 136; not in a defined antigenic site
-B,137,#984ea3,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,138,#984ea3,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,139,#984ea3,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,140,#984ea3,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,141,#984ea3,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,142,#984ea3,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,137,#AA4499,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,138,#AA4499,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,139,#AA4499,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,140,#AA4499,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,141,#AA4499,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,142,#AA4499,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 B,143,#e8e8e8,143_HA1,,,,,HA1 site 143; not in a defined antigenic site
 B,144,#e8e8e8,144_HA1,,,,,HA1 site 144; not in a defined antigenic site
 B,145,#e8e8e8,145_HA1,,,,,HA1 site 145; not in a defined antigenic site
@@ -643,24 +643,24 @@ B,149,#e8e8e8,149_HA1,,,,,HA1 site 149; not in a defined antigenic site
 B,150,#e8e8e8,150_HA1,,,,,HA1 site 150; not in a defined antigenic site
 B,151,#e8e8e8,151_HA1,,,,,HA1 site 151; not in a defined antigenic site
 B,152,#e8e8e8,152_HA1,,,,,HA1 site 152; not in a defined antigenic site
-B,153,#e41a1c,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,154,#e41a1c,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,155,#e41a1c,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,156,#e41a1c,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,157,#e41a1c,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,153,#332288,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,154,#332288,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,155,#332288,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,156,#332288,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,157,#332288,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 B,158,#e8e8e8,158_HA1,,,,,HA1 site 158; not in a defined antigenic site
-B,159,#e41a1c,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,160,#e41a1c,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,161,#e41a1c,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,162,#e41a1c,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,163,#e41a1c,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-B,164,#e41a1c,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,159,#332288,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,160,#332288,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,161,#332288,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,162,#332288,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,163,#332288,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+B,164,#332288,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 B,165,#e8e8e8,165_HA1,,,,,HA1 site 165; not in a defined antigenic site
-B,166,#4daf4a,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,167,#4daf4a,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,168,#4daf4a,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,169,#4daf4a,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,170,#4daf4a,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,166,#117733,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,167,#117733,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,168,#117733,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,169,#117733,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,170,#117733,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 B,171,#e8e8e8,171_HA1,,,,,HA1 site 171; not in a defined antigenic site
 B,172,#e8e8e8,172_HA1,,,,,HA1 site 172; not in a defined antigenic site
 B,173,#e8e8e8,173_HA1,,,,,HA1 site 173; not in a defined antigenic site
@@ -674,18 +674,18 @@ B,180,#e8e8e8,180_HA1,,,,,HA1 site 180; not in a defined antigenic site
 B,181,#e8e8e8,181_HA1,,,,,HA1 site 181; not in a defined antigenic site
 B,182,#e8e8e8,182_HA1,,,,,HA1 site 182; not in a defined antigenic site
 B,183,#e8e8e8,183_HA1,,,,,HA1 site 183; not in a defined antigenic site
-B,184,#377eb8,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,185,#377eb8,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,186,#377eb8,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,187,#377eb8,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,188,#377eb8,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,189,#377eb8,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,190,#377eb8,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,191,#377eb8,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,192,#377eb8,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,193,#377eb8,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,194,#377eb8,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-B,195,#377eb8,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,184,#88CCEE,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,185,#88CCEE,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,186,#88CCEE,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,187,#88CCEE,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,188,#88CCEE,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,189,#88CCEE,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,190,#88CCEE,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,191,#88CCEE,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,192,#88CCEE,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,193,#88CCEE,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,194,#88CCEE,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+B,195,#88CCEE,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
 B,196,#e8e8e8,196_HA1,,,,,HA1 site 196; not in a defined antigenic site
 B,197,#e8e8e8,197_HA1,,,,,HA1 site 197; not in a defined antigenic site
 B,198,#e8e8e8,198_HA1,,,,,HA1 site 198; not in a defined antigenic site
@@ -693,9 +693,9 @@ B,199,#e8e8e8,199_HA1,,,,,HA1 site 199; not in a defined antigenic site
 B,200,#e8e8e8,200_HA1,,,,,HA1 site 200; not in a defined antigenic site
 B,201,#e8e8e8,201_HA1,,,,,HA1 site 201; not in a defined antigenic site
 B,202,#e8e8e8,202_HA1,,,,,HA1 site 202; not in a defined antigenic site
-B,203,#4daf4a,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,204,#4daf4a,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,205,#4daf4a,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,203,#117733,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,204,#117733,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,205,#117733,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 B,206,#e8e8e8,206_HA1,,,,,HA1 site 206; not in a defined antigenic site
 B,207,#e8e8e8,207_HA1,,,,,HA1 site 207; not in a defined antigenic site
 B,208,#e8e8e8,208_HA1,,,,,HA1 site 208; not in a defined antigenic site
@@ -711,8 +711,8 @@ B,217,#e8e8e8,217_HA1,,,,,HA1 site 217; not in a defined antigenic site
 B,218,#e8e8e8,218_HA1,,,,,HA1 site 218; not in a defined antigenic site
 B,219,#e8e8e8,219_HA1,,,,,HA1 site 219; not in a defined antigenic site
 B,220,#e8e8e8,220_HA1,,,,,HA1 site 220; not in a defined antigenic site
-B,221,#984ea3,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-B,222,#984ea3,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,221,#AA4499,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+B,222,#AA4499,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 B,223,#e8e8e8,223_HA1,,,,,HA1 site 223; not in a defined antigenic site
 B,224,#e8e8e8,224_HA1,,,,,HA1 site 224; not in a defined antigenic site
 B,225,#e8e8e8,225_HA1,,,,,HA1 site 225; not in a defined antigenic site
@@ -725,9 +725,9 @@ B,231,#e8e8e8,231_HA1,,,,,HA1 site 231; not in a defined antigenic site
 B,232,#e8e8e8,232_HA1,,,,,HA1 site 232; not in a defined antigenic site
 B,233,#e8e8e8,233_HA1,,,,,HA1 site 233; not in a defined antigenic site
 B,234,#e8e8e8,234_HA1,,,,,HA1 site 234; not in a defined antigenic site
-B,235,#4daf4a,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,236,#4daf4a,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-B,237,#4daf4a,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,235,#117733,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,236,#117733,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+B,237,#117733,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 B,238,#e8e8e8,238_HA1,,,,,HA1 site 238; not in a defined antigenic site
 B,239,#e8e8e8,239_HA1,,,,,HA1 site 239; not in a defined antigenic site
 B,240,#e8e8e8,240_HA1,,,,,HA1 site 240; not in a defined antigenic site
@@ -1052,12 +1052,12 @@ C,66,#e8e8e8,66_HA1,,,,,HA1 site 66; not in a defined antigenic site
 C,67,#e8e8e8,67_HA1,,,,,HA1 site 67; not in a defined antigenic site
 C,68,#e8e8e8,68_HA1,,,,,HA1 site 68; not in a defined antigenic site
 C,69,#e8e8e8,69_HA1,,,,,HA1 site 69; not in a defined antigenic site
-C,70,#ff7f00,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-C,71,#ff7f00,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-C,72,#ff7f00,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-C,73,#ff7f00,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-C,74,#ff7f00,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
-C,75,#ff7f00,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,70,#44AA99,70_HA1,True,,#252525,1.6,HA1 site 70; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,71,#44AA99,71_HA1,True,,#252525,1.6,HA1 site 71; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,72,#44AA99,72_HA1,True,,#252525,1.6,HA1 site 72; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,73,#44AA99,73_HA1,True,,#252525,1.6,HA1 site 73; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,74,#44AA99,74_HA1,True,,#252525,1.6,HA1 site 74; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
+C,75,#44AA99,75_HA1,True,,#252525,1.6,HA1 site 75; antigenic site Cb of Wilson et al. 2015 Virology 485:252-62
 C,76,#e8e8e8,76_HA1,,,,,HA1 site 76; not in a defined antigenic site
 C,77,#e8e8e8,77_HA1,,,,,HA1 site 77; not in a defined antigenic site
 C,78,#e8e8e8,78_HA1,,,,,HA1 site 78; not in a defined antigenic site
@@ -1106,8 +1106,8 @@ C,120,#e8e8e8,120_HA1,,,,,HA1 site 120; not in a defined antigenic site
 C,121,#e8e8e8,121_HA1,,,,,HA1 site 121; not in a defined antigenic site
 C,122,#e8e8e8,122_HA1,,,,,HA1 site 122; not in a defined antigenic site
 C,123,#e8e8e8,123_HA1,,,,,HA1 site 123; not in a defined antigenic site
-C,124,#e41a1c,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,125,#e41a1c,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,124,#332288,124_HA1,True,,#252525,1.6,HA1 site 124; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,125,#332288,125_HA1,True,,#252525,1.6,HA1 site 125; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 C,126,#e8e8e8,126_HA1,,,,,HA1 site 126; not in a defined antigenic site
 C,127,#e8e8e8,127_HA1,,,,,HA1 site 127; not in a defined antigenic site
 C,128,#e8e8e8,128_HA1,,,,,HA1 site 128; not in a defined antigenic site
@@ -1119,12 +1119,12 @@ C,133,#e8e8e8,133_HA1,,,,,HA1 site 133; not in a defined antigenic site
 C,134,#e8e8e8,134_HA1,,,,,HA1 site 134; not in a defined antigenic site
 C,135,#e8e8e8,135_HA1,,,,,HA1 site 135; not in a defined antigenic site
 C,136,#e8e8e8,136_HA1,,,,,HA1 site 136; not in a defined antigenic site
-C,137,#984ea3,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,138,#984ea3,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,139,#984ea3,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,140,#984ea3,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,141,#984ea3,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,142,#984ea3,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,137,#AA4499,137_HA1,True,,#252525,1.6,HA1 site 137; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,138,#AA4499,138_HA1,True,,#252525,1.6,HA1 site 138; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,139,#AA4499,139_HA1,True,,#252525,1.6,HA1 site 139; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,140,#AA4499,140_HA1,True,,#252525,1.6,HA1 site 140; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,141,#AA4499,141_HA1,True,,#252525,1.6,HA1 site 141; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,142,#AA4499,142_HA1,True,,#252525,1.6,HA1 site 142; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 C,143,#e8e8e8,143_HA1,,,,,HA1 site 143; not in a defined antigenic site
 C,144,#e8e8e8,144_HA1,,,,,HA1 site 144; not in a defined antigenic site
 C,145,#e8e8e8,145_HA1,,,,,HA1 site 145; not in a defined antigenic site
@@ -1135,24 +1135,24 @@ C,149,#e8e8e8,149_HA1,,,,,HA1 site 149; not in a defined antigenic site
 C,150,#e8e8e8,150_HA1,,,,,HA1 site 150; not in a defined antigenic site
 C,151,#e8e8e8,151_HA1,,,,,HA1 site 151; not in a defined antigenic site
 C,152,#e8e8e8,152_HA1,,,,,HA1 site 152; not in a defined antigenic site
-C,153,#e41a1c,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,154,#e41a1c,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,155,#e41a1c,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,156,#e41a1c,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,157,#e41a1c,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,153,#332288,153_HA1,True,,#252525,1.6,HA1 site 153; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,154,#332288,154_HA1,True,,#252525,1.6,HA1 site 154; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,155,#332288,155_HA1,True,,#252525,1.6,HA1 site 155; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,156,#332288,156_HA1,True,,#252525,1.6,HA1 site 156; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,157,#332288,157_HA1,True,,#252525,1.6,HA1 site 157; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 C,158,#e8e8e8,158_HA1,,,,,HA1 site 158; not in a defined antigenic site
-C,159,#e41a1c,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,160,#e41a1c,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,161,#e41a1c,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,162,#e41a1c,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,163,#e41a1c,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
-C,164,#e41a1c,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,159,#332288,159_HA1,True,,#252525,1.6,HA1 site 159; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,160,#332288,160_HA1,True,,#252525,1.6,HA1 site 160; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,161,#332288,161_HA1,True,,#252525,1.6,HA1 site 161; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,162,#332288,162_HA1,True,,#252525,1.6,HA1 site 162; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,163,#332288,163_HA1,True,,#252525,1.6,HA1 site 163; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
+C,164,#332288,164_HA1,True,,#252525,1.6,HA1 site 164; antigenic site Sa of Wilson et al. 2015 Virology 485:252-62
 C,165,#e8e8e8,165_HA1,,,,,HA1 site 165; not in a defined antigenic site
-C,166,#4daf4a,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,167,#4daf4a,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,168,#4daf4a,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,169,#4daf4a,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,170,#4daf4a,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,166,#117733,166_HA1,True,,#252525,1.6,HA1 site 166; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,167,#117733,167_HA1,True,,#252525,1.6,HA1 site 167; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,168,#117733,168_HA1,True,,#252525,1.6,HA1 site 168; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,169,#117733,169_HA1,True,,#252525,1.6,HA1 site 169; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,170,#117733,170_HA1,True,,#252525,1.6,HA1 site 170; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 C,171,#e8e8e8,171_HA1,,,,,HA1 site 171; not in a defined antigenic site
 C,172,#e8e8e8,172_HA1,,,,,HA1 site 172; not in a defined antigenic site
 C,173,#e8e8e8,173_HA1,,,,,HA1 site 173; not in a defined antigenic site
@@ -1166,18 +1166,18 @@ C,180,#e8e8e8,180_HA1,,,,,HA1 site 180; not in a defined antigenic site
 C,181,#e8e8e8,181_HA1,,,,,HA1 site 181; not in a defined antigenic site
 C,182,#e8e8e8,182_HA1,,,,,HA1 site 182; not in a defined antigenic site
 C,183,#e8e8e8,183_HA1,,,,,HA1 site 183; not in a defined antigenic site
-C,184,#377eb8,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,185,#377eb8,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,186,#377eb8,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,187,#377eb8,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,188,#377eb8,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,189,#377eb8,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,190,#377eb8,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,191,#377eb8,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,192,#377eb8,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,193,#377eb8,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,194,#377eb8,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
-C,195,#377eb8,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,184,#88CCEE,184_HA1,True,,#252525,1.6,HA1 site 184; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,185,#88CCEE,185_HA1,True,,#252525,1.6,HA1 site 185; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,186,#88CCEE,186_HA1,True,,#252525,1.6,HA1 site 186; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,187,#88CCEE,187_HA1,True,,#252525,1.6,HA1 site 187; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,188,#88CCEE,188_HA1,True,,#252525,1.6,HA1 site 188; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,189,#88CCEE,189_HA1,True,,#252525,1.6,HA1 site 189; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,190,#88CCEE,190_HA1,True,,#252525,1.6,HA1 site 190; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,191,#88CCEE,191_HA1,True,,#252525,1.6,HA1 site 191; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,192,#88CCEE,192_HA1,True,,#252525,1.6,HA1 site 192; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,193,#88CCEE,193_HA1,True,,#252525,1.6,HA1 site 193; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,194,#88CCEE,194_HA1,True,,#252525,1.6,HA1 site 194; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
+C,195,#88CCEE,195_HA1,True,,#252525,1.6,HA1 site 195; antigenic site Sb of Wilson et al. 2015 Virology 485:252-62
 C,196,#e8e8e8,196_HA1,,,,,HA1 site 196; not in a defined antigenic site
 C,197,#e8e8e8,197_HA1,,,,,HA1 site 197; not in a defined antigenic site
 C,198,#e8e8e8,198_HA1,,,,,HA1 site 198; not in a defined antigenic site
@@ -1185,9 +1185,9 @@ C,199,#e8e8e8,199_HA1,,,,,HA1 site 199; not in a defined antigenic site
 C,200,#e8e8e8,200_HA1,,,,,HA1 site 200; not in a defined antigenic site
 C,201,#e8e8e8,201_HA1,,,,,HA1 site 201; not in a defined antigenic site
 C,202,#e8e8e8,202_HA1,,,,,HA1 site 202; not in a defined antigenic site
-C,203,#4daf4a,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,204,#4daf4a,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,205,#4daf4a,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,203,#117733,203_HA1,True,,#252525,1.6,HA1 site 203; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,204,#117733,204_HA1,True,,#252525,1.6,HA1 site 204; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,205,#117733,205_HA1,True,,#252525,1.6,HA1 site 205; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 C,206,#e8e8e8,206_HA1,,,,,HA1 site 206; not in a defined antigenic site
 C,207,#e8e8e8,207_HA1,,,,,HA1 site 207; not in a defined antigenic site
 C,208,#e8e8e8,208_HA1,,,,,HA1 site 208; not in a defined antigenic site
@@ -1203,8 +1203,8 @@ C,217,#e8e8e8,217_HA1,,,,,HA1 site 217; not in a defined antigenic site
 C,218,#e8e8e8,218_HA1,,,,,HA1 site 218; not in a defined antigenic site
 C,219,#e8e8e8,219_HA1,,,,,HA1 site 219; not in a defined antigenic site
 C,220,#e8e8e8,220_HA1,,,,,HA1 site 220; not in a defined antigenic site
-C,221,#984ea3,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
-C,222,#984ea3,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,221,#AA4499,221_HA1,True,,#252525,1.6,HA1 site 221; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
+C,222,#AA4499,222_HA1,True,,#252525,1.6,HA1 site 222; antigenic site Ca2 of Wilson et al. 2015 Virology 485:252-62
 C,223,#e8e8e8,223_HA1,,,,,HA1 site 223; not in a defined antigenic site
 C,224,#e8e8e8,224_HA1,,,,,HA1 site 224; not in a defined antigenic site
 C,225,#e8e8e8,225_HA1,,,,,HA1 site 225; not in a defined antigenic site
@@ -1217,9 +1217,9 @@ C,231,#e8e8e8,231_HA1,,,,,HA1 site 231; not in a defined antigenic site
 C,232,#e8e8e8,232_HA1,,,,,HA1 site 232; not in a defined antigenic site
 C,233,#e8e8e8,233_HA1,,,,,HA1 site 233; not in a defined antigenic site
 C,234,#e8e8e8,234_HA1,,,,,HA1 site 234; not in a defined antigenic site
-C,235,#4daf4a,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,236,#4daf4a,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
-C,237,#4daf4a,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,235,#117733,235_HA1,True,,#252525,1.6,HA1 site 235; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,236,#117733,236_HA1,True,,#252525,1.6,HA1 site 236; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
+C,237,#117733,237_HA1,True,,#252525,1.6,HA1 site 237; antigenic site Ca1 of Wilson et al. 2015 Virology 485:252-62
 C,238,#e8e8e8,238_HA1,,,,,HA1 site 238; not in a defined antigenic site
 C,239,#e8e8e8,239_HA1,,,,,HA1 site 239; not in a defined antigenic site
 C,240,#e8e8e8,240_HA1,,,,,HA1 site 240; not in a defined antigenic site

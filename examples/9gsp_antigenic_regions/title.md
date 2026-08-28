@@ -7,11 +7,11 @@ HA1 is colored by the classical antigenic site each residue belongs to, taken fr
 which carries the sites Caton and colleagues mapped on A/PR/8/34 into the numbering of the
 2009 pandemic lineage:
 
-- **red** — site Sa
-- **blue** — site Sb
+- **indigo** — site Sa
+- **cyan** — site Sb
 - **green** — site Ca1
 - **purple** — site Ca2
-- **orange** — site Cb
+- **teal** — site Cb
 - **light gray** — HA1, not in a defined antigenic region
 - **mid gray** — HA2
 - **yellow** — N-glycans

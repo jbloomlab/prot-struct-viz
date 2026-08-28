@@ -145,12 +145,17 @@ SITES = {
 #: Colorblind-safe qualitative palette. Deliberately not the colors of the
 #: paper's own figure, whose yellow site B would be illegible against the pale
 #: gray used for the rest of the surface.
+# Paul Tol's "muted" scheme, cool subset. Every one of these is cool, so on the
+# structure warm means "changed or added" -- the red of a mutated site, the gold
+# of a glycan -- and nothing else is close to MUTATED_COLOR. The assignment keeps
+# green and purple on the sites that already had them, so only the colors that
+# had to move got new names.
 SITE_COLORS = {
-    "A": "#e41a1c",
-    "B": "#377eb8",
-    "C": "#4daf4a",
-    "D": "#984ea3",
-    "E": "#ff7f00",
+    "A": "#332288",
+    "B": "#88CCEE",
+    "C": "#117733",
+    "D": "#AA4499",
+    "E": "#44AA99",
 }
 
 #: The two grays are not decoration: they draw the HA1/HA2 boundary, which is

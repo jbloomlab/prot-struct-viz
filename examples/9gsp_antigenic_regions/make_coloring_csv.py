@@ -66,12 +66,17 @@ SITES = {
 #: H3 site it sits nearest: Sa and Sb would then share a color, and the reader
 #: would be invited to read an equivalence off the two views that the two sets
 #: of definitions do not actually assert.
+# Paul Tol's "muted" scheme, cool subset. Every one of these is cool, so on the
+# structure warm means "changed or added" -- the red of a mutated site, the gold
+# of a glycan -- and nothing else is close to MUTATED_COLOR. The assignment keeps
+# green and purple on the sites that already had them, so only the colors that
+# had to move got new names.
 SITE_COLORS = {
-    "Sa": "#e41a1c",
-    "Sb": "#377eb8",
-    "Ca1": "#4daf4a",
-    "Ca2": "#984ea3",
-    "Cb": "#ff7f00",
+    "Sa": "#332288",
+    "Sb": "#88CCEE",
+    "Ca1": "#117733",
+    "Ca2": "#AA4499",
+    "Cb": "#44AA99",
 }
 
 #: The two grays are not decoration: they draw the HA1/HA2 boundary, which is
