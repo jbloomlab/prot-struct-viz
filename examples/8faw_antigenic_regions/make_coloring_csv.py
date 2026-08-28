@@ -1,21 +1,36 @@
-"""Regenerate ``coloring.csv`` for the 8FAW antigenic-regions example.
+"""Regenerate the four coloring CSVs for the 8FAW antigenic-regions example.
 
-``coloring.csv`` is committed, and this script is **not** run by
-``scripts/build_examples.sh`` or by the tests -- ``command.sh`` reads the
-committed file. Run this by hand when the inputs below change::
+The CSVs are committed, and this script is **not** run by
+``scripts/build_examples.sh`` or by the tests -- ``spec.yaml`` reads the
+committed files. Run this by hand when the inputs below change::
 
     .venv/bin/python examples/8faw_antigenic_regions/make_coloring_csv.py
 
-It exists because the ~490 rows are derived from two external sources, and a
-table that large is only auditable if its derivation ships with it.
+It writes one CSV per view of ``spec.yaml``, each named after the view that
+reads it -- so a name here that no view claims is a name that has gone stale:
 
-Two things the script fetches rather than hard-codes:
+* ``antigenic-regions-w-glycans.csv`` -- every residue, HA1 colored by antigenic
+  region, plus the host N-glycans and the LSTc receptor analogue;
+* ``antigenic-regions.csv`` -- the same without the host-glycan rows, so that the
+  view's ``glycans: hide`` can take them away;
+* ``perth-2009-to-subclade-k.csv`` and ``2025-26-to-2026-27-vaccine.csv`` -- the
+  sites that differ between two HAs, in red, plus the same LSTc rows.
+
+It exists because the ~490 rows of the first two are derived from two external
+sources, and a table that large is only auditable if its derivation ships with
+it. Two things it fetches rather than hard-codes:
 
 * the lab's H3N2 site-numbering map, which is what turns a residue number into
   an HA1 or HA2 site number;
 * PDB 8FAW itself, so that only *modeled* residues get a row.
 
-The numbering frame is the load-bearing assumption here, so it is asserted
+The two mutation lists are the exception: they are hard-coded below rather than
+recomputed from the sequence libraries they came from, so that this repository
+depends on nothing outside itself. What the script still owns for them is the
+mapping from an HA1/HA2 site to a residue of 8FAW, and the check that every one
+of them is actually modeled.
+
+The numbering frame is the load-bearing assumption throughout, so it is asserted
 rather than trusted: if a revised map or a different entry ever shifts it, this
 script fails instead of writing a plausible-looking but wrong CSV.
 """
@@ -145,13 +160,96 @@ HA2_COLOR = "#bdbdbd"
 RECEPTOR_COLOR = "#000000"
 GLYCAN_COLOR = "#ffd700"
 
-#: Label text sits on top of a residue already painted its site color, so it
-#: must not inherit that color. The size is below the 2.0 default because the
-#: trimer draws every one of these labels three times.
-LABEL_COLOR = "#252525"
-LABEL_SIZE = "1.6"
+#: Sites that differ between the two HAs of a comparison. Deliberately site A's
+#: red from the palette above: these views drop the antigenic-region coloring
+#: entirely, so the two never appear on the same structure.
+MUTATED_COLOR = "#e41a1c"
 
 CITATION = "Stray & Pittman 2012 Virol J 9:91"
+
+#: How each HA is named in a tooltip and in the CSV's ``notes`` column, with the
+#: GenBank accession of the sequence actually compared.
+PERTH = "A/Perth/16/2009 (GQ293081)"
+SUBCLADE_K = "subclade K (A/Darwin/1415/2025, PX422923)"
+DC_2023 = "A/District_Of_Columbia/27/2023 (PV280355)"
+DARWIN_2025 = "A/Darwin/1415/2025 (PX422923)"
+
+#: Sites differing between two HAs, as ``(protein, site, from, to)``.
+#:
+#: Both lists were computed once from the three HA ectodomain protein sequences
+#: named above -- as they appear in the Bloom lab's sequencing libraries, which
+#: is why each is pinned to an accession here -- and then transcribed. Subclade K
+#: is represented by the one strain the 2026 library assigns ``derived_haplotype
+#: == "K"``, A/Darwin/1415/2025, which is also the 2026-2027 vaccine strain: that
+#: is why the two comparisons share a target and differ only in the comparator.
+#:
+#: All three ectodomains are 501 residues with no indels, so they compare
+#: position by position with no alignment, and ectodomain position is HA1 site
+#: 1-329 then HA2 site (position - 329) -- the same frame `FRAME_CHECKS` pins.
+#: Substitutions outside what 8FAW models are dropped rather than listed:
+#: ``K2N`` and ``L3I`` fall before HA1 11, and ``T328A`` after HA1 325.
+PERTH_TO_SUBCLADE_K = [
+    ("HA1", 33, "Q", "R"),
+    ("HA1", 45, "S", "N"),
+    ("HA1", 48, "T", "I"),
+    ("HA1", 50, "E", "K"),
+    ("HA1", 53, "D", "N"),
+    ("HA1", 62, "K", "G"),
+    ("HA1", 83, "K", "E"),
+    ("HA1", 92, "K", "R"),
+    ("HA1", 94, "Y", "N"),
+    ("HA1", 96, "N", "S"),
+    ("HA1", 121, "N", "K"),
+    ("HA1", 122, "N", "D"),
+    ("HA1", 131, "T", "K"),
+    ("HA1", 135, "T", "K"),
+    ("HA1", 140, "I", "K"),
+    ("HA1", 142, "R", "G"),
+    ("HA1", 144, "K", "N"),
+    ("HA1", 145, "N", "S"),
+    ("HA1", 156, "H", "S"),
+    ("HA1", 158, "N", "D"),
+    ("HA1", 159, "F", "N"),
+    ("HA1", 164, "L", "Q"),
+    ("HA1", 171, "N", "K"),
+    ("HA1", 173, "Q", "R"),
+    ("HA1", 186, "G", "D"),
+    ("HA1", 189, "K", "R"),
+    ("HA1", 190, "D", "N"),
+    ("HA1", 192, "I", "F"),
+    ("HA1", 193, "F", "S"),
+    ("HA1", 195, "Y", "F"),
+    ("HA1", 198, "A", "S"),
+    ("HA1", 212, "T", "A"),
+    ("HA1", 214, "S", "I"),
+    ("HA1", 225, "N", "D"),
+    ("HA1", 276, "K", "E"),
+    ("HA1", 278, "N", "K"),
+    ("HA1", 312, "N", "S"),
+    ("HA2", 77, "I", "V"),
+    ("HA2", 155, "G", "E"),
+    ("HA2", 160, "D", "N"),
+]
+
+DC_2023_TO_DARWIN_2025 = [
+    ("HA1", 135, "T", "K"),
+    ("HA1", 144, "S", "N"),
+    ("HA1", 145, "N", "S"),
+    ("HA1", 158, "N", "D"),
+    ("HA1", 160, "I", "K"),
+    ("HA1", 173, "Q", "R"),
+    ("HA1", 189, "K", "R"),
+    ("HA2", 49, "S", "N"),
+]
+
+#: Expected lengths of the two lists above, asserted for the same reason
+#: `check_sites` asserts the antigenic sites' size: a hand-transcribed list is
+#: worth nothing if a dropped line goes unnoticed.
+MUTATION_COUNTS = {"PERTH_TO_SUBCLADE_K": 40, "DC_2023_TO_DARWIN_2025": 8}
+
+#: Residue number of HA2 site 1 in 8FAW's author numbering. HA1 sites are author
+#: numbers already, so HA1 needs no offset.
+HA2_OFFSET = 329
 
 #: Residues whose identity fixes the numbering frame. The four aromatics line
 #: the receptor-binding site and the nine cysteines form HA1's disulfides; all
@@ -172,15 +270,16 @@ FRAME_CHECKS = {
     305: "CYS",
 }
 
+#: No view of this example draws labels into the scene, so the three columns
+#: that style a drawn label -- ``show_label``, ``label_color``, ``label_size``
+#: -- are left out rather than written empty. ``label`` stays: it is the
+#: mouseover tooltip, which is how a reader identifies a residue here.
 HEADER = [
     "chain",
     "residue",
     "color",
     "label",
-    "show_label",
     "representation",
-    "label_color",
-    "label_size",
     "notes",
 ]
 
@@ -277,11 +376,28 @@ def site_of(residue_number):
     return None
 
 
-def polymer_rows(polymer, numbering):
-    """One row per modeled polymer residue, colored by antigenic site."""
-    ha2_offset = max(
+def map_ha2_offset(numbering):
+    """Return the numbering map's own HA2 offset, checked against `HA2_OFFSET`.
+
+    The map derives it from its own rows; `HA2_OFFSET` is what the hard-coded
+    mutation lists assume. They are the same number for the same reason -- HA1
+    is 329 residues -- but nothing forces that, so it is checked once here
+    rather than trusted in two places.
+    """
+    offset = max(
         seq for seq, (protein, _) in numbering.items() if protein == "HA2"
     ) - max(site for protein, site in numbering.values() if protein == "HA2")
+    if offset != HA2_OFFSET:
+        raise SystemExit(
+            f"numbering map puts HA2 site 1 at residue {offset + 1}, but the "
+            f"mutation lists assume {HA2_OFFSET + 1}"
+        )
+    return offset
+
+
+def polymer_rows(polymer, numbering):
+    """One row per modeled polymer residue, colored by antigenic site."""
+    ha2_offset = map_ha2_offset(numbering)
     rows = []
     for _, number, _component in polymer:
         if number in numbering:
@@ -298,8 +414,7 @@ def polymer_rows(polymer, numbering):
             )
         region = site_of(site) if protein == "HA1" else None
         # One label for every residue, antigenic site or not: the site number
-        # alone is ambiguous across HA1 and HA2, and this is both the mouseover
-        # text and, on an antigenic-site residue, the text drawn into the scene.
+        # alone is ambiguous across HA1 and HA2, and this is the mouseover text.
         label = f"{site}_{protein}"
         if region is not None:
             rows.append(
@@ -308,10 +423,7 @@ def polymer_rows(polymer, numbering):
                     number,
                     SITE_COLORS[region],
                     label,
-                    "True",
                     "",
-                    LABEL_COLOR,
-                    LABEL_SIZE,
                     f"HA1 site {site}; antigenic site {region} of {CITATION}",
                 ]
             )
@@ -323,9 +435,6 @@ def polymer_rows(polymer, numbering):
                     HA1_COLOR if protein == "HA1" else HA2_COLOR,
                     label,
                     "",
-                    "",
-                    "",
-                    "",
                     f"{protein} site {site}; not in a defined antigenic site",
                 ]
             )
@@ -333,7 +442,13 @@ def polymer_rows(polymer, numbering):
 
 
 def receptor_rows(receptor):
-    """One row per LSTc sugar, with the assembled name drawn on the last one."""
+    """One row per LSTc sugar, in every CSV.
+
+    Every view keeps the receptor analogue: it is the landmark that says which
+    end of a protomer is membrane-distal. Three of the four views set ``glycans:
+    hide``, and 8FAW's sugars all classify as glycans -- the host N-glycans and
+    these five alike -- so naming them here is the only reason they survive.
+    """
     rows = []
     for index, (_, number, component) in enumerate(receptor, start=1):
         last = index == len(receptor)
@@ -343,12 +458,10 @@ def receptor_rows(receptor):
                 number,
                 RECEPTOR_COLOR,
                 "LSTc" if last else component,
-                "True" if last else "",
                 "ball-and-stick",
-                LABEL_COLOR if last else "",
-                LABEL_SIZE if last else "",
                 f"LSTc sugar {index} of {len(receptor)} ({component}); "
-                "named here so it is drawn in this color rather than as an SNFG symbol",
+                "named here so it is drawn in this color rather than as an SNFG "
+                "symbol, and so that `glycans: hide` does not take it away",
             ]
         )
     return rows
@@ -357,9 +470,9 @@ def receptor_rows(receptor):
 def glycan_rows(glycans):
     """One row per host N-glycan sugar, drawn in one color rather than as SNFG.
 
-    These are not labeled: several shield an antigenic region, which is the
-    point of showing them, and adding a dozen more labels to a view that
-    already draws 83 per protomer would obscure the thing they shield.
+    Only the first view's CSV gets these. Leaving them out of the other three is
+    what lets those views' ``glycans: hide`` take them away, since a residue
+    named in the CSV is drawn whatever the heteroatom options say.
     """
     return [
         [
@@ -367,15 +480,75 @@ def glycan_rows(glycans):
             number,
             GLYCAN_COLOR,
             component,
-            "",
             "ball-and-stick",
-            "",
-            "",
             f"Host N-glycan sugar ({component}); named here so it is drawn in "
             "this color rather than as an SNFG symbol",
         ]
         for chain, number, component in sorted(glycans)
     ]
+
+
+def residue_number(protein, site):
+    """Return the 8FAW author residue number of an HA1 or HA2 site."""
+    if protein == "HA1":
+        return site
+    if protein == "HA2":
+        return site + HA2_OFFSET
+    raise SystemExit(f"unknown protein {protein!r}; expected 'HA1' or 'HA2'")
+
+
+def check_mutations(name, mutations, modeled):
+    """Fail loudly if a hard-coded mutation list has drifted or gone unmodeled.
+
+    Both failures would otherwise be silent: a dropped line just loses a red
+    site, and a site 8FAW does not model would be reported by ``on_mismatch``
+    but only as one line among the rest of the build's output.
+    """
+    expected = MUTATION_COUNTS[name]
+    if len(mutations) != expected:
+        raise SystemExit(f"{name} has {len(mutations)} entries, expected {expected}")
+    seen = {(protein, site) for protein, site, _, _ in mutations}
+    if len(seen) != len(mutations):
+        raise SystemExit(f"{name} names the same site twice")
+    absent = [
+        f"{site}_{protein}"
+        for protein, site, _, _ in mutations
+        if residue_number(protein, site) not in modeled
+    ]
+    if absent:
+        raise SystemExit(f"{name} names sites 8FAW does not model: {absent}")
+
+
+def mutation_rows(mutations, from_name, to_name):
+    """One red row per differing site, and nothing for the rest of the molecule.
+
+    The antigenic-region coloring is gone from these views: every residue
+    without a row here takes the view's ``default_color``, so the only thing
+    painted is what changed. The tooltip carries the substitution itself, which
+    is the only way to read the view -- no label is drawn into the scene.
+    """
+    return [
+        [
+            POLYMER_CHAIN,
+            residue_number(protein, site),
+            MUTATED_COLOR,
+            f"{old}{site}{new}_{protein}",
+            "",
+            f"{protein} site {site} differs: {old} in {from_name}, "
+            f"{new} in {to_name}",
+        ]
+        for protein, site, old, new in mutations
+    ]
+
+
+def write_csv(name, rows, note):
+    """Write one CSV beside this script and say what went into it."""
+    out_path = pathlib.Path(__file__).parent / name
+    with out_path.open("w", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(HEADER)
+        writer.writerows(rows)
+    print(f"wrote {out_path} ({len(rows)} rows: {note})")
 
 
 def main():
@@ -385,26 +558,35 @@ def main():
 
     polymer, glycans, receptor = partition_residues(model)
     check_frame(polymer)
+    modeled = {number for _, number, _ in polymer}
+    check_mutations("PERTH_TO_SUBCLADE_K", PERTH_TO_SUBCLADE_K, modeled)
+    check_mutations("DC_2023_TO_DARWIN_2025", DC_2023_TO_DARWIN_2025, modeled)
 
-    # Ordered so the file sorts by chain then residue, which is also what the
-    # docs' snippet line range depends on: the polymer block starts on line 2.
-    rows = (
-        polymer_rows(polymer, numbering)
-        + glycan_rows(glycans)
-        + receptor_rows(receptor)
+    # Each list is ordered so the file sorts by chain then residue.
+    protein = polymer_rows(polymer, numbering)
+    host = glycan_rows(glycans)
+    lstc = receptor_rows(receptor)
+
+    write_csv(
+        "antigenic-regions-w-glycans.csv",
+        protein + host + lstc,
+        f"{len(protein)} polymer, {len(host)} host glycan, {len(lstc)} receptor",
     )
-
-    out_path = pathlib.Path(__file__).parent / "coloring.csv"
-    with out_path.open("w", newline="") as handle:
-        writer = csv.writer(handle, lineterminator="\n")
-        writer.writerow(HEADER)
-        writer.writerows(rows)
-
-    labeled = sum(1 for row in rows if row[4] == "True")
-    print(
-        f"wrote {out_path} ({len(rows)} rows: {len(polymer)} polymer, "
-        f"{len(glycans)} host glycan, {len(receptor)} receptor; "
-        f"{labeled} with a drawn label)"
+    write_csv(
+        "antigenic-regions.csv",
+        protein + lstc,
+        f"{len(protein)} polymer, {len(lstc)} receptor; host glycans left out so "
+        "the view's `glycans: hide` can take them away",
+    )
+    write_csv(
+        "perth-2009-to-subclade-k.csv",
+        mutation_rows(PERTH_TO_SUBCLADE_K, PERTH, SUBCLADE_K) + lstc,
+        f"{len(PERTH_TO_SUBCLADE_K)} differing sites, {len(lstc)} receptor",
+    )
+    write_csv(
+        "2025-26-to-2026-27-vaccine.csv",
+        mutation_rows(DC_2023_TO_DARWIN_2025, DC_2023, DARWIN_2025) + lstc,
+        f"{len(DC_2023_TO_DARWIN_2025)} differing sites, {len(lstc)} receptor",
     )
 
 
