@@ -353,8 +353,15 @@ def render_title(title_md: pathlib.Path | None) -> str:
     return markdown_it.MarkdownIt().render(path.read_text(encoding="utf-8"))
 
 
-def render_html(mvsx: bytes, title_html: str, page_title: str) -> str:
-    """Render the viewer template around a base64 MVSX payload."""
+def render_html(
+    mvsx: bytes, title_html: str, page_title: str, show_label_toggle: bool
+) -> str:
+    """Render the viewer template around a base64 MVSX payload.
+
+    ``show_label_toggle`` renders the Labels checkbox. It is the caller's job to
+    pass ``False`` when the view drew no persistent labels: a checkbox that moves
+    nothing is worse than no checkbox.
+    """
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(_TEMPLATE_DIR),
         autoescape=jinja2.select_autoescape(["html"]),
@@ -366,4 +373,5 @@ def render_html(mvsx: bytes, title_html: str, page_title: str) -> str:
         mvsx_base64=base64.b64encode(mvsx).decode("ascii"),
         title_html=title_html,  # already HTML; the template marks it safe
         page_title=page_title,
+        show_label_toggle=show_label_toggle,
     )

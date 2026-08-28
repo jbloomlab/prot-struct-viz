@@ -79,7 +79,7 @@ OPTION_DOCS = {
         "glycan named in the CSV is never drawn as an SNFG symbol."
     ),
     "ions": "Show or hide ions not named in the CSV (element-colored spacefill).",
-    "title_md": "Optional Markdown file rendered into a header block above the viewer.",
+    "title_md": "Optional Markdown file rendered into a caption block below the viewer.",
 }
 
 

@@ -80,8 +80,9 @@ reported as a separate warning rather than as mismatches.
 
 `--default-color` sets the color of every residue with no CSV row.
 
-`--title-md` renders a Markdown file into a header block above the viewer, which is where
-a caption, a legend, or a link back to the source belongs.
+`--title-md` renders a Markdown file into a caption block below the viewer, which is where
+a caption, a legend, or a link back to the source belongs. It sits under the structure so
+the page opens on the view rather than on however many paragraphs the Markdown runs to.
 
 ## Getting the structure
 
@@ -95,7 +96,7 @@ pass the path.
 
 ## In the viewer
 
-The generated page has two buttons above the structure.
+The generated page has its own controls above the structure, alongside Mol\*'s.
 
 **Export image** downloads a PNG at whatever size, resolution, and background
 transparency are set in Mol\*'s own screenshot panel — the camera icon in the viewport.
@@ -105,6 +106,11 @@ knowing: the Mol\* Components panel stays live, but a representation you *add* f
 arrives in Mol\*'s default element coloring, not the CSV's, and there is no way to color
 it from the UI. Mouseover tooltips and the persistent labels keep working on it; only the
 color is missing. Reset view puts the original coloring and camera back.
+
+**Labels** shows and hides the persistent on-structure labels. It appears only when the
+CSV asked for at least one and the view could place it, and it moves all of them at once —
+including the copy drawn on every symmetry mate under `--assembly`. Mouseover tooltips are
+separate and keep working while the labels are hidden.
 
 See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why, and for
 what the entries in the Components panel are named after.

@@ -11,20 +11,20 @@
   body { margin: 0; padding: 0 1rem 1rem;
          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
          color: #24292f; }
-  #header { max-width: 60rem; }
+  #header { max-width: 60rem; margin-top: 1rem; }
   #header:empty { display: none; }
   #controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
   #controls button { font: inherit; padding: 0.3rem 0.7rem; cursor: pointer;
                      border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
   #controls button:hover { background: #eaeef2; }
+  #controls label { display: flex; gap: 0.3rem; align-items: center; cursor: pointer;
+                    user-select: none; }
   #status { color: #57606a; font-size: 0.9rem; }
   /* Mol* fills this box and positions its own UI inside it. */
   #viewer { position: relative; width: 100%; height: 70vh; min-height: 30rem; }
 </style>
 </head>
 <body>
-
-<div id="header">{{ title_html | safe }}</div>
 
 <div id="controls">
   <button id="export-image" type="button"
@@ -33,10 +33,19 @@ first with the camera icon in the viewport.">Export image</button>
   <button id="reset-view" type="button"
           title="Reload this view as it was generated. A representation added from the
 Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</button>
+{%- if show_label_toggle %}
+  <label title="Show or hide every label drawn on the structure, including the copy on
+each symmetry mate. Mouseover tooltips are separate and keep working either way.">
+    <input id="label-toggle" type="checkbox" checked> Labels</label>
+{%- endif %}
   <span id="status">Loading structure&hellip;</span>
 </div>
 
 <div id="viewer"></div>
+
+{# The caption sits below the structure so the page opens on the view rather than on
+   however many paragraphs the Markdown runs to. #}
+<div id="header">{{ title_html | safe }}</div>
 
 {# The whole view -- coordinates, annotations, and the MVS state -- as a base64
    MVSX archive. Kept in a non-executing script block so the payload is never
@@ -78,6 +87,46 @@ Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</
             return viewer.loadMvsData('base64,' + payload, 'mvsx');
         }
 
+        // Persistent labels are MVS primitives, so they are not an entry in the
+        // Components panel that a reader could switch off; the page has to offer the
+        // control itself. Mol* builds one mvs-build-primitive-shape node per kind
+        // (mesh / labels / lines) under each primitives group, and honours isHidden on
+        // the *representation* child of that node -- setting it on the node itself does
+        // nothing. There is one group per set of assembly transforms, so collecting
+        // every match is what makes one click move every copy of every label.
+        var toggle = document.getElementById('label-toggle');
+
+        function labelRepresentations() {
+            var state = viewer.plugin.state.data;
+            var refs = [];
+            state.cells.forEach(function (cell, ref) {
+                var parent = state.cells.get(cell.transform.parent);
+                if (!parent) return;
+                var transform = parent.transform;
+                if (transform.transformer.id === 'mvs-build-primitive-shape' &&
+                        transform.params && transform.params.kind === 'labels') {
+                    refs.push(ref);
+                }
+            });
+            return refs;
+        }
+
+        // Called after every load, not just on change: reloading the payload rebuilds
+        // the state tree with fresh refs and everything visible, which would otherwise
+        // leave an unchecked box beside labels that came back.
+        function applyLabelVisibility() {
+            if (!toggle) return;
+            var state = viewer.plugin.state.data;
+            var hidden = !toggle.checked;
+            labelRepresentations().forEach(function (ref) {
+                state.updateCellState(ref, { isHidden: hidden });
+            });
+        }
+
+        if (toggle) {
+            toggle.addEventListener('change', applyLabelVisibility);
+        }
+
         document.getElementById('export-image').addEventListener('click', function () {
             // Downloads at whatever size, resolution, and transparency are set in
             // Mol*'s own screenshot panel (the camera icon in the viewport).
@@ -86,10 +135,11 @@ Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</
         document.getElementById('reset-view').addEventListener('click', function () {
             status.textContent = 'Resetting…';
             load().then(function () {
+                applyLabelVisibility();
                 status.textContent = '';
             }).catch(fail);
         });
-        return load();
+        return load().then(applyLabelVisibility);
     }).then(function () {
         status.textContent = '';
     }).catch(fail);

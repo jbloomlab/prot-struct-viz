@@ -22,7 +22,7 @@ carrying a label drawn into the 3D scene.
      /examples/ and the rendered views land in the same directory, so they are
      siblings. The Markdown link below uses the source-relative path and is rewritten;
      keeping both means --strict still catches a missing render. -->
-<iframe src="8faw_antigenic_regions.html" width="100%" height="640"
+<iframe src="8faw_antigenic_regions.html" width="100%" height="900"
         style="border: 1px solid #ddd; border-radius: 4px;"
         title="Antigenic regions of influenza H3 hemagglutinin"></iframe>
 
@@ -46,7 +46,7 @@ Far too long to show whole, so these are the rows for antigenic site A.
 ```
 
 [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md)
-supplies the caption above the viewer.
+supplies the caption below the viewer.
 
 ## Antigenic regions of influenza H1 hemagglutinin
 
@@ -55,7 +55,7 @@ protomers, so the CSV annotates every one of them — 1491 rows and 150 drawn la
 
 <!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
      on the first example for why the two differ. -->
-<iframe src="9gsp_antigenic_regions.html" width="100%" height="640"
+<iframe src="9gsp_antigenic_regions.html" width="100%" height="900"
         style="border: 1px solid #ddd; border-radius: 4px;"
         title="Antigenic regions of influenza H1 hemagglutinin"></iframe>
 
@@ -79,7 +79,7 @@ Far too long to show whole, so these are chain A's rows for antigenic site Sb.
 ```
 
 [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/title.md)
-supplies the caption above the viewer.
+supplies the caption below the viewer.
 
 ## Influenza B neuraminidase active site
 
@@ -88,7 +88,7 @@ glycan colored from the CSV rather than by element, and a per-chain base represe
 
 <!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
      on the first example for why the two differ. -->
-<iframe src="1f8b_active_site.html" width="100%" height="640"
+<iframe src="1f8b_active_site.html" width="100%" height="900"
         style="border: 1px solid #ddd; border-radius: 4px;"
         title="Influenza B neuraminidase active site"></iframe>
 
@@ -111,4 +111,4 @@ explanation lives there while `label` stays short enough to draw into the 3D sce
 
 The run also uses [`chains.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/chains.csv)
 for `--chain-representation` and [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/title.md)
-for the caption above the viewer.
+for the caption below the viewer.

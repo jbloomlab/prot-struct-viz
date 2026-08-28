@@ -7,6 +7,11 @@ All notable changes to this project are documented here, in
 
 ### Added
 
+- A **Labels** checkbox in the generated page, shown whenever the view drew at least one
+  persistent on-structure label. It hides and shows all of them at once, including the copy
+  on every symmetry mate, and leaves the mouseover tooltips alone. The labels are MolViewSpec
+  primitives rather than Components-panel entries, so Mol\*'s own UI offers no way to switch
+  them off.
 - A **Reset view** button in the generated page, reloading the view as it was written.
   It exists because MolViewSpec attaches per-residue color to each representation it
   creates, so a representation added afterwards from Mol\*'s Components panel arrives in
@@ -54,6 +59,8 @@ All notable changes to this project are documented here, in
 
 ### Changed
 
+- The `--title-md` caption is rendered below the structure rather than above it, so the page
+  opens on the view instead of on however many paragraphs the Markdown runs to.
 - Documentation is single-sourced in `docs/`; the README is now a front door that links
   to it rather than a second copy that drifts from it.
 - Examples live in `examples/<name>/` directories, each with the exact `command.sh` that

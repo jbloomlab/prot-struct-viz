@@ -62,7 +62,7 @@ def render(
     chain_representation
         Optional path to a ``chain,representation`` override file.
     title_md
-        Optional path to a Markdown file rendered above the viewer.
+        Optional path to a Markdown file rendered below the viewer.
 
     Returns
     -------
@@ -178,8 +178,16 @@ def render(
             )
         mvsx = build_mvsx(state, coordinate_text, structure_member, rows)
 
+        # Offer the Labels checkbox only if a label was actually drawn: rows asking
+        # for one on a residue --chains excludes leave nothing for it to move.
+        wanted_labels = {spec.key for spec in coloring.specs if spec.show_label}
         title_html = render_title(pathlib.Path(title_md) if title_md else None)
-        html = render_html(mvsx, title_html, out_path.stem)
+        html = render_html(
+            mvsx,
+            title_html,
+            out_path.stem,
+            show_label_toggle=bool(wanted_labels - set(unplaced_labels)),
+        )
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html, encoding="utf-8")
