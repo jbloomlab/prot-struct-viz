@@ -102,8 +102,25 @@ All notable changes to this project are documented here, in
 - Documentation is single-sourced in `docs/`; the README is now a front door that links
   to it rather than a second copy that drifts from it.
 - Examples live in `examples/<name>/` directories, each with the exact `spec.yaml` that
-  produces it, and are rendered into the documentation site with the spec and inputs
-  shown alongside. The H3 hemagglutinin example now has two views.
+  produces it, and are rendered into the documentation site. The H3 hemagglutinin example
+  now has two views. Each documented example gives the command that made it and links its
+  input files, rather than inlining every `spec.yaml` and slabs of every CSV -- the page
+  was mostly verbatim input, and a reader had to scroll a YAML file to reach the next
+  structure.
+- Two of the three examples now open with Mol\*'s own panels closed, so they read as
+  figures; the influenza B neuraminidase one still opens with them showing, so the site
+  shows both states.
+- **Documentation reorganized so each key is described exactly once**, in the order a user
+  meets it: examples, then the spec reference, then the CSV schema. The "Rendering options"
+  page is gone -- what a key *means* (assemblies, representation layers, heteroatom
+  precedence, `on_mismatch`) is now in the spec reference beside the key itself, and what a
+  reader of the output can click is a new, short **The rendered page**. Implementation
+  detail that had accumulated in user-facing prose -- screenshot sample counts, GPU export
+  limits, why the snapshot stepper is hidden, why downloads are not cached -- moved to
+  **How it works**.
+- The spec reference moved from `docs/cli.md` to `docs/spec.md`, so its published URL is
+  now `/spec/` rather than `/cli/`. The page has documented the YAML spec rather than a CLI
+  since the flags went away.
 
 ### Removed
 
@@ -113,5 +130,5 @@ All notable changes to this project are documented here, in
 - Every command-line flag, superseded by the spec file above.
 - `--cache-dir` and the `cache_dir` argument to `render()`. Structures fetched from RCSB
   are no longer cached: only the coordinate text is ever used, so the cache bought one
-  HTTP request in exchange for a stale-file failure mode. Pass a local file to
-  `--structure` to render the same coordinates repeatedly.
+  HTTP request in exchange for a stale-file failure mode. Pass a local file as
+  `structure` to render the same coordinates repeatedly.

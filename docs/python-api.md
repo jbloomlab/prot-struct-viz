@@ -1,7 +1,7 @@
 # Python API
 
 The CLI is a thin wrapper around [`render_file`](#prot_struct_viz.render_file), which
-loads a [spec file](cli.md) and calls [`render`](#prot_struct_viz.render). Both paths go
+loads a [spec file](spec.md) and calls [`render`](#prot_struct_viz.render). Both paths go
 through the same [`Spec`](#prot_struct_viz.Spec), so they cannot disagree about what an
 option does.
 

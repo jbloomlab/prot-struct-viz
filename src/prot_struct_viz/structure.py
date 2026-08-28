@@ -92,7 +92,7 @@ def resolve_structure(source: str) -> tuple[str, str]:
 
     if not PDB_ID_RE.match(source):
         raise InputError(
-            f"--structure {source!r} is neither an existing file nor a PDB ID "
+            f"structure {source!r} is neither an existing file nor a PDB ID "
             "(a 4-character id like '1F8B', or 'pdb_' plus 8 characters)"
         )
 

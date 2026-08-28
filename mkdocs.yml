@@ -13,9 +13,9 @@ theme:
 nav:
   - Overview: index.md
   - Examples: examples.md
+  - Spec reference: spec.md
   - CSV schema: csv-schema.md
-  - Rendering options: rendering.md
-  - Spec reference: cli.md
+  - The rendered page: viewer.md
   - Python API: python-api.md
   - How it works: internals.md
 
@@ -23,12 +23,6 @@ markdown_extensions:
   - admonition
   - tables
   - pymdownx.superfences
-  # Lets docs/examples.md include examples/*/spec.yaml and the input CSVs
-  # verbatim, so the documented input is literally the one that ran.
-  # base_path is the repo root, since the examples live outside docs/.
-  - pymdownx.snippets:
-      base_path: ["."]
-      check_paths: true
 
 plugins:
   - search

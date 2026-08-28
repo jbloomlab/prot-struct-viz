@@ -2,10 +2,8 @@
 
 Each example is a directory under
 [`examples/`](https://github.com/jbloomlab/prot-struct-viz/tree/main/examples) holding its
-input files and a `spec.yaml` — the exact input that produced the view below, rendered
-with `prot-struct-viz spec.yaml`. The spec and the inputs shown on this page are
-*included* from those files rather than retyped, so they cannot drift from what actually
-ran.
+input files and a `spec.yaml`. The links in each section go to the exact directory that
+produced the view above them, so what is documented is what ran.
 
 Every view carries its own caption, rendered from a `title.md`, which is where the
 structure and the color scheme are explained. This page only says what each example shows
@@ -18,7 +16,8 @@ Rebuild them all with `scripts/build_examples.sh`.
 Colors a whole molecule from a generated CSV — 499 rows, one per residue — with 83 of them
 carrying a label drawn into the 3D scene. It also has **two views** of that coloring, a
 surface and a cartoon: pick one from the **View** selector below the structure and the
-camera stays where you left it.
+camera stays where you left it. The second view pins its own camera, so switching to it also
+turns the trimer to face you.
 
 <!-- The src is a bare filename, not "examples/...", because MkDocs does not rewrite
      paths inside raw HTML the way it does Markdown links. This page is served at
@@ -31,25 +30,20 @@ camera stays where you left it.
 
 [Open this view on its own](examples/8faw_antigenic_regions.html)
 
-### The spec
+Rendered from
+[`examples/8faw_antigenic_regions/`](https://github.com/jbloomlab/prot-struct-viz/tree/main/examples/8faw_antigenic_regions)
+with:
 
-```yaml
---8<-- "examples/8faw_antigenic_regions/spec.yaml"
+```bash
+prot-struct-viz spec.yaml
 ```
 
-### The inputs
-
-Far too long to show whole, so these are the rows for antigenic site A.
-
-<!-- Rows are sorted by chain then residue and HA1 starts at residue 11 on line 2, so
-     HA1 residue n is on line n - 9; site A is residues 121-146, hence lines 112-137.
-     Recompute these bounds if coloring.csv is ever regenerated. -->
-```csv
---8<-- "examples/8faw_antigenic_regions/coloring.csv:1:1,112:137"
-```
-
-[`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md)
-supplies the caption below the viewer.
+| file | what it is |
+| --- | --- |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: two views sharing one YAML anchor |
+| [`coloring.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/coloring.csv) | 499 rows, one per residue; 83 ask for a drawn label |
+| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md), [`title_fold.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_fold.md) | the caption for each view |
+| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates `coloring.csv` from a numbering map |
 
 ## Antigenic regions of influenza H1 hemagglutinin
 
@@ -64,30 +58,26 @@ protomers, so the CSV annotates every one of them — 1491 rows and 150 drawn la
 
 [Open this view on its own](examples/9gsp_antigenic_regions.html)
 
-### The spec
+Rendered from
+[`examples/9gsp_antigenic_regions/`](https://github.com/jbloomlab/prot-struct-viz/tree/main/examples/9gsp_antigenic_regions)
+with:
 
-```yaml
---8<-- "examples/9gsp_antigenic_regions/spec.yaml"
+```bash
+prot-struct-viz spec.yaml
 ```
 
-### The inputs
-
-Far too long to show whole, so these are chain A's rows for antigenic site Sb.
-
-<!-- Rows are sorted by chain then residue and chain A starts at residue 1 on line 2, so
-     HA1 residue n is on line n + 1; site Sb is residues 184-195, hence lines 185-196.
-     Recompute these bounds if coloring.csv is ever regenerated. -->
-```csv
---8<-- "examples/9gsp_antigenic_regions/coloring.csv:1:1,185:196"
-```
-
-[`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/title.md)
-supplies the caption below the viewer.
+| file | what it is |
+| --- | --- |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/spec.yaml) | the whole input: one view over the deposited trimer |
+| [`coloring.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/coloring.csv) | 1491 rows across three chains; 150 ask for a drawn label |
+| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/title.md) | the caption below the viewer |
+| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/make_coloring_csv.py) | generates `coloring.csv` from a numbering map |
 
 ## Influenza B neuraminidase active site
 
 A handful of hand-picked residues instead: insertion-coded author numbering, a ligand and a
-glycan colored from the CSV rather than by element, and a per-chain base representation.
+glycan colored from the CSV rather than by element, and a per-chain base representation. It
+is also the one example that opens with Mol\*'s own panels showing, rather than closed.
 
 <!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
      on the first example for why the two differ. -->
@@ -97,21 +87,17 @@ glycan colored from the CSV rather than by element, and a per-chain base represe
 
 [Open this view on its own](examples/1f8b_active_site.html)
 
-### The spec
+Rendered from
+[`examples/1f8b_active_site/`](https://github.com/jbloomlab/prot-struct-viz/tree/main/examples/1f8b_active_site)
+with:
 
-```yaml
---8<-- "examples/1f8b_active_site/spec.yaml"
+```bash
+prot-struct-viz spec.yaml
 ```
 
-### The inputs
-
-Note the `notes` column: `prot-struct-viz` ignores columns it does not recognize, so the
-explanation lives there while `label` stays short enough to draw into the 3D scene.
-
-```csv
---8<-- "examples/1f8b_active_site/coloring.csv"
-```
-
-The run also uses [`chains.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/chains.csv)
-for `--chain-representation` and [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/title.md)
-for the caption below the viewer.
+| file | what it is |
+| --- | --- |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/spec.yaml) | the whole input: one view over the biological tetramer |
+| [`coloring.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/coloring.csv) | 19 hand-written rows; 6 ask for a drawn label. Its `notes` column shows how to keep an explanation beside a residue while `label` stays short enough to draw — unrecognized columns are ignored |
+| [`chains.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/chains.csv) | the per-chain base representations, for `chain_representation` |
+| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/1f8b_active_site/title.md) | the caption below the viewer |
