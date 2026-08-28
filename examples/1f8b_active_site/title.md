@@ -1,4 +1,4 @@
-# Influenza B neuraminidase active site
+## Influenza B neuraminidase active site
 
 The sialic-acid analogue **DANA** bound in the active site of influenza B/Beijing/1/87
 neuraminidase ([PDB 1F8B](https://www.rcsb.org/structure/1F8B)), with the residues

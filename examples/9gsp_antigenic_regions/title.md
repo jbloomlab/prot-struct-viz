@@ -1,4 +1,4 @@
-# Antigenic regions of influenza H1 hemagglutinin
+## Antigenic regions of influenza H1 hemagglutinin
 
 Uncleaved hemagglutinin from influenza A/Victoria/2570/2019, the egg-derived
 A(H1N1)pdm09 component of the 2021 vaccine ([PDB 9GSP](https://www.rcsb.org/structure/9GSP)).
