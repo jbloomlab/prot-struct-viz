@@ -60,6 +60,26 @@ rather than something friendlier. The fields are ours:
 
 Mol\* composes that label itself, and MolViewSpec has no field for overriding it.
 
+## Every view is built up front
+
+A spec's views are one MolViewSpec state with several structure nodes, not several
+snapshots. All of them are built when the page loads and the selector only changes which is
+visible, which is what keeps the camera still while a reader switches. The cost is that
+geometry scales with the number of views — three views of a large surface is three surfaces
+— so first paint and memory grow with the list.
+
+They are separate structure nodes rather than separate components because Mol\* collects
+`tooltip_from_uri` per structure node: one shared node would merge every view's tooltips
+into a single mouseover.
+
+## The snapshot stepper is hidden
+
+Mol\* mounts a snapshot stepper in the top-left of the viewport whenever at least one
+snapshot is registered, and the MolViewSpec loader registers one even for a single-state
+file. Since views here are not snapshots, it always reads `[1/1]` with a timestamp, over a
+play button that cycles a list of one. Mol\* offers no configuration option to suppress it,
+so the generated page hides it with a stylesheet rule.
+
 ## Why only the asymmetric unit is embedded
 
 `assembly` does not expand symmetry copies into the file. The deposited coordinates go
@@ -68,6 +88,25 @@ capsid therefore costs the same bytes as its asymmetric unit.
 
 This is also why validation is independent of `assembly`: symmetry copies introduce no
 new residue numbers, so the addressable residue set is the deposited one either way.
+
+## Structures are not cached
+
+A PDB ID is fetched on every run. Only the coordinate text is used, and it ends up embedded
+in the output, so a cache would save one HTTP request at the price of a stale-file failure
+mode. If you are re-rendering the same entry repeatedly, download it once and pass the path
+as `structure` instead.
+
+## Why a large export is sharper
+
+Mol\*'s screenshot is a fresh offscreen render, not a scaled-up copy of the viewport, and it
+turns on quality settings the live view cannot afford: 16 jittered samples of anti-aliasing
+against the viewport's 4, and, where ambient occlusion is on, 128 occlusion samples against
+32. That is why it takes seconds and freezes the view.
+
+There is no ray tracing to turn on. Mol\* rasterizes, and its depth cues are screen-space
+effects. The nearest thing is the optional **Global Illumination** pass (keyboard `G`),
+which is off by default; a screenshot taken with it on runs it for more iterations than the
+live view does.
 
 ## What the file does and does not carry
 

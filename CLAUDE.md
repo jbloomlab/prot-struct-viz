@@ -22,7 +22,7 @@ commit of that submodule; update periodically with
   `ViewConfig`, and `render(spec)` takes it from there. Every option is described once in
   `_config.OPTION_DOCS`, whose keys are also the spec's keys and `ViewConfig`'s field
   names. Adding an option means a `ViewConfig` field, an `OPTION_DOCS` entry, and a row in
-  `docs/cli.md` — never a second description. `tests/test_docs.py` checks that every
+  `docs/spec.md` — never a second description. `tests/test_docs.py` checks that every
   `OPTION_DOCS` key reaches the reference page.
 - **The spec format has no defaults, on purpose.** Every per-view key must be stated, so a
   spec is readable without knowing what the package would have filled in; YAML anchors are
@@ -61,20 +61,21 @@ commit of that submodule; update periodically with
   flanking rules reject it -- pairs a bare `Mol*` with the next `*` in the same paragraph
   and silently italicizes the wrong span. `tests/test_docs.py` enforces this.
 - **Examples are spec-driven directories**: `examples/<name>/` holds the inputs plus
-  `spec.yaml`, the literal input. `docs/examples.md` includes `spec.yaml` and the CSVs
-  verbatim via `pymdownx.snippets`, so the documented input cannot drift from the one that
-  ran. A spec's `out` is part of the spec, so `scripts/build_examples.sh` renders each one
-  unchanged into `examples/output/` and *copies* to another destination rather than
-  overriding it. The rendered HTML is generated into a gitignored `docs/examples/` and
-  must be built before `mkdocs` -- both `scripts/build_docs.sh` and `.github/workflows/
-  docs.yml` do this. Adding an example is a new directory plus a section in
-  `docs/examples.md`.
+  `spec.yaml`, the literal input. `docs/examples.md` gives the command and *links* the
+  input files rather than inlining them -- inlining made the page mostly verbatim YAML and
+  CSV -- and `tests/test_docs.py` checks every linked example path exists, so a renamed
+  input fails a test instead of shipping a 404. A spec's `out` is part of the spec, so
+  `scripts/build_examples.sh` renders each one unchanged into `examples/output/` and
+  *copies* to another destination rather than overriding it. The rendered HTML is generated
+  into a gitignored `docs/examples/` and must be built before `mkdocs` -- both
+  `scripts/build_docs.sh` and `.github/workflows/docs.yml` do this. Adding an example is a
+  new directory plus a section in `docs/examples.md`.
 - **A `docs/examples.md` section says what the example demonstrates about the package, not
   what the structure is.** Each rendered view already embeds its own
   `examples/<name>/title.md` as a caption, so a structure description, color key or
   assembly note written onto the page is shown twice a few hundred pixels apart and has to
-  be maintained in both places. Keep the section to one framing sentence plus the included
-  `spec.yaml` and inputs.
+  be maintained in both places. Keep the section to one framing sentence, the command, and
+  the table of linked inputs.
 - **MVS color is per representation; tooltips and labels are not.** `color_from_uri` is a
   child of each `representation` node, so a representation the user adds from Mol\*'s
   Components panel arrives uncolored and cannot be colored from the UI -- MolViewSpec has
@@ -87,7 +88,7 @@ commit of that submodule; update periodically with
   recipe is in that workflow's header comment.
 - **Structures fetched from RCSB are not cached**, deliberately: only the coordinate text
   is used, so a cache bought one HTTP request in exchange for a stale-file failure mode.
-  A local path to `--structure` is the escape hatch. Relatedly, never put
+  A local path as `structure` is the escape hatch. Relatedly, never put
   `show_default=True` on a click option whose default is home-relative -- `mkdocs-click`
   would bake the docs builder's `$HOME` into the published CLI reference.
 

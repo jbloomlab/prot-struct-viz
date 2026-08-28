@@ -147,7 +147,7 @@ def build_annotations(
         elif spec is not None:
             # A CSV-named heteroatom. Polymer representations (cartoon by default)
             # draw nothing for a ligand or ion, so it always gets ball-and-stick as
-            # its base -- including when --chain-representation names its chain,
+            # its base -- including when chain_representation names its chain,
             # since that setting is about the chain's polymer. Anything in the row's
             # representation column still applies additively on top.
             fields["base_rep"] = REPRESENTATIONS[HETERO_CSV_REPRESENTATION]

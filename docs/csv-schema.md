@@ -1,7 +1,7 @@
 # CSV schema
 
 One row per residue you want to say something about. Residues with no row at all render
-in `--default-color`.
+in the view's `default_color`.
 
 ```csv
 chain,residue,color,label,show_label,representation,label_color,label_size,notes
@@ -49,8 +49,8 @@ use: it records what each site is, while `label` stays short enough to draw. Not
 stops you adding an alternative numbering, a source citation, or a p-value alongside.
 
 `representation` is described under
-[rendering options](rendering.md#representations-and-heteroatoms), since it is one layer
-of a model that the command-line flags also feed into.
+[the spec reference](spec.md#representation-layers-and-heteroatoms), since it is one
+layer of a model the spec's own keys also feed into.
 
 ## Styling the on-structure label
 
@@ -65,7 +65,7 @@ every row and toggle `show_label` freely while working on a figure.
 
 ## Several colorings of one structure
 
-Several colorings are several CSVs, one per view in the [spec file](cli.md) — not several
+Several colorings are several CSVs, one per view in the [spec file](spec.md) — not several
 columns in one CSV. A view is a whole presentation, so its CSV can differ in labels,
 tooltips and per-residue representations too, not only in color.
 

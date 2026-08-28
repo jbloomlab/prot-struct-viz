@@ -26,7 +26,7 @@ MISMATCH_MODES = (
 
 #: Representations a user may name, mapped to the MolViewSpec representation type.
 #: This is the single source of allowed values for the CSV ``representation``
-#: column, ``--default-representation``, and ``--chain-representation``.
+#: column, ``default_representation``, and ``chain_representation``.
 #:
 #: Mol* itself also draws ``backbone``, ``line``, and ``putty``, but the
 #: molviewspec Python package we build the state with does not accept them yet,

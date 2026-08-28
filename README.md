@@ -50,11 +50,8 @@ That writes `view.html` and `view_report.txt`. One spec can hold several named *
 of the same structure — different colorings, labels, representations, or heteroatoms —
 and the page gets a selector that switches between them without moving the camera.
 
-The [spec reference](https://jbloomlab.github.io/prot-struct-viz/cli/) covers every key,
-the [CSV schema](https://jbloomlab.github.io/prot-struct-viz/csv-schema/) covers what goes
-in the CSV, and the
-[rendering options](https://jbloomlab.github.io/prot-struct-viz/rendering/) cover
-assemblies, representations, and heteroatoms.
+Every key, the CSV columns, and what the rendered page can do are in the documentation
+linked above.
 
 ## Development
 

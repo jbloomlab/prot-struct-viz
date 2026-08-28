@@ -22,6 +22,7 @@ structure: 9GSP
 out: ../output/9gsp_antigenic_regions.html
 assembly: au
 on_mismatch: error-extra-in-csv
+molstar_ui: hide
 
 views:
   - name: Antigenic sites

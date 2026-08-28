@@ -59,7 +59,7 @@ That writes `view.html` (the page) and `view_report.txt` (the progress log, and 
 on any disagreement between the CSV and the structure).
 
 The spec is the whole input: there are no other flags. Every key is listed in the
-[spec reference](cli.md).
+[spec reference](spec.md).
 
 ## Several views of one structure
 
@@ -99,9 +99,10 @@ Set Pages to serve from `/docs` on the default branch, and the view is at
 
 ## Where to go next
 
-- **[Examples](examples.md)** — rendered views, with the exact command and inputs.
+- **[Examples](examples.md)** — rendered views, with the command and inputs that made them.
+- **[Spec reference](spec.md)** — every key, plus assemblies, representation layers,
+  heteroatoms, and checking the CSV against the structure.
 - **[CSV schema](csv-schema.md)** — every column, and what makes a CSV invalid.
-- **[Rendering options](rendering.md)** — assemblies, representations, heteroatoms, and
-  checking the CSV against the structure.
-- **[Spec reference](cli.md)** and **[Python API](python-api.md)** — the full surface.
+- **[The rendered page](viewer.md)** — what a reader of the output can click.
+- **[Python API](python-api.md)** — building a spec in Python instead of YAML.
 - **[How it works](internals.md)** — the MolViewSpec pipeline, for anyone extending this.
