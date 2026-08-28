@@ -5,11 +5,25 @@ All notable changes to this project are documented here, in
 
 ## [Unreleased]
 
+### Fixed
+
+- The opening view's camera is now the camera the spec asks for. MolViewSpec reads a
+  `camera` node's position as a *reference* camera and scales its distance from the target
+  by `1/(2*sin(fov/2))` -- about 1.31 at the default field of view -- so the page opened
+  roughly a third further out than the numbers in the spec, and each round of **Copy
+  camera** into the spec and back pushed it further out again. The page now re-applies the
+  orientation itself after loading, through the same call every other view already used.
+  Zoom is the distance between `position` and `target`; `radius` never controlled it, and
+  the documentation said otherwise.
+- `viewer_height` no longer has a `30rem` floor quietly overriding it. The floor guarded
+  against a viewport-relative height collapsing on a short window, but it also meant any
+  value below `30vh` rendered identically on a screen shorter than 1600px, so shortening
+  the viewer in the spec appeared to do nothing.
+
 ### Added
 
 - `viewer_height`, setting how tall the viewer box is as a CSS length. The width still
-  fills the page. Viewport-relative heights keep a `30rem` floor, which is the case a short
-  window can collapse; an absolute height is used exactly as given.
+  fills the page. The value is used exactly as given.
 - `molstar_ui`, for whether Mol\*'s own panels -- Structure Tools, the left panel, and the
   sequence strip -- start open. `hide` closes them without removing them: the wrench in the
   viewport still opens them, because it is gated by a different setting.

@@ -41,8 +41,7 @@
                 border-radius: 6px; font-size: 0.85rem; overflow-x: auto;
                 white-space: pre; user-select: all; }
   /* Mol* fills this box and positions its own UI inside it. */
-  #viewer { position: relative; width: 100%; height: {{ viewer_height }};
-            {%- if viewer_min_height %} min-height: {{ viewer_min_height }};{% endif %} }
+  #viewer { position: relative; width: 100%; height: {{ viewer_height }}; }
   /* Mol*'s snapshot stepper. This package expresses views as one state with hidden
      subtrees, never as MVS snapshots, so there is only ever the single snapshot the
      loader registers -- and with no title it reads as "[1/1] <timestamp>" beside a
@@ -272,6 +271,24 @@ view now on screen.">Copy camera</button>
                 orientation, ms === undefined ? CAMERA_MS : ms);
         }
 
+        // Placing the camera from scratch -- on load, and after Reset reloads the
+        // state. Two differences from applyOrientation. A view pinning no camera of
+        // its own falls back to the opening view's, because that is what a reader
+        // gets by loading the page and switching to it, and a link to such a view
+        // should land in the same place. And it never animates: there is no pose the
+        // reader has seen for us to glide away from.
+        //
+        // It has to run even on a plain load. The state's own camera node is only an
+        // approximation -- MolViewSpec reads its position as a reference camera and
+        // scales the distance to the target by 1/(2*sin(fov/2)), about 1.31 at the
+        // default field of view -- so left alone the page opens a third too far out,
+        // and every capture of a camera back into the spec drifts further.
+        function placeOpeningCamera() {
+            var orientation = ORIENTATIONS[activeIndex()] || ORIENTATIONS[0];
+            if (!orientation) return;   // nothing pinned anywhere; Mol*'s fit stands
+            viewer.plugin.managers.camera.setSnapshot(orientation, 0);
+        }
+
         if (toggle) { toggle.addEventListener('change', applyVisibility); }
         // Switching views writes isHidden and nothing else, so unless the view being
         // shown carries an orientation the camera stays exactly where the reader
@@ -346,19 +363,17 @@ view now on screen.">Copy camera</button>
             load().then(function () {
                 applyVisibility();
                 // Reloading restores the state's camera node, which frames the
-                // first view. Reset undoes what a reader did to the structure, not
-                // which view they chose, so put that view's own pose back.
-                applyOrientation(0);
+                // first view and approximately at that. Reset undoes what a reader
+                // did to the structure, not which view they chose, so put back the
+                // pose that view opens with.
+                placeOpeningCamera();
                 status.textContent = '';
             }).catch(fail);
         });
         return load().then(function () {
-            // Only a deep link places the camera here: left alone, the state's own
-            // camera node has already framed the first view. 0 ms because there is
-            // no pose the reader has seen for us to glide away from.
-            var deepLinked = selectFromFragment();
+            selectFromFragment();
             applyVisibility();
-            if (deepLinked) applyOrientation(0);
+            placeOpeningCamera();
         });
     }).then(function () {
         status.textContent = '';

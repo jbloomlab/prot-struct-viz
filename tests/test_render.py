@@ -494,17 +494,19 @@ def test_viewer_height_reaches_the_page(tmp_path, write_csv, make_spec):
     render(dataclasses.replace(spec, viewer_height="500px"))
     html = out.read_text()
     assert "height: 500px;" in html
-    # An absolute height is taken as meant; only a relative one gets the floor.
     assert "min-height" not in html.split("#viewer {")[1].split("}")[0]
 
 
-def test_relative_viewer_height_keeps_a_floor(tmp_path, write_csv, make_spec):
+def test_viewer_height_is_never_overridden_by_a_floor(tmp_path, write_csv, make_spec):
+    """A `30rem` floor used to silently win: below a 1600px-tall window every
+    value under 30vh rendered at the same 480px, so shortening the viewer in the
+    spec did nothing. The height is now used as written."""
     out = tmp_path / "view.html"
     spec = make_spec([("Only", write_csv(CSV))], out)
-    render(dataclasses.replace(spec, viewer_height="40vh"))
+    render(dataclasses.replace(spec, viewer_height="30vh"))
     viewer_rule = out.read_text().split("#viewer {")[1].split("}")[0]
-    assert "height: 40vh;" in viewer_rule
-    assert "min-height: 30rem;" in viewer_rule
+    assert "height: 30vh;" in viewer_rule
+    assert "min-height" not in viewer_rule
 
 
 def test_molstar_ui_hidden_starts_the_panels_closed(tmp_path, write_csv, make_spec):
@@ -613,11 +615,32 @@ def test_deep_link_fragment_selects_a_view(tmp_path, write_csv, make_spec):
     # ...and it has to run on load, not only when the fragment is edited later.
     on_load = html.split("return load().then(")[1].split("});")[0]
     assert "selectFromFragment()" in on_load
-    assert "applyOrientation(0)" in on_load
+    # A view pinning no camera of its own inherits the opening view's, so a link
+    # to it lands where switching to it by hand would.
+    assert "ORIENTATIONS[activeIndex()] || ORIENTATIONS[0]" in html
     # The served markup is untouched -- no option is marked selected -- so a
     # reader with no fragment still gets the first view, and the deep link is
     # purely a runtime override.
     assert "selected" not in html
+
+
+def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
+    """The MVS camera node is only an approximation.
+
+    MolViewSpec reads its `position` as a reference camera and scales the distance
+    to the target by 1/(2*sin(fov/2)), about 1.31 at the default field of view, so
+    the node alone opens a third too far out and every capture-and-paste of a
+    camera drifts further. The page has to re-place the camera itself, on every
+    load and not only when a fragment picked the view.
+    """
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    render(make_spec([("First", csv), ("Second", csv)], out))
+    on_load = out.read_text().split("return load().then(")[1].split("});")[0]
+    assert "placeOpeningCamera();" in on_load
+    # Unconditionally: gating this on a deep link is the bug being fixed.
+    assert "deepLinked" not in on_load
+    assert "if (" not in on_load
 
 
 def test_switching_views_rewrites_the_fragment(tmp_path, write_csv, make_spec):
@@ -640,7 +663,7 @@ def test_reset_restores_the_camera_of_the_view_you_are_on(
     render(make_spec([("First", csv), ("Second", csv)], out))
     html = out.read_text()
     reset = html.split("document.getElementById('reset-view')")[1]
-    assert "applyOrientation(0)" in reset.split("})")[0]
+    assert "placeOpeningCamera()" in reset.split("})")[0]
 
 
 def test_snapshot_stepper_is_hidden(tmp_path, write_csv, make_spec):
