@@ -1,6 +1,6 @@
-# Antigenic regions of influenza H3 hemagglutinin, with the glycans
+## Antigenic regions of influenza H3 HA, with the glycans
 
-Hemagglutinin from influenza A/Victoria/22/2020 (H3N2) bound to **LSTc**, an analogue of
+HA from influenza A/Victoria/22/2020 (H3N2) bound to **LSTc**, an analogue of
 the alpha-2,6 sialylated receptor ([PDB 8FAW](https://www.rcsb.org/structure/8FAW)). HA1 is
 colored by the classical antigenic region each site belongs to, taken from Table 2 of
 [Stray & Pittman (2012), *Virology Journal* 9:91](https://pmc.ncbi.nlm.nih.gov/articles/PMC3499391/):
