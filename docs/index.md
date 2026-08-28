@@ -31,18 +31,58 @@ A,118,#67000d,Arg118,True
 A,119,#cb181d,Glu119,
 ```
 
-Then render it:
+Then write a spec file saying what to draw and where to put it:
 
-```bash
-prot-struct-viz \
-  --structure 1F8B \
-  --csv coloring.csv \
-  --assembly 1 \
-  --out view.html
+```yaml
+# spec.yaml
+structure: 1F8B
+out: view.html
+assembly: "1"
+on_mismatch: report
+
+views:
+  - name: Active site
+    csv: coloring.csv
+    default_color: "#d9d9d9"
+    default_representation: cartoon
+    waters: hide
+    ligands: show
+    glycans: snfg
+    ions: show
 ```
 
-That writes `view.html` (the view) and `view_report.txt` (the progress log, and a report
+```bash
+prot-struct-viz spec.yaml
+```
+
+That writes `view.html` (the page) and `view_report.txt` (the progress log, and a report
 on any disagreement between the CSV and the structure).
+
+The spec is the whole input: there are no other flags. Every key is listed in the
+[spec reference](cli.md).
+
+## Several views of one structure
+
+A spec may list more than one view, and the page then offers a selector. Views are
+independent — each has its own CSV, colors, labels, representation, and heteroatom
+settings — but they share one structure and one camera, so switching between them
+does not move the view:
+
+```yaml
+views:
+  - name: Antigenic sites
+    csv: antigenic.csv
+    default_representation: surface
+    # ... the rest of the required keys
+  - name: Receptor contacts
+    csv: contacts.csv
+    default_representation: cartoon
+    glycans: hide
+    # ... the rest of the required keys
+```
+
+The format fills in no defaults: every view states its own options. Use a YAML anchor
+to say the shared part once.
 
 ## Sharing the view
 
@@ -63,5 +103,5 @@ Set Pages to serve from `/docs` on the default branch, and the view is at
 - **[CSV schema](csv-schema.md)** — every column, and what makes a CSV invalid.
 - **[Rendering options](rendering.md)** — assemblies, representations, heteroatoms, and
   checking the CSV against the structure.
-- **[CLI reference](cli.md)** and **[Python API](python-api.md)** — the full surface.
+- **[Spec reference](cli.md)** and **[Python API](python-api.md)** — the full surface.
 - **[How it works](internals.md)** — the MolViewSpec pipeline, for anyone extending this.

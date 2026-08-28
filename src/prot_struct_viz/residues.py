@@ -28,9 +28,6 @@ RESIDUE_RE = re.compile(r"^(-?\d+)([A-Za-z]?)$")
 
 _HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
-#: Name of the single scheme when the CSV has a bare ``color`` column.
-DEFAULT_SCHEME = "Default"
-
 
 @dataclasses.dataclass(frozen=True)
 class ResidueSpec:
@@ -38,7 +35,7 @@ class ResidueSpec:
 
     chain: str
     residue: str
-    colors: dict[str, str]
+    color: str
     label: str | None
     show_label: bool
     representation: str | None
@@ -52,10 +49,13 @@ class ResidueSpec:
 
 @dataclasses.dataclass(frozen=True)
 class ColoringData:
-    """The parsed CSV: one spec per row, plus the color schemes it defines."""
+    """The parsed CSV: one spec per row.
+
+    Several colourings of one structure are several CSVs, one per view in the
+    spec file, rather than several columns in one CSV.
+    """
 
     specs: list[ResidueSpec]
-    scheme_names: list[str]
 
 
 def normalize_color(value: str) -> str:
@@ -134,35 +134,6 @@ def _read_table(path: pathlib.Path) -> pd.DataFrame:
     return frame
 
 
-def _color_columns(columns: list[str], path: pathlib.Path) -> dict[str, str]:
-    """Map scheme name -> column name, from ``color`` or ``color:<Scheme>`` columns."""
-    bare = [c for c in columns if c == "color"]
-    scheme_cols = [c for c in columns if c.startswith("color:")]
-    if bare and scheme_cols:
-        raise InputError(
-            f"{path}: has both a bare 'color' column and {scheme_cols}; use one or "
-            "the other, not both"
-        )
-    if bare:
-        return {DEFAULT_SCHEME: "color"}
-    if not scheme_cols:
-        raise InputError(
-            f"{path}: missing required column 'color' (or at least one "
-            "'color:<SchemeName>' column)"
-        )
-    schemes = {}
-    for column in scheme_cols:
-        name = column.split(":", 1)[1].strip()
-        if not name:
-            raise InputError(f"{path}: column {column!r} has an empty scheme name")
-        if name in schemes:
-            raise InputError(
-                f"{path}: scheme {name!r} is defined by more than one column"
-            )
-        schemes[name] = column
-    return schemes
-
-
 def _parse_bool(value: str, line: int) -> bool:
     """Parse a ``show_label`` cell; empty means False."""
     text = value.strip().lower()
@@ -200,9 +171,9 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
     ----------
     path
         Path to the CSV. Required columns are ``chain``, ``residue``, and
-        ``color`` (or one or more ``color:<SchemeName>`` columns). Optional
-        columns are ``label``, ``show_label``, ``representation``,
-        ``label_color``, and ``label_size``. Any other columns are ignored.
+        ``color``. Optional columns are ``label``, ``show_label``,
+        ``representation``, ``label_color``, and ``label_size``. Any other
+        columns are ignored.
 
         ``label_color`` and ``label_size`` style the persistent on-structure
         label, so they do nothing on a row whose ``show_label`` is not true. That
@@ -212,7 +183,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
     Returns
     -------
     ColoringData
-        One `ResidueSpec` per row, and the scheme names in column order.
+        One `ResidueSpec` per row.
 
     Raises
     ------
@@ -223,10 +194,9 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
     path = pathlib.Path(path)
     frame = _read_table(path)
 
-    missing = [c for c in ("chain", "residue") if c not in frame.columns]
+    missing = [c for c in ("chain", "residue", "color") if c not in frame.columns]
     if missing:
         raise InputError(f"{path}: missing required column(s): {missing}")
-    schemes = _color_columns(list(frame.columns), path)
 
     problems: list[str] = []
     specs: list[ResidueSpec] = []
@@ -250,18 +220,15 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
             except InputError as err:
                 row_problems.append(f"line {line}, column 'residue': {err}")
 
-        colors = {}
-        for scheme, column in schemes.items():
-            raw = str(row[column]).strip()
-            if raw == "":
-                row_problems.append(
-                    f"line {line}, column {column!r}: required value is blank"
-                )
-                continue
+        color = ""
+        raw = str(row["color"]).strip()
+        if raw == "":
+            row_problems.append(f"line {line}, column 'color': required value is blank")
+        else:
             try:
-                colors[scheme] = normalize_color(raw)
+                color = normalize_color(raw)
             except InputError as err:
-                row_problems.append(f"line {line}, column {column!r}: {err}")
+                row_problems.append(f"line {line}, column 'color': {err}")
 
         label = str(row.get("label", "")).strip() or None
 
@@ -311,7 +278,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
                 ResidueSpec(
                     chain=chain,
                     residue=residue,
-                    colors=colors,
+                    color=color,
                     label=label,
                     show_label=show_label,
                     representation=representation,
@@ -326,7 +293,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
     if not specs:
         raise InputError(f"{path}: has no data rows")
 
-    return ColoringData(specs=specs, scheme_names=list(schemes))
+    return ColoringData(specs=specs)
 
 
 def parse_chain_representations(path: pathlib.Path) -> dict[str, str]:

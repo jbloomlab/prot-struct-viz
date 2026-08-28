@@ -52,7 +52,7 @@ selects on, which is why they read as `MVS Annotation Component (base_rep: surfa
 rather than something friendlier. The fields are ours:
 
 - `base_rep` — the base representation for a group of residues: from
-  `--default-representation` or `--chain-representation`, or ball-and-stick for a
+  `default_representation` or `chain_representation`, or ball-and-stick for a
   heteroatom the CSV names.
 - `extra_rep` — the additive layer from the CSV's `representation` column.
 - `het_layer` — a default heteroatom group (`ligand`, `glycan`, `ion`, `water`) holding
@@ -62,11 +62,11 @@ Mol\* composes that label itself, and MolViewSpec has no field for overriding it
 
 ## Why only the asymmetric unit is embedded
 
-`--assembly` does not expand symmetry copies into the file. The deposited coordinates go
+`assembly` does not expand symmetry copies into the file. The deposited coordinates go
 in alongside an assembly id, and Mol\* generates the copies in the browser. A 60-mer
 capsid therefore costs the same bytes as its asymmetric unit.
 
-This is also why validation is independent of `--assembly`: symmetry copies introduce no
+This is also why validation is independent of `assembly`: symmetry copies introduce no
 new residue numbers, so the addressable residue set is the deposited one either way.
 
 ## What the file does and does not carry

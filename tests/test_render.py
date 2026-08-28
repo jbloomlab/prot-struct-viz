@@ -1,6 +1,7 @@
 """Tests for the annotation table, the MVS state, and the HTML output."""
 
 import base64
+import dataclasses
 import json
 import re
 import zipfile
@@ -12,20 +13,32 @@ from prot_struct_viz._config import InputError
 from prot_struct_viz.residues import parse_csv
 from prot_struct_viz.structure import assembly_instance_transforms, residue_centroids
 from prot_struct_viz.viewer import (
-    ANNOTATION_MEMBER,
     MOLSTAR_VERSION,
     STATE_MEMBER,
+    ViewBuild,
+    annotation_member,
     build_annotations,
     build_mvsx,
     build_state,
 )
 
+#: Slug of the single view the state helpers below build.
+SLUG = "main"
 
-def _state(rows, config=None, scheme="Default", labels=None):
-    """build_state's state, dropping the unplaced-label list the callers ignore."""
-    state, _ = build_state(
-        rows, "mmcif", "structure.cif", config or ViewConfig(), scheme, labels=labels
+
+def _build(rows, config=None, labels=None, slug=SLUG, orientation=None):
+    return ViewBuild(
+        slug=slug,
+        config=config or ViewConfig(),
+        rows=rows,
+        labels=labels,
+        orientation=orientation,
     )
+
+
+def _state(rows, config=None, labels=None):
+    """build_state's state, dropping the unplaced-label list the callers ignore."""
+    state, _ = build_state([_build(rows, config, labels)], "mmcif", "structure.cif")
     return state
 
 
@@ -71,6 +84,14 @@ def rows(coloring, deposited):
     return build_annotations(coloring, deposited, ViewConfig(), {})
 
 
+def _with_title(spec, title_md):
+    """The same spec with a caption on its first view."""
+    return dataclasses.replace(
+        spec,
+        views=(dataclasses.replace(spec.views[0], title_md=title_md), *spec.views[1:]),
+    )
+
+
 def _row(rows, chain, seq_id, ins_code=""):
     matches = [
         r
@@ -92,9 +113,9 @@ def test_every_row_carries_an_explicit_ins_code(rows):
 
 
 def test_insertion_codes_are_separate_rows(rows):
-    assert _row(rows, "A", 412)["color:Default"] == "#2ca02c"
-    assert _row(rows, "A", 412, "A")["color:Default"] == "#d62728"
-    assert _row(rows, "A", 412, "B")["color:Default"] == "#ff7f0e"
+    assert _row(rows, "A", 412)["color"] == "#2ca02c"
+    assert _row(rows, "A", 412, "A")["color"] == "#d62728"
+    assert _row(rows, "A", 412, "B")["color"] == "#ff7f0e"
 
 
 def test_polymer_gets_the_base_representation(rows):
@@ -124,7 +145,7 @@ def test_csv_named_heteroatoms_leave_the_default_layers(rows):
 
 def test_unnamed_heteroatoms_keep_their_default_layer(rows):
     assert _row(rows, "A", 999)["het_layer"] == "ion"
-    assert "color:Default" not in _row(rows, "A", 999)
+    assert "color" not in _row(rows, "A", 999)
 
 
 def test_waters_hidden_by_default(rows, deposited):
@@ -185,7 +206,7 @@ def test_csv_rows_absent_from_the_structure_are_dropped(write_csv, deposited):
     coloring = parse_csv(write_csv("chain,residue,color\nZ,1,red\nA,100,blue\n"))
     rows = build_annotations(coloring, deposited, ViewConfig(), {})
     assert not [r for r in rows if r["auth_asym_id"] == "Z"]
-    assert _row(rows, "A", 100)["color:Default"] == "#0000ff"
+    assert _row(rows, "A", 100)["color"] == "#0000ff"
 
 
 def _components(state, field_name):
@@ -264,16 +285,71 @@ def test_no_tooltip_node_without_tooltips(write_csv, deposited):
 
 def test_mvsx_archive_members(rows, coordinate_text):
     state = _state(rows, ViewConfig())
-    archive = build_mvsx(state, coordinate_text, "structure.cif", rows)
+    archive = build_mvsx(state, coordinate_text, "structure.cif", {SLUG: rows})
     with zipfile.ZipFile(__import__("io").BytesIO(archive)) as zf:
-        assert set(zf.namelist()) == {STATE_MEMBER, "structure.cif", ANNOTATION_MEMBER}
-        assert json.loads(zf.read(ANNOTATION_MEMBER)) == rows
+        assert set(zf.namelist()) == {
+            STATE_MEMBER,
+            "structure.cif",
+            annotation_member(SLUG),
+        }
+        assert json.loads(zf.read(annotation_member(SLUG))) == rows
         assert zf.read("structure.cif").decode() == coordinate_text
 
 
-def test_render_writes_html_and_report(tmp_path, write_csv, fixture_cif):
+def test_views_share_the_coordinates_and_not_the_annotations(rows, coordinate_text):
+    """The structure is embedded once however many views there are."""
+    builds = [_build(rows, slug="one"), _build(rows, slug="two")]
+    state, _ = build_state(builds, "mmcif", "structure.cif")
+    archive = build_mvsx(
+        state, coordinate_text, "structure.cif", {"one": rows, "two": rows}
+    )
+    with zipfile.ZipFile(__import__("io").BytesIO(archive)) as zf:
+        assert set(zf.namelist()) == {
+            STATE_MEMBER,
+            "structure.cif",
+            annotation_member("one"),
+            annotation_member("two"),
+        }
+
+
+def test_each_view_gets_its_own_structure_node(rows):
+    """Mol* collects tooltips per structure node, so views must not share one.
+
+    One shared node would merge every view's tooltips into one mouseover.
+    """
+    state, _ = build_state(
+        [_build(rows, slug="one"), _build(rows, slug="two")],
+        "mmcif",
+        "structure.cif",
+    )
+    structures = [n for n in _walk(state["root"]) if n["kind"] == "structure"]
+    assert [n.get("ref") for n in structures] == ["view:one", "view:two"]
+    assert len([n for n in _walk(state["root"]) if n["kind"] == "parse"]) == 1
+    for node in structures:
+        kinds = {child["kind"] for child in node["children"]}
+        assert "tooltip_from_uri" in kinds
+
+
+def test_each_view_reads_its_own_annotation_member(rows):
+    state, _ = build_state(
+        [_build(rows, slug="one"), _build(rows, slug="two")],
+        "mmcif",
+        "structure.cif",
+    )
+    uris = {
+        n["params"]["uri"]
+        for n in _walk(state["root"])
+        if n["kind"] in ("component_from_uri", "color_from_uri", "tooltip_from_uri")
+    }
+    assert uris == {
+        f"./{annotation_member('one')}",
+        f"./{annotation_member('two')}",
+    }
+
+
+def test_render_writes_html_and_report(tmp_path, write_csv, make_spec):
     out = tmp_path / "view.html"
-    render(str(fixture_cif), write_csv(CSV), out, title_md=None)
+    render(make_spec([("Main", write_csv(CSV))], out))
     assert out.is_file()
     assert (tmp_path / "view_report.txt").is_file()
 
@@ -292,14 +368,20 @@ def test_render_writes_html_and_report(tmp_path, write_csv, fixture_cif):
     # the first time.
     assert "PSO.Shape.Representation3D.is(cell.obj)" in html
     assert "updateCellState" in html
+    # How the page finds a view's subtree: the MVS ref becomes a cell tag, and
+    # this is the exported API that resolves it. Without it nothing can be shown
+    # or hidden at all, not even in the single-view case.
+    assert "queryMVSRef" in html
 
 
-def test_controls_and_caption_sit_below_the_viewer(tmp_path, write_csv, fixture_cif):
+def test_controls_and_caption_sit_below_the_viewer(tmp_path, write_csv, make_spec):
     """The page should open on the structure, not on what surrounds it."""
     title = tmp_path / "title.md"
     title.write_text("# Neuraminidase\n")
     out = tmp_path / "view.html"
-    render(str(fixture_cif), write_csv(CSV), out, title_md=title)
+    spec = make_spec([("Main", write_csv(CSV))], out)
+    spec = _with_title(spec, title)
+    render(spec)
     html = out.read_text()
     assert (
         html.index('id="viewer"')
@@ -309,26 +391,223 @@ def test_controls_and_caption_sit_below_the_viewer(tmp_path, write_csv, fixture_
 
 
 def test_label_toggle_appears_only_when_labels_are_drawn(
-    tmp_path, write_csv, fixture_cif
+    tmp_path, write_csv, make_spec
 ):
     """A checkbox that would move nothing is worse than no checkbox."""
     labelled = tmp_path / "labelled.html"
-    render(str(fixture_cif), write_csv(CSV), labelled)
+    render(make_spec([("Main", write_csv(CSV))], labelled))
     assert 'id="label-toggle"' in labelled.read_text()
 
     # Same rows, but nothing asks for a persistent label.
     plain = tmp_path / "plain.html"
     render(
-        str(fixture_cif),
-        write_csv(CSV.replace(",True,", ",,")),
-        plain,
+        make_spec(
+            [("Main", write_csv(CSV.replace(",True,", ",,"), name="plain.csv"))],
+            plain,
+        )
     )
     assert 'id="label-toggle"' not in plain.read_text()
 
 
-def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, fixture_cif):
+def test_view_selector_appears_only_with_more_than_one_view(
+    tmp_path, write_csv, make_spec
+):
+    """A selector offering one choice is furniture, not a control."""
+    csv = write_csv(CSV)
+    one = tmp_path / "one.html"
+    render(make_spec([("Only", csv)], one))
+    assert 'id="view-select"' not in one.read_text()
+
+    two = tmp_path / "two.html"
+    render(make_spec([("First", csv), ("Second", csv)], two))
+    html = two.read_text()
+    assert 'id="view-select"' in html
+    assert '<option value="first">First</option>' in html
+    assert '<option value="second">Second</option>' in html
+
+
+def test_each_view_gets_a_caption_and_only_the_first_is_shown(
+    tmp_path, write_csv, make_spec
+):
+    first_md = tmp_path / "first.md"
+    first_md.write_text("# First view\n")
+    second_md = tmp_path / "second.md"
+    second_md.write_text("# Second view\n")
     out = tmp_path / "view.html"
-    render(str(fixture_cif), write_csv(CSV), out)
+    csv = write_csv(CSV)
+    spec = make_spec([("First", csv), ("Second", csv)], out)
+    spec = dataclasses.replace(
+        spec,
+        views=(
+            dataclasses.replace(spec.views[0], title_md=first_md),
+            dataclasses.replace(spec.views[1], title_md=second_md),
+        ),
+    )
+    render(spec)
+    html = out.read_text()
+    assert "<h1>First view</h1>" in html and "<h1>Second view</h1>" in html
+    # Visibility, not display: every caption keeps its space so the page height
+    # cannot change when the view does. See test_captions_do_not_change_page_flow.
+    assert '<div class="caption active" data-view="first">' in html
+    assert '<div class="caption" data-view="second">' in html
+    assert "hidden>" not in html.split('id="header"')[1].split("</div>")[0]
+
+
+def test_captions_are_stacked_so_switching_cannot_move_the_page(
+    tmp_path, write_csv, make_spec
+):
+    """The reported "structure jumps" bug, pinned in the markup that fixes it.
+
+    Captions used to be `display: none`, so switching to a shorter one shortened
+    the document -- which scrolls the page and, when it takes the scrollbar away,
+    widens the content box and resizes the Mol* canvas sideways.
+    """
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    md = tmp_path / "c.md"
+    md.write_text("# A caption\n")
+    spec = make_spec([("First", csv), ("Second", csv)], out)
+    spec = dataclasses.replace(
+        spec, views=tuple(dataclasses.replace(v, title_md=md) for v in spec.views)
+    )
+    render(spec)
+    html = out.read_text()
+    assert "#header { display: grid;" in html
+    assert "grid-area: 1 / 1; visibility: hidden;" in html
+    assert ".caption.active { visibility: visible; }" in html
+    # And the width half of the same bug.
+    assert "scrollbar-gutter: stable" in html
+
+
+def test_no_caption_divs_when_no_view_has_one(tmp_path, write_csv, make_spec):
+    """#header:empty collapses it, so a page with no captions has no blank band."""
+    out = tmp_path / "view.html"
+    render(make_spec([("Only", write_csv(CSV))], out))
+    html = out.read_text()
+    assert 'class="caption' not in html
+    assert '<div id="header">\n</div>' in html
+
+
+def test_viewer_height_reaches_the_page(tmp_path, write_csv, make_spec):
+    out = tmp_path / "view.html"
+    spec = make_spec([("Only", write_csv(CSV))], out)
+    render(dataclasses.replace(spec, viewer_height="500px"))
+    html = out.read_text()
+    assert "height: 500px;" in html
+    # An absolute height is taken as meant; only a relative one gets the floor.
+    assert "min-height" not in html.split("#viewer {")[1].split("}")[0]
+
+
+def test_relative_viewer_height_keeps_a_floor(tmp_path, write_csv, make_spec):
+    out = tmp_path / "view.html"
+    spec = make_spec([("Only", write_csv(CSV))], out)
+    render(dataclasses.replace(spec, viewer_height="40vh"))
+    viewer_rule = out.read_text().split("#viewer {")[1].split("}")[0]
+    assert "height: 40vh;" in viewer_rule
+    assert "min-height: 30rem;" in viewer_rule
+
+
+def test_molstar_ui_hidden_starts_the_panels_closed(tmp_path, write_csv, make_spec):
+    """Closed, not removed: the wrench is gated separately and still opens them."""
+    out = tmp_path / "view.html"
+    spec = make_spec([("Only", write_csv(CSV))], out)
+    render(dataclasses.replace(spec, molstar_ui="hide"))
+    assert "layoutShowControls: false" in out.read_text()
+    render(dataclasses.replace(spec, molstar_ui="show"))
+    assert "layoutShowControls: true" in out.read_text()
+
+
+def test_first_view_orientation_becomes_the_mvs_camera(rows):
+    """So the page opens already framed instead of snapping after the load.
+
+    MVS keeps only one camera -- the node is root-level -- so this can only ever
+    be the view the page opens on. The rest are applied by the page on switch.
+    """
+    from prot_struct_viz import Orientation
+
+    opening = Orientation(position=(1.0, 2.0, 3.0), target=(0.0, 0.0, 0.0)).as_dict()
+    other = Orientation(position=(9.0, 9.0, 9.0), target=(1.0, 1.0, 1.0)).as_dict()
+    state, _ = build_state(
+        [
+            _build(rows, slug="one", orientation=opening),
+            _build(rows, slug="two", orientation=other),
+        ],
+        "mmcif",
+        "structure.cif",
+    )
+    cameras = [n for n in _walk(state["root"]) if n["kind"] == "camera"]
+    assert len(cameras) == 1
+    assert cameras[0]["params"]["position"] == [1.0, 2.0, 3.0]
+
+
+def test_no_camera_node_when_the_first_view_has_no_orientation(rows):
+    state, _ = build_state(
+        [_build(rows, slug="one"), _build(rows, slug="two")],
+        "mmcif",
+        "structure.cif",
+    )
+    assert not [n for n in _walk(state["root"]) if n["kind"] == "camera"]
+
+
+def test_orientations_reach_the_page_in_view_order(tmp_path, write_csv, make_spec):
+    from prot_struct_viz import Orientation
+
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    spec = make_spec([("First", csv), ("Second", csv)], out)
+    spec = dataclasses.replace(
+        spec,
+        views=(
+            spec.views[0],
+            dataclasses.replace(
+                spec.views[1],
+                orientation=Orientation(
+                    position=(1.0, 2.0, 3.0), target=(0.0, 0.0, 0.0), radius=5.0
+                ),
+            ),
+        ),
+    )
+    render(spec)
+    html = out.read_text()
+    embedded = json.loads(re.search(r"var ORIENTATIONS = (.*?);\n", html).group(1))
+    # A view with no orientation must embed null, not be dropped: the page indexes
+    # this array by the selected view.
+    assert embedded[0] is None
+    assert embedded[1] == {
+        "position": [1.0, 2.0, 3.0],
+        "target": [0.0, 0.0, 0.0],
+        "up": [0.0, 1.0, 0.0],
+        "radius": 5.0,
+    }
+    # The animated setter, not the raw one -- see the template comment.
+    assert "managers.camera.setSnapshot(orientation, CAMERA_MS)" in html
+
+
+def test_camera_capture_is_hidden_behind_the_url_fragment(
+    tmp_path, write_csv, make_spec
+):
+    """An authoring tool must not be furniture on a published page."""
+    out = tmp_path / "view.html"
+    render(make_spec([("Only", write_csv(CSV))], out))
+    html = out.read_text()
+    assert '<button id="copy-camera" type="button" hidden' in html
+    assert "window.location.hash === '#camera'" in html
+    assert "window.psvCamera" in html
+
+
+def test_snapshot_stepper_is_hidden(tmp_path, write_csv, make_spec):
+    """Mol*'s "[1/1] <timestamp>" widget. Nothing here ever uses MVS snapshots."""
+    out = tmp_path / "view.html"
+    render(make_spec([("Only", write_csv(CSV))], out))
+    html = out.read_text()
+    assert ".msp-state-snapshot-viewport-controls { display: none; }" in html
+    # Not the wrapper, which also holds the trajectory controls.
+    assert ".msp-viewport-top-left-controls {" not in html
+
+
+def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, make_spec):
+    out = tmp_path / "view.html"
+    render(make_spec([("Main", write_csv(CSV))], out))
     payload = re.search(
         r'<script id="mvsx-payload" type="text/plain">(.*?)</script>',
         out.read_text(),
@@ -340,32 +619,48 @@ def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, fixture_ci
         assert STATE_MEMBER in zf.namelist()
 
 
-def test_render_renders_the_markdown_title(tmp_path, write_csv, fixture_cif):
+def test_render_renders_the_markdown_title(tmp_path, write_csv, make_spec):
     title = tmp_path / "title.md"
     title.write_text("# Neuraminidase\n\nSites of **interest**.\n")
     out = tmp_path / "view.html"
-    render(str(fixture_cif), write_csv(CSV), out, title_md=title)
+    render(_with_title(make_spec([("Main", write_csv(CSV))], out), title))
     html = out.read_text()
     assert "<h1>Neuraminidase</h1>" in html
     assert "<strong>interest</strong>" in html
 
 
-def test_render_requires_html_suffix(tmp_path, write_csv, fixture_cif):
+def test_render_requires_html_suffix(tmp_path, write_csv, make_spec):
     with pytest.raises(InputError, match="must end in '.html'"):
-        render(str(fixture_cif), write_csv(CSV), tmp_path / "view.htm")
+        render(make_spec([("Main", write_csv(CSV))], tmp_path / "view.htm"))
 
 
-def test_render_fatal_mode_still_writes_the_report(tmp_path, write_csv, fixture_cif):
+def test_render_fatal_mode_still_writes_the_report(tmp_path, write_csv, make_spec):
     out = tmp_path / "view.html"
     with pytest.raises(InputError, match="does not match the structure"):
-        render(
-            str(fixture_cif),
-            write_csv(CSV),
-            out,
-            config=ViewConfig(on_mismatch="error-any"),
-        )
+        render(make_spec([("Main", write_csv(CSV))], out, on_mismatch="error-any"))
     assert not out.exists()
     assert (tmp_path / "view_report.txt").is_file()
+
+
+def test_a_later_view_can_be_the_fatal_one(tmp_path, write_csv, make_spec):
+    """Every view is validated, not just the first one the loop reaches."""
+    out = tmp_path / "view.html"
+    fine = write_csv(CSV, name="fine.csv")
+    # A residue the structure does not have, which is what error-extra-in-csv is
+    # about. The first view is clean, so only the second can trip it.
+    broken = write_csv(CSV + "A,99999,#000000,ghost,,\n", name="broken.csv")
+    with pytest.raises(InputError, match="does not match the structure"):
+        render(
+            make_spec(
+                [("Fine", fine), ("Broken", broken)],
+                out,
+                on_mismatch="error-extra-in-csv",
+            )
+        )
+    assert not out.exists()
+    # Both views were reported on before the run was failed, so the report says
+    # which one was at fault rather than stopping at the first.
+    assert (tmp_path / "view_report.txt").read_text().count("=== view:") == 2
 
 
 def test_state_validates_against_the_mvs_schema(rows):
@@ -378,6 +673,15 @@ def test_state_validates_against_the_mvs_schema(rows):
 
     for config in (ViewConfig(), ViewConfig(assembly="1", waters="show")):
         validate_state_tree(json.dumps(_state(rows, config)))
+
+    # And the multi-view shape, which is a different tree: two structure nodes
+    # off one parse, each carrying a ref.
+    state, _ = build_state(
+        [_build(rows, slug="one"), _build(rows, slug="two")],
+        "mmcif",
+        "structure.cif",
+    )
+    validate_state_tree(json.dumps(state))
 
 
 def test_every_annotation_row_names_a_representation_or_layer(rows):
@@ -512,14 +816,17 @@ def test_label_on_an_undisplayed_chain_is_reported(write_csv, structure):
     subset = get_deposited_residues(structure, ["B"])
     rows = build_annotations(coloring, subset, ViewConfig(), {})
     _, unplaced = build_state(
-        rows,
+        [
+            _build(
+                rows,
+                ViewConfig(chains=("B",)),
+                labels=(coloring, subset, residue_centroids(structure, ["B"]), []),
+            )
+        ],
         "mmcif",
         "structure.cif",
-        ViewConfig(chains=("B",)),
-        "Default",
-        labels=(coloring, subset, residue_centroids(structure, ["B"]), []),
     )
-    assert unplaced == [("A", "118")]
+    assert unplaced == {SLUG: [("A", "118")]}
 
 
 def test_labelled_state_validates(rows, assembly_label_args):

@@ -1,0 +1,35 @@
+# Influenza A/Victoria/2570/2019 (H1N1)pdm09 hemagglutinin, uncleaved (PDB
+# 9GSP), with HA1 colored by classical antigenic site and every residue labeled
+# with its site number.
+#
+# The protein is a surface, which is how an antigenic site reads as a patch an
+# antibody could land on rather than a scatter of colored ribbon. Every sugar is
+# named in coloring.csv, so `glycans` never applies: the N-glycans are yellow
+# ball-and-stick rather than SNFG symbols.
+#
+# Two settings the H3 example next door needs and this one does not. The assembly
+# is the deposited model: 9GSP deposits the whole trimer, so the annotation covers
+# three chains and there is no symmetry for Mol* to expand. And `waters` is moot --
+# this is a cryo-EM entry with no modeled waters to hide.
+#
+# on_mismatch is the one departure from the usual: coloring.csv is machine-generated
+# from a numbering map, so a numbering slip would otherwise be a quiet line in the
+# report rather than a failed build.
+#
+# Render it with:  prot-struct-viz spec.yaml
+
+structure: 9GSP
+out: ../output/9gsp_antigenic_regions.html
+assembly: au
+on_mismatch: error-extra-in-csv
+
+views:
+  - name: Antigenic sites
+    csv: coloring.csv
+    title_md: title.md
+    default_color: "#d9d9d9"
+    default_representation: surface
+    waters: hide
+    ligands: show
+    glycans: snfg
+    ions: show

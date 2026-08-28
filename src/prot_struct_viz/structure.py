@@ -197,7 +197,7 @@ def get_deposited_residues(
         unknown = sorted(wanted - present)
         if unknown:
             raise InputError(
-                f"--chains names chain(s) not in the structure: {unknown}; "
+                f"chains names chain(s) not in the structure: {unknown}; "
                 f"available chains are {sorted(present)}"
             )
 
@@ -248,7 +248,7 @@ def get_assembly_chains(
     matching = [a for a in structure.assemblies if a.name == assembly_id]
     if not matching:
         raise InputError(
-            f"--assembly {assembly_id!r} is not defined by this structure; "
+            f"assembly {assembly_id!r} is not defined by this structure; "
             f"available assemblies are {available or '(none)'} (or 'au' for the "
             "deposited asymmetric unit)"
         )
@@ -359,7 +359,7 @@ def assembly_instance_transforms(
     matching = [a for a in structure.assemblies if a.name == assembly_id]
     if not matching:
         raise InputError(
-            f"--assembly {assembly_id!r} is not defined by this structure; "
+            f"assembly {assembly_id!r} is not defined by this structure; "
             f"available assemblies are {assembly_names(structure) or '(none)'}"
         )
 

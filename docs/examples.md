@@ -2,20 +2,23 @@
 
 Each example is a directory under
 [`examples/`](https://github.com/jbloomlab/prot-struct-viz/tree/main/examples) holding its
-input files and a `command.sh` — the exact invocation that produced the view below. The
-command and the inputs shown on this page are *included* from those files rather than
-retyped, so they cannot drift from what actually ran.
+input files and a `spec.yaml` — the exact input that produced the view below, rendered
+with `prot-struct-viz spec.yaml`. The spec and the inputs shown on this page are
+*included* from those files rather than retyped, so they cannot drift from what actually
+ran.
 
-Every view carries its own caption, rendered from that example's `title.md`, which is where
-the structure and the color scheme are explained. This page only says what each example
-shows you how to do.
+Every view carries its own caption, rendered from a `title.md`, which is where the
+structure and the color scheme are explained. This page only says what each example shows
+you how to do.
 
 Rebuild them all with `scripts/build_examples.sh`.
 
 ## Antigenic regions of influenza H3 hemagglutinin
 
 Colors a whole molecule from a generated CSV — 499 rows, one per residue — with 83 of them
-carrying a label drawn into the 3D scene.
+carrying a label drawn into the 3D scene. It also has **two views** of that coloring, a
+surface and a cartoon: pick one from the **View** selector below the structure and the
+camera stays where you left it.
 
 <!-- The src is a bare filename, not "examples/...", because MkDocs does not rewrite
      paths inside raw HTML the way it does Markdown links. This page is served at
@@ -28,10 +31,10 @@ carrying a label drawn into the 3D scene.
 
 [Open this view on its own](examples/8faw_antigenic_regions.html)
 
-### The command
+### The spec
 
-```bash
---8<-- "examples/8faw_antigenic_regions/command.sh"
+```yaml
+--8<-- "examples/8faw_antigenic_regions/spec.yaml"
 ```
 
 ### The inputs
@@ -61,10 +64,10 @@ protomers, so the CSV annotates every one of them — 1491 rows and 150 drawn la
 
 [Open this view on its own](examples/9gsp_antigenic_regions.html)
 
-### The command
+### The spec
 
-```bash
---8<-- "examples/9gsp_antigenic_regions/command.sh"
+```yaml
+--8<-- "examples/9gsp_antigenic_regions/spec.yaml"
 ```
 
 ### The inputs
@@ -94,10 +97,10 @@ glycan colored from the CSV rather than by element, and a per-chain base represe
 
 [Open this view on its own](examples/1f8b_active_site.html)
 
-### The command
+### The spec
 
-```bash
---8<-- "examples/1f8b_active_site/command.sh"
+```yaml
+--8<-- "examples/1f8b_active_site/spec.yaml"
 ```
 
 ### The inputs

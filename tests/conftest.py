@@ -1,9 +1,10 @@
-"""Shared fixtures: the trimmed structure and CSVs written per test."""
+"""Shared fixtures: the trimmed structure, CSVs, and specs written per test."""
 
 import pathlib
 
 import pytest
 
+from prot_struct_viz import Spec, View, ViewConfig
 from prot_struct_viz import structure as structure_module
 
 DATA_DIR = pathlib.Path(__file__).parent / "data"
@@ -42,3 +43,36 @@ def write_csv(tmp_path):
         return path
 
     return _write
+
+
+@pytest.fixture
+def make_spec(fixture_cif):
+    """A `Spec` over the fixture structure, for tests that call ``render``.
+
+    Views are given as ``(name, csv_path)`` pairs or as ready-made `View`s, so a
+    test can say "two views" without restating what a view is.
+    """
+
+    def _make(views, out, *, structure=None, assembly="au", on_mismatch="report"):
+        built = []
+        for view in views:
+            if isinstance(view, View):
+                built.append(view)
+                continue
+            name, csv = view
+            built.append(
+                View(
+                    name=name,
+                    csv=pathlib.Path(csv),
+                    config=ViewConfig(assembly=assembly, on_mismatch=on_mismatch),
+                )
+            )
+        return Spec(
+            structure=str(structure or fixture_cif),
+            out=pathlib.Path(out),
+            views=tuple(built),
+            assembly=assembly,
+            on_mismatch=on_mismatch,
+        )
+
+    return _make

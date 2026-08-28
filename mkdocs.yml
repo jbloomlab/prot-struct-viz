@@ -15,7 +15,7 @@ nav:
   - Examples: examples.md
   - CSV schema: csv-schema.md
   - Rendering options: rendering.md
-  - CLI reference: cli.md
+  - Spec reference: cli.md
   - Python API: python-api.md
   - How it works: internals.md
 
@@ -23,9 +23,8 @@ markdown_extensions:
   - admonition
   - tables
   - pymdownx.superfences
-  - mkdocs-click
-  # Lets docs/examples.md include examples/*/command.sh and the input CSVs
-  # verbatim, so the documented command is literally the one that ran.
+  # Lets docs/examples.md include examples/*/spec.yaml and the input CSVs
+  # verbatim, so the documented input is literally the one that ran.
   # base_path is the repo root, since the examples live outside docs/.
   - pymdownx.snippets:
       base_path: ["."]

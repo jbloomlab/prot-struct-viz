@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Render every example under examples/ by running its command.sh.
+# Render every example under examples/ by running its spec.yaml.
 #
-# Each examples/<name>/command.sh is the canonical, literal CLI invocation for
-# that example -- it is what the docs show -- so running it here is what keeps
-# the documented command and the published view the same thing.
+# Each examples/<name>/spec.yaml is the canonical, literal input for that example
+# -- it is what the docs show -- so rendering it here unchanged is what keeps the
+# documented input and the published view the same thing. Each spec writes into
+# examples/output/, relative to itself.
 #
 #   scripts/build_examples.sh                # -> examples/output/
-#   scripts/build_examples.sh docs/examples  # -> docs/examples/ (for mkdocs)
+#   scripts/build_examples.sh docs/examples  # -> examples/output/, then copied there
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -25,22 +26,25 @@ if ! command -v prot-struct-viz >/dev/null; then
     exit 2
 fi
 
-OUT_DIR_ARG="${1:-examples/output}"
-mkdir -p "$OUT_DIR_ARG"
-# command.sh cd's into its own directory, so it needs an absolute OUT_DIR.
-OUT_DIR="$(cd "$OUT_DIR_ARG" && pwd)"
-export OUT_DIR
-
 shopt -s nullglob
-commands=(examples/*/command.sh)
-if [[ ${#commands[@]} -eq 0 ]]; then
-    echo "scripts/build_examples.sh: no examples/*/command.sh found" >&2
+specs=(examples/*/spec.yaml)
+if [[ ${#specs[@]} -eq 0 ]]; then
+    echo "scripts/build_examples.sh: no examples/*/spec.yaml found" >&2
     exit 2
 fi
 
-for cmd in "${commands[@]}"; do
-    echo "==> $cmd"
-    bash "$cmd"
+mkdir -p examples/output
+for spec in "${specs[@]}"; do
+    echo "==> prot-struct-viz $spec"
+    prot-struct-viz "$spec"
 done
 
-echo "built ${#commands[@]} example(s) into $OUT_DIR_ARG"
+# Where a spec writes is part of the spec, so a different destination is a copy
+# rather than an override. That keeps the documented command literally runnable.
+DEST="${1:-examples/output}"
+if [[ "$DEST" != "examples/output" ]]; then
+    mkdir -p "$DEST"
+    cp examples/output/* "$DEST"/
+fi
+
+echo "built ${#specs[@]} example(s) into $DEST"

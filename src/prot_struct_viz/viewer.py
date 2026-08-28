@@ -1,9 +1,17 @@
 """Build the MolViewSpec state and render it into a self-contained HTML file.
 
 The output HTML embeds a base64-encoded **MVSX** archive: a zip holding the MVS
-state (``index.mvsj``), the deposited coordinates, and one JSON annotation table.
-Relative URIs inside an MVSX resolve to members of the archive, so the whole view
-travels in a single file with no external data fetches.
+state (``index.mvsj``), the deposited coordinates, and one JSON annotation table
+per view. Relative URIs inside an MVSX resolve to members of the archive, so the
+whole page travels in a single file with no external data fetches.
+
+A page can hold several **views** of one structure -- different colourings,
+labels, representations, and heteroatom choices. Each gets its own MVS
+``structure`` node, hanging off the one shared parse, because Mol* collects
+tooltips per structure node: separate nodes are what keeps one view's tooltips,
+labels and colours from leaking into another's. Each node carries a ``ref``, which
+Mol* turns into a cell tag, and that is how the page finds a view to show or
+hide it.
 
 Two things are deliberate here:
 
@@ -20,6 +28,7 @@ Two things are deliberate here:
 from __future__ import annotations
 
 import base64
+import dataclasses
 import io
 import json
 import pathlib
@@ -46,7 +55,21 @@ MOLSTAR_VERSION = "5.11.0"
 
 #: Member names inside the MVSX archive.
 STATE_MEMBER = "index.mvsj"
-ANNOTATION_MEMBER = "annotations.json"
+
+
+def annotation_member(slug: str) -> str:
+    """Archive member holding one view's annotation table."""
+    return f"annotations/{slug}.json"
+
+
+def view_ref(slug: str) -> str:
+    """MVS ``ref`` for a view's structure node.
+
+    Mol* exposes this as the cell tag ``mvs-ref:<ref>``, which the page resolves
+    with ``PluginExtensions.mvs.util.queryMVSRef`` to find the subtree to toggle.
+    """
+    return f"view:{slug}"
+
 
 #: Representation used for each class of heteroatom the CSV does not name.
 HETERO_LAYER_REPRESENTATIONS = {
@@ -89,7 +112,7 @@ def build_annotations(
         dropped; validation has already reported them.
     deposited
         Displayed residues and their classes. Already restricted to
-        ``--chains``, which is what confines every component to those chains.
+        ``chains``, which is what confines every component to those chains.
     config
         The view options.
     chain_representations
@@ -112,8 +135,7 @@ def build_annotations(
 
         fields: dict[str, str] = {}
         if spec is not None:
-            for scheme, color in spec.colors.items():
-                fields[f"color:{scheme}"] = color
+            fields["color"] = spec.color
             if spec.label is not None:
                 fields["tooltip"] = spec.label
             if spec.representation is not None:
@@ -243,87 +265,113 @@ def build_label_primitives(
     return unplaced
 
 
+@dataclasses.dataclass(frozen=True)
+class ViewBuild:
+    """Everything needed to draw one view into the shared MVS state."""
+
+    slug: str
+    config: ViewConfig
+    rows: list[dict]
+    labels: tuple | None = None
+    orientation: dict | None = None
+
+
 def build_state(
-    rows: list[dict],
-    fmt: str,
-    structure_member: str,
-    config: ViewConfig,
-    scheme: str,
-    labels: tuple | None = None,
-) -> tuple[dict, list[ResidueKey]]:
-    """Build the MolViewSpec state that draws ``rows``.
+    builds: list[ViewBuild], fmt: str, structure_member: str
+) -> tuple[dict, dict[str, list[ResidueKey]]]:
+    """Build the MolViewSpec state drawing every view.
+
+    The coordinates are downloaded and parsed once; each view then gets its own
+    ``structure`` node under that parse. Sharing the parse is what keeps the file
+    from carrying the structure more than once; not sharing the structure node is
+    what keeps the views independent, since Mol* attaches tooltips per structure.
 
     Parameters
     ----------
-    rows
-        Annotation rows from `build_annotations`.
+    builds
+        One `ViewBuild` per view, in the order the page offers them.
     fmt
         ``"mmcif"`` or ``"pdb"``.
     structure_member
         Name of the coordinate file inside the MVSX archive.
-    config
-        The view options; supplies the assembly and the default color.
-    scheme
-        Which ``color:<Scheme>`` field to colour by.
-    labels
-        ``(coloring, deposited, centroids, instance_groups)`` for the persistent 3D
-        labels, or ``None`` to draw none.
 
     Returns
     -------
     tuple
-        The JSON-able MVS state, and the label keys that could not be placed.
+        The JSON-able MVS state, and per view slug the label keys that could not
+        be placed.
     """
     builder = create_builder()
+
+    # MVS has exactly one camera -- the node is root-level and the loader keeps the
+    # last one it sees -- so only the view the page opens on can be expressed here.
+    # Every other view's orientation is applied by the page when you switch to it.
+    # Emitting this one means the page opens already framed rather than snapping
+    # into place after the load.
+    opening = builds[0].orientation if builds else None
+    if opening is not None:
+        builder.camera(
+            target=opening["target"],
+            position=opening["position"],
+            up=opening["up"],
+        )
+
     parsed = builder.download(url=_archive_uri(structure_member)).parse(format=fmt)
-    if config.assembly == "au":
-        structure = parsed.model_structure()
-    else:
-        structure = parsed.assembly_structure(assembly_id=config.assembly)
 
-    annotation = {
-        "uri": _archive_uri(ANNOTATION_MEMBER),
-        "format": "json",
-        "schema": "auth_residue",
-    }
-    color_field = f"color:{scheme}"
-    has_color = any(color_field in row for row in rows)
+    unplaced: dict[str, list[ResidueKey]] = {}
+    for build in builds:
+        config = build.config
+        ref = view_ref(build.slug)
+        if config.assembly == "au":
+            structure = parsed.model_structure(ref=ref)
+        else:
+            structure = parsed.assembly_structure(assembly_id=config.assembly, ref=ref)
 
-    def _styled(component, representation_type):
-        representation = component.representation(type=representation_type)
-        representation.color(color=config.default_color)
-        if has_color:
-            representation.color_from_uri(**annotation, field_name=color_field)
-        return representation
+        annotation = {
+            "uri": _archive_uri(annotation_member(build.slug)),
+            "format": "json",
+            "schema": "auth_residue",
+        }
+        rows = build.rows
+        has_color = any("color" in row for row in rows)
 
-    # Base representation, one component per distinct value.
-    for value in _distinct(rows, "base_rep"):
-        component = structure.component_from_uri(
-            **annotation, field_name="base_rep", field_values=[value]
+        def _styled(component, representation_type, has_color=has_color):
+            representation = component.representation(type=representation_type)
+            representation.color(color=config.default_color)
+            if has_color:
+                representation.color_from_uri(**annotation, field_name="color")
+            return representation
+
+        # Base representation, one component per distinct value.
+        for value in _distinct(rows, "base_rep"):
+            component = structure.component_from_uri(
+                **annotation, field_name="base_rep", field_values=[value]
+            )
+            _styled(component, value)
+
+        # Additive per-residue overrides from the CSV's representation column.
+        for value in _distinct(rows, "extra_rep"):
+            component = structure.component_from_uri(
+                **annotation, field_name="extra_rep", field_values=[value]
+            )
+            _styled(component, value)
+
+        # Default heteroatom layers. These deliberately get no color node, so they
+        # keep Mol*'s element coloring and 3D-SNFG sugar colors.
+        for value in _distinct(rows, "het_layer"):
+            component = structure.component_from_uri(
+                **annotation, field_name="het_layer", field_values=[value]
+            )
+            component.representation(type=HETERO_LAYER_REPRESENTATIONS[value])
+
+        if any("tooltip" in row for row in rows):
+            structure.tooltip_from_uri(**annotation, field_name="tooltip")
+
+        unplaced[build.slug] = (
+            build_label_primitives(structure, *build.labels)
+            if build.labels is not None
+            else []
         )
-        _styled(component, value)
-
-    # Additive per-residue overrides from the CSV's representation column.
-    for value in _distinct(rows, "extra_rep"):
-        component = structure.component_from_uri(
-            **annotation, field_name="extra_rep", field_values=[value]
-        )
-        _styled(component, value)
-
-    # Default heteroatom layers. These deliberately get no color node, so they
-    # keep Mol*'s element coloring and 3D-SNFG sugar colors.
-    for value in _distinct(rows, "het_layer"):
-        component = structure.component_from_uri(
-            **annotation, field_name="het_layer", field_values=[value]
-        )
-        component.representation(type=HETERO_LAYER_REPRESENTATIONS[value])
-
-    if any("tooltip" in row for row in rows):
-        structure.tooltip_from_uri(**annotation, field_name="tooltip")
-
-    unplaced: list[ResidueKey] = []
-    if labels is not None:
-        unplaced = build_label_primitives(structure, *labels)
 
     return json.loads(builder.get_state().dumps()), unplaced
 
@@ -332,14 +380,19 @@ def build_mvsx(
     state: dict,
     coordinate_text: str,
     structure_member: str,
-    rows: list[dict],
+    rows_by_slug: dict[str, list[dict]],
 ) -> bytes:
-    """Zip the state, the coordinates, and the annotations into an MVSX archive."""
+    """Zip the state, the coordinates, and every view's annotations into an MVSX.
+
+    The coordinates go in once however many views there are; only the annotation
+    tables are per view.
+    """
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr(STATE_MEMBER, json.dumps(state))
         archive.writestr(structure_member, coordinate_text)
-        archive.writestr(ANNOTATION_MEMBER, json.dumps(rows))
+        for slug, rows in rows_by_slug.items():
+            archive.writestr(annotation_member(slug), json.dumps(rows))
     return buffer.getvalue()
 
 
@@ -354,13 +407,34 @@ def render_title(title_md: pathlib.Path | None) -> str:
 
 
 def render_html(
-    mvsx: bytes, title_html: str, page_title: str, show_label_toggle: bool
+    mvsx: bytes,
+    views: list[dict],
+    page_title: str,
+    show_label_toggle: bool,
+    viewer_height: str = "70vh",
+    molstar_ui: str = "show",
 ) -> str:
     """Render the viewer template around a base64 MVSX payload.
 
-    ``show_label_toggle`` renders the Labels checkbox. It is the caller's job to
-    pass ``False`` when the view drew no persistent labels: a checkbox that moves
-    nothing is worse than no checkbox.
+    Parameters
+    ----------
+    mvsx
+        The archive, embedded base64 in a non-executing script block.
+    views
+        One dict per view, in page order, with ``name``, ``slug``, ``caption``
+        (an HTML fragment, possibly empty) and ``orientation`` (a camera snapshot
+        or ``None``). The first is shown on load; the selector is rendered only
+        when there is more than one.
+    page_title
+        The HTML ``<title>``.
+    show_label_toggle
+        Renders the Labels checkbox. It is the caller's job to pass ``False``
+        when no view drew a persistent label: a checkbox that moves nothing is
+        worse than no checkbox.
+    viewer_height
+        CSS length for the viewer box. The width always fills the page.
+    molstar_ui
+        ``"show"`` or ``"hide"``: whether Mol*'s own panels start open.
     """
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(_TEMPLATE_DIR),
@@ -371,7 +445,16 @@ def render_html(
     return template.render(
         molstar_version=MOLSTAR_VERSION,
         mvsx_base64=base64.b64encode(mvsx).decode("ascii"),
-        title_html=title_html,  # already HTML; the template marks it safe
+        views=views,  # captions are already HTML; the template marks them safe
         page_title=page_title,
         show_label_toggle=show_label_toggle,
+        viewer_height=viewer_height,
+        # Only a viewport-relative height can collapse on a short window, so that
+        # is the only case that gets a floor. An absolute height is taken as meant.
+        viewer_min_height=("30rem" if viewer_height.endswith(("vh", "%")) else None),
+        molstar_ui_shown=molstar_ui == "show",
+        # An empty #header collapses to nothing via :empty, which stops a page with
+        # no captions from carrying a blank band under the structure.
+        has_captions=any(view["caption"] for view in views),
+        select_width=max((len(view["name"]) for view in views), default=0),
     )

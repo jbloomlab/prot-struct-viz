@@ -63,18 +63,11 @@ Both columns style the persistent label only, so they do nothing on a row whose
 `show_label` is not `True`. That is deliberately not an error: it lets you set a color on
 every row and toggle `show_label` freely while working on a figure.
 
-## Several colorings in one file
+## Several colorings of one structure
 
-Replace the bare `color` column with one or more `color:<SchemeName>` columns:
-
-```csv
-chain,residue,color:Entropy,color:Escape
-A,118,#67000d,#2171b5
-```
-
-All schemes are parsed and named in the report. The first is the one rendered; a
-selector for switching between them in the browser is not implemented yet. Mixing a bare
-`color` column with `color:<Scheme>` columns is an error.
+Several colorings are several CSVs, one per view in the [spec file](cli.md) — not several
+columns in one CSV. A view is a whole presentation, so its CSV can differ in labels,
+tooltips and per-residue representations too, not only in color.
 
 ## Parsing is strict
 

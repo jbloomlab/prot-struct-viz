@@ -24,17 +24,35 @@ pip install prot-struct-viz
 
 ## Quick start
 
-```bash
-prot-struct-viz \
-  --structure 1F8B \
-  --csv coloring.csv \
-  --assembly 1 \
-  --out view.html
+```yaml
+# spec.yaml
+structure: 1F8B
+out: view.html
+assembly: "1"
+on_mismatch: report
+
+views:
+  - name: Active site
+    csv: coloring.csv
+    default_color: "#d9d9d9"
+    default_representation: cartoon
+    waters: hide
+    ligands: show
+    glycans: snfg
+    ions: show
 ```
 
-That writes `view.html` and `view_report.txt`. The
-[CSV schema](https://jbloomlab.github.io/prot-struct-viz/csv-schema/) covers what goes in
-the CSV, and the
+```bash
+prot-struct-viz spec.yaml
+```
+
+That writes `view.html` and `view_report.txt`. One spec can hold several named **views**
+of the same structure — different colorings, labels, representations, or heteroatoms —
+and the page gets a selector that switches between them without moving the camera.
+
+The [spec reference](https://jbloomlab.github.io/prot-struct-viz/cli/) covers every key,
+the [CSV schema](https://jbloomlab.github.io/prot-struct-viz/csv-schema/) covers what goes
+in the CSV, and the
 [rendering options](https://jbloomlab.github.io/prot-struct-viz/rendering/) cover
 assemblies, representations, and heteroatoms.
 
@@ -45,7 +63,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,docs]"
 
 scripts/check.sh            # pytest + ruff + black
-scripts/build_examples.sh   # render examples/*/command.sh into examples/output/
+scripts/build_examples.sh   # render examples/*/spec.yaml into examples/output/
 scripts/build_docs.sh       # mkdocs build --strict
 ```
 

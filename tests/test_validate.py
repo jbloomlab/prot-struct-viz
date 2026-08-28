@@ -1,4 +1,4 @@
-"""Tests for mismatch detection, the four --on-mismatch modes, and the report."""
+"""Tests for mismatch detection, the four on_mismatch modes, and the report."""
 
 import pytest
 
@@ -108,7 +108,7 @@ def test_report_groups_by_residue_class(write_csv, deposited):
 
 
 def test_bad_mode_is_fatal(complete_coloring, deposited):
-    with pytest.raises(InputError, match="--on-mismatch must be one of"):
+    with pytest.raises(InputError, match="on_mismatch must be one of"):
         validate(complete_coloring, deposited, None, "lenient")
 
 

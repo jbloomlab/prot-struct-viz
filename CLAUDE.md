@@ -17,10 +17,27 @@ commit of that submodule; update periodically with
   python3 -m venv .venv && .venv/bin/pip install -e ".[dev,docs]"
   ```
   The `src/` layout needs `dev-mode-dirs = ["src"]` for editable installs to work.
-- **Two surfaces, one config.** `prot_struct_viz.render()` and the CLI both take a
-  `ViewConfig`, and every option is described once in `_config.OPTION_DOCS`, which the
-  `click` `help=` strings read directly. Adding an option means a `ViewConfig` field, an
-  `OPTION_DOCS` entry, and a CLI option — never a second description.
+- **One input: the YAML spec.** `prot-struct-viz spec.yaml` is the whole CLI; there are
+  no flags. `spec.load_spec` parses it into a `Spec` of `View`s, each a name, a CSV, and a
+  `ViewConfig`, and `render(spec)` takes it from there. Every option is described once in
+  `_config.OPTION_DOCS`, whose keys are also the spec's keys and `ViewConfig`'s field
+  names. Adding an option means a `ViewConfig` field, an `OPTION_DOCS` entry, and a row in
+  `docs/cli.md` — never a second description. `tests/test_docs.py` checks that every
+  `OPTION_DOCS` key reaches the reference page.
+- **The spec format has no defaults, on purpose.** Every per-view key must be stated, so a
+  spec is readable without knowing what the package would have filled in; YAML anchors are
+  how repetition is removed, and the ignored top-level `definitions` key is where they
+  live. The exception is keys whose absence is the answer (`chains`, `title_md`,
+  `chain_representation`). `ViewConfig` keeps Python-side defaults for programmatic use --
+  the strictness belongs to the loader, not the dataclass.
+- **A view is one MVS `structure` node, not one component.** Views share the `download`
+  and `parse` nodes and nothing below them, because Mol\* collects `tooltip_from_uri` per
+  structure node -- one shared node would merge every view's tooltips into one mouseover.
+  Each structure node carries `ref="view:<slug>"`, which Mol\* exposes as the cell tag
+  `mvs-ref:view:<slug>`; the page resolves it with
+  `PluginExtensions.mvs.util.queryMVSRef` and walks the subtree to show or hide it.
+  MolViewSpec has no way to mark a node hidden on load, so the initial hide is done in JS
+  after the load, alongside the Labels checkbox and under one combined rule.
 - **Allowed values live in `_config.py`.** `REPRESENTATIONS`, `MISMATCH_MODES`, and the
   heteroatom flag choices are defined once and imported by the parser, the CLI, and the
   renderer. Do not restate a set of allowed values anywhere else.
@@ -43,10 +60,12 @@ commit of that submodule; update periodically with
 - **Escape `Mol\*` in every Markdown file.** Python-Markdown -- unlike CommonMark, whose
   flanking rules reject it -- pairs a bare `Mol*` with the next `*` in the same paragraph
   and silently italicizes the wrong span. `tests/test_docs.py` enforces this.
-- **Examples are CLI-driven directories**: `examples/<name>/` holds the inputs plus
-  `command.sh`, the literal invocation. `docs/examples.md` includes `command.sh` and the
-  CSVs verbatim via `pymdownx.snippets`, so the documented command cannot drift from the
-  one that ran. The rendered HTML is generated into a gitignored `docs/examples/` and
+- **Examples are spec-driven directories**: `examples/<name>/` holds the inputs plus
+  `spec.yaml`, the literal input. `docs/examples.md` includes `spec.yaml` and the CSVs
+  verbatim via `pymdownx.snippets`, so the documented input cannot drift from the one that
+  ran. A spec's `out` is part of the spec, so `scripts/build_examples.sh` renders each one
+  unchanged into `examples/output/` and *copies* to another destination rather than
+  overriding it. The rendered HTML is generated into a gitignored `docs/examples/` and
   must be built before `mkdocs` -- both `scripts/build_docs.sh` and `.github/workflows/
   docs.yml` do this. Adding an example is a new directory plus a section in
   `docs/examples.md`.
@@ -55,7 +74,7 @@ commit of that submodule; update periodically with
   `examples/<name>/title.md` as a caption, so a structure description, color key or
   assembly note written onto the page is shown twice a few hundred pixels apart and has to
   be maintained in both places. Keep the section to one framing sentence plus the included
-  `command.sh` and inputs.
+  `spec.yaml` and inputs.
 - **MVS color is per representation; tooltips and labels are not.** `color_from_uri` is a
   child of each `representation` node, so a representation the user adds from Mol\*'s
   Components panel arrives uncolored and cannot be colored from the UI -- MolViewSpec has

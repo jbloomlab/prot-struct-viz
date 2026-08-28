@@ -1,0 +1,26 @@
+# Influenza B neuraminidase (PDB 1F8B), biological tetramer, with the active-site
+# residues that contact the DANA inhibitor shaded by distance.
+#
+# One view, which is the simple case: with a single view the page renders no view
+# selector at all.
+#
+# Render it with:  prot-struct-viz spec.yaml
+# Paths are relative to this file, so it works from any directory. Run every
+# example at once with scripts/build_examples.sh.
+
+structure: 1F8B
+out: ../output/1f8b_active_site.html
+assembly: "1"
+on_mismatch: report
+
+views:
+  - name: Active site
+    csv: coloring.csv
+    chain_representation: chains.csv
+    title_md: title.md
+    default_color: "#d9d9d9"
+    default_representation: cartoon
+    waters: hide
+    ligands: show
+    glycans: snfg
+    ions: show
