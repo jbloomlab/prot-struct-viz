@@ -1,4 +1,4 @@
-"""Regenerate the four coloring CSVs for the 8FAW antigenic-regions example.
+"""Regenerate the five coloring CSVs for the 8FAW antigenic-regions example.
 
 The CSVs are committed, and this script is **not** run by
 ``scripts/build_examples.sh`` or by the tests -- ``spec.yaml`` reads the
@@ -14,7 +14,9 @@ reads it -- so a name here that no view claims is a name that has gone stale:
 * ``antigenic-regions.csv`` -- the same without the host-glycan rows, so that the
   view's ``glycans: hide`` can take them away;
 * ``perth-2009-to-subclade-k.csv`` and ``2025-26-to-2026-27-vaccine.csv`` -- the
-  sites that differ between two HAs, in red, plus the same LSTc rows.
+  sites that differ between two HAs, in red, plus the same LSTc rows;
+* ``subclade-k-with-region-d-mutations.csv`` -- the second of those two lists again,
+  with HA1 222 and 223 added in a color of their own.
 
 It exists because the ~490 rows of the first two are derived from two external
 sources, and a table that large is only auditable if its derivation ships with
@@ -169,6 +171,18 @@ GLYCAN_COLOR = "#ffd700"
 #: red from the palette above: these views drop the antigenic-region coloring
 #: entirely, so the two never appear on the same structure.
 MUTATED_COLOR = "#e41a1c"
+
+#: HA1 222 and 223, drawn on top of a mutation list in one view. They are two of
+#: the twenty residues `SITES` assigns to antigenic region D, and they sit in the
+#: 220-loop, one of the three elements lining the receptor-binding site.
+REGION_D_SITES = [222, 223]
+
+#: The purple that the first two views already give antigenic region D, so the
+#: pair reads as the same thing here as it does there. That is the whole reason
+#: this is not a new color: the other views' key is the key for this one too.
+#: It is a cool color against `MUTATED_COLOR`, which is the other requirement --
+#: this is the only view drawing two colored classes of site at once.
+REGION_D_COLOR = SITE_COLORS["D"]
 
 CITATION = "Stray & Pittman 2012 Virol J 9:91"
 
@@ -546,6 +560,45 @@ def mutation_rows(mutations, from_name, to_name):
     ]
 
 
+def region_d_rows(mutations, modeled):
+    """One row per site of `REGION_D_SITES`, for the view that adds them.
+
+    These are written alongside `mutation_rows` into a single CSV, so all three
+    of the things that could make that CSV lie are checked here: that the sites
+    really are in region D, that 8FAW models them, and that the mutation list
+    does not already claim one -- two rows for one residue would leave the file
+    saying nothing about which color wins.
+    """
+    stray = [site for site in REGION_D_SITES if site not in SITES["D"]]
+    if stray:
+        raise SystemExit(f"HA1 sites {stray} are not in antigenic region D")
+    absent = [
+        site for site in REGION_D_SITES if residue_number("HA1", site) not in modeled
+    ]
+    if absent:
+        raise SystemExit(f"{PDB_ID} does not model HA1 sites {absent}")
+    claimed = sorted(
+        {site for protein, site, _, _ in mutations if protein == "HA1"}
+        & set(REGION_D_SITES)
+    )
+    if claimed:
+        raise SystemExit(
+            f"HA1 sites {claimed} are painted by the mutation list already"
+        )
+    return [
+        [
+            POLYMER_CHAIN,
+            residue_number("HA1", site),
+            REGION_D_COLOR,
+            f"{site}_HA1",
+            "",
+            f"HA1 site {site}; antigenic region D of {CITATION}, in the "
+            "220-loop of the receptor-binding site",
+        ]
+        for site in REGION_D_SITES
+    ]
+
+
 def write_csv(name, rows, note):
     """Write one CSV beside this script and say what went into it."""
     out_path = pathlib.Path(__file__).parent / name
@@ -588,10 +641,20 @@ def main():
         mutation_rows(PERTH_TO_SUBCLADE_K, PERTH, SUBCLADE_K) + lstc,
         f"{len(PERTH_TO_SUBCLADE_K)} differing sites, {len(lstc)} receptor",
     )
+    vaccine = mutation_rows(DC_2023_TO_DARWIN_2025, DC_2023, DARWIN_2025)
     write_csv(
         "2025-26-to-2026-27-vaccine.csv",
-        mutation_rows(DC_2023_TO_DARWIN_2025, DC_2023, DARWIN_2025) + lstc,
+        vaccine + lstc,
         f"{len(DC_2023_TO_DARWIN_2025)} differing sites, {len(lstc)} receptor",
+    )
+    region_d = region_d_rows(DC_2023_TO_DARWIN_2025, modeled)
+    write_csv(
+        "subclade-k-with-region-d-mutations.csv",
+        # Re-sorted rather than concatenated: 222 and 223 fall between the last
+        # HA1 site of the mutation list and its HA2 one.
+        sorted(vaccine + region_d, key=lambda row: row[1]) + lstc,
+        f"{len(vaccine)} differing sites, {len(region_d)} region D, "
+        f"{len(lstc)} receptor",
     )
 
 

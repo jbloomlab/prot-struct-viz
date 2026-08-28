@@ -106,14 +106,17 @@ All notable changes to this project are documented here, in
 
 ### Changed
 
-- The `8faw_antigenic_regions` example now has **four views** instead of two, and makes an
+- The `8faw_antigenic_regions` example now has **five views** instead of two, and makes an
   argument rather than showing the same coloring twice: the classical antigenic regions of
   H3 HA1, the same with the host N-glycans hidden, then the sites that differ between
   A/Perth/16/2009 and subclade K, then the sites that differ between the 2025-2026 and
-  2026-2027 vaccine strains. 27 of the 40 modeled Perth-to-K substitutions, and 6 of the 8
-  modeled vaccine-update ones, land inside the antigenic regions the first two views draw.
+  2026-2027 vaccine strains, then that last comparison again with HA1 222 and 223 -- two
+  antigenic region D sites in the 220-loop of the receptor-binding site -- picked out in the
+  same purple the first two views give region D. 27 of the 40 modeled Perth-to-K
+  substitutions, and 6 of the 8 modeled vaccine-update
+  ones, land inside the antigenic regions the first two views draw.
   Each view names its own CSV, and its own `glycans` setting; the receptor analogue stays in
-  all four because a residue named in the CSV is drawn whatever the heteroatom options say.
+  all five because a residue named in the CSV is drawn whatever the heteroatom options say.
   Only the first view pins a camera, and no view draws labels into the scene any more, so
   that page has no **Labels** button -- the site or the substitution is a tooltip instead.
 - **The whole input is now a single YAML spec file**, and the CLI is
