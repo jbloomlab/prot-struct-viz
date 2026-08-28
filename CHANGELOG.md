@@ -19,6 +19,11 @@ All notable changes to this project are documented here, in
   **Copy camera** button -- so a published page never carries an authoring control, and
   capturing needs neither a re-render nor the browser console. `psvCamera()` returns the
   same block for anyone who prefers the console.
+- Deep links to a view: the URL fragment `#view=<name>` opens the page on that view,
+  framed and captioned, and switching views rewrites the fragment in place so sharing a
+  view is copying the address bar. An unknown name falls back to the first view. Composes
+  with the authoring fragment as `#view=<name>&camera`, and Back still leaves the page
+  rather than walking the views.
 - Several named **views** of one structure in one page, each with its own CSV, colors,
   labels, representation, chains, heteroatom settings and caption. The page gets a
   **View** selector; every view is built when the page loads and switching only changes
@@ -29,7 +34,8 @@ All notable changes to this project are documented here, in
   on every symmetry mate, and leaves the mouseover tooltips alone. The labels are MolViewSpec
   primitives rather than Components-panel entries, so Mol\*'s own UI offers no way to switch
   them off.
-- A **Reset view** button in the generated page, reloading the view as it was written.
+- A **Reset view** button in the generated page, reloading the view as it was written,
+  camera included -- the view you are on, not the first one.
   It exists because MolViewSpec attaches per-residue color to each representation it
   creates, so a representation added afterwards from Mol\*'s Components panel arrives in
   Mol\*'s default element coloring and cannot be recolored from the UI. Tooltips and

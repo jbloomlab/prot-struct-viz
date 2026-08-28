@@ -215,14 +215,16 @@ You are not expected to write those numbers. Get them from a rendered page:
 2. Open the HTML and **add `#camera` to the end of the URL**, then reload. A **Copy
    camera** button appears next to *Reset view*.
 3. Choose the view you are posing from the **View** selector, then rotate and zoom until
-   it looks right.
+   it looks right. To start on that view instead of clicking to it, open
+   `#view=<slug>&camera` — see [linking to a view](viewer.md#linking-to-a-view).
 4. Click **Copy camera**. The block is copied to your clipboard and also shown in a box
    below the controls, headed with the name of the view you are on.
 5. Paste it into that view in the spec, and re-render.
 
-`#camera` is a URL fragment, so it is never sent anywhere and works the same over
-`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on, and a
-link you share does not carry it — readers never see the button.
+`camera` is a URL fragment token, so it is never sent anywhere and works the same over
+`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on.
+Switching views keeps the token, but the page never adds one: a URL you copied off a page
+you were posing carries the view, and the button only appears for someone who asks for it.
 
 The box matters as much as the clipboard: a rendered page is usually opened over `file://`,
 which browsers do not treat as a secure context, so the clipboard API may be unavailable.

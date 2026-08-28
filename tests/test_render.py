@@ -579,8 +579,10 @@ def test_orientations_reach_the_page_in_view_order(tmp_path, write_csv, make_spe
         "up": [0.0, 1.0, 0.0],
         "radius": 5.0,
     }
-    # The animated setter, not the raw one -- see the template comment.
-    assert "managers.camera.setSnapshot(orientation, CAMERA_MS)" in html
+    # The animated setter, not the raw one -- see the template comment. The
+    # duration is an argument because a deep link and Reset both want it at 0.
+    assert "managers.camera.setSnapshot(" in html
+    assert "ms === undefined ? CAMERA_MS : ms" in html
 
 
 def test_camera_capture_is_hidden_behind_the_url_fragment(
@@ -591,8 +593,54 @@ def test_camera_capture_is_hidden_behind_the_url_fragment(
     render(make_spec([("Only", write_csv(CSV))], out))
     html = out.read_text()
     assert '<button id="copy-camera" type="button" hidden' in html
-    assert "window.location.hash === '#camera'" in html
+    # Read through the fragment parser, so that #view=<slug>&camera keeps working.
+    assert "if (fragment().camera) {" in html
+    assert "window.location.hash === '#camera'" not in html
     assert "window.psvCamera" in html
+
+
+def test_deep_link_fragment_selects_a_view(tmp_path, write_csv, make_spec):
+    """`#view=<slug>` has to act at runtime, not change what is served."""
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    render(make_spec([("First", csv), ("Second", csv)], out))
+    html = out.read_text()
+    assert "token.indexOf('view=') === 0" in html
+    assert "function selectFromFragment()" in html
+    assert "addEventListener('hashchange'" in html
+    # An unknown slug is not an error; it leaves the first view selected.
+    assert "VIEWS.indexOf(wanted) === -1) return false" in html
+    # ...and it has to run on load, not only when the fragment is edited later.
+    on_load = html.split("return load().then(")[1].split("});")[0]
+    assert "selectFromFragment()" in on_load
+    assert "applyOrientation(0)" in on_load
+    # The served markup is untouched -- no option is marked selected -- so a
+    # reader with no fragment still gets the first view, and the deep link is
+    # purely a runtime override.
+    assert "selected" not in html
+
+
+def test_switching_views_rewrites_the_fragment(tmp_path, write_csv, make_spec):
+    """Sharing a view should be copying the address bar."""
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    render(make_spec([("First", csv), ("Second", csv)], out))
+    html = out.read_text()
+    assert "history.replaceState(" in html
+    assert "history.pushState(" not in html  # Back leaves the page, as it always did
+    assert "if (fragment().camera) tokens.push('camera');" in html
+
+
+def test_reset_restores_the_camera_of_the_view_you_are_on(
+    tmp_path, write_csv, make_spec
+):
+    """Reloading the state resets the camera to the first view's pose; undo that."""
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    render(make_spec([("First", csv), ("Second", csv)], out))
+    html = out.read_text()
+    reset = html.split("document.getElementById('reset-view')")[1]
+    assert "applyOrientation(0)" in reset.split("})")[0]
 
 
 def test_snapshot_stepper_is_hidden(tmp_path, write_csv, make_spec):
