@@ -5,11 +5,11 @@ the alpha-2,6 sialylated receptor ([PDB 8FAW](https://www.rcsb.org/structure/8FA
 colored by the classical antigenic region each site belongs to, taken from Table 2 of
 [Stray & Pittman (2012), *Virology Journal* 9:91](https://pmc.ncbi.nlm.nih.gov/articles/PMC3499391/):
 
-- **red** — site A
-- **blue** — site B
+- **indigo** — site A
+- **cyan** — site B
 - **green** — site C
 - **purple** — site D
-- **orange** — site E
+- **teal** — site E
 - **light gray** — HA1, not in a defined antigenic region
 - **mid gray** — HA2
 - **black** — the LSTc receptor analogue

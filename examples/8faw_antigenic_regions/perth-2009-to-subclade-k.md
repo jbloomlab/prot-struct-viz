@@ -1,4 +1,4 @@
-# HA mutations between a 2009 and 2025 H3N2 strain
+## HA mutations between a 2009 and 2025 H3N2 strain
 
 Structure H3N2 HA ([PDB 8FAW](https://www.rcsb.org/structure/8FAW)) with red indicating every site that differs between
 A/Perth/16/2009 (the H3N2 component of the 2010-2011 vaccine)
