@@ -93,8 +93,8 @@ OPTION_DOCS = {
     "ions": "Show or hide ions not named in the CSV (element-colored spacefill).",
     "viewer_height": (
         "Height of the viewer box, as a CSS length (px, rem, em, vh, %). The width "
-        "always fills the page. A 30rem floor is applied to viewport-relative "
-        "heights, which are the ones a short window can collapse."
+        "always fills the page. The value is used as written, so a viewport-relative "
+        "height gives a short viewer on a short window."
     ),
     "molstar_ui": (
         "Whether Mol*'s own panels -- Structure Tools, the left panel, and the "

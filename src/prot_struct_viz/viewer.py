@@ -306,8 +306,16 @@ def build_state(
     # MVS has exactly one camera -- the node is root-level and the loader keeps the
     # last one it sees -- so only the view the page opens on can be expressed here.
     # Every other view's orientation is applied by the page when you switch to it.
-    # Emitting this one means the page opens already framed rather than snapping
-    # into place after the load.
+    #
+    # This node is a first paint, not the final camera. MolViewSpec reads its
+    # position as a *reference* camera, one that just fits a sphere of radius
+    # |position - target| / 2, and multiplies the distance to the target by
+    # 1/(2*sin(fov/2)) -- about 1.31 at the default 45 degrees. Emitting it opens
+    # the page facing the right way instead of on Mol*'s default fit of the scene;
+    # the page then re-applies the same orientation through setSnapshot, which
+    # copies the position verbatim and is what the reader ends up looking at. The
+    # node also cannot carry `radius`: MVS camera params are target, position, up
+    # and near, so Orientation.radius reaches only the page's ORIENTATIONS array.
     opening = builds[0].orientation if builds else None
     if opening is not None:
         builder.camera(
@@ -449,9 +457,6 @@ def render_html(
         page_title=page_title,
         show_label_toggle=show_label_toggle,
         viewer_height=viewer_height,
-        # Only a viewport-relative height can collapse on a short window, so that
-        # is the only case that gets a floor. An absolute height is taken as meant.
-        viewer_min_height=("30rem" if viewer_height.endswith(("vh", "%")) else None),
         molstar_ui_shown=molstar_ui == "show",
         # An empty #header collapses to nothing via :empty, which stops a page with
         # no captions from carrying a blank band under the structure.

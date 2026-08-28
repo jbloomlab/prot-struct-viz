@@ -5,11 +5,25 @@ All notable changes to this project are documented here, in
 
 ## [Unreleased]
 
+### Fixed
+
+- The opening view's camera is now the camera the spec asks for. MolViewSpec reads a
+  `camera` node's position as a *reference* camera and scales its distance from the target
+  by `1/(2*sin(fov/2))` -- about 1.31 at the default field of view -- so the page opened
+  roughly a third further out than the numbers in the spec, and each round of **Copy
+  camera** into the spec and back pushed it further out again. The page now re-applies the
+  orientation itself after loading, through the same call every other view already used.
+  Zoom is the distance between `position` and `target`; `radius` never controlled it, and
+  the documentation said otherwise.
+- `viewer_height` no longer has a `30rem` floor quietly overriding it. The floor guarded
+  against a viewport-relative height collapsing on a short window, but it also meant any
+  value below `30vh` rendered identically on a screen shorter than 1600px, so shortening
+  the viewer in the spec appeared to do nothing.
+
 ### Added
 
 - `viewer_height`, setting how tall the viewer box is as a CSS length. The width still
-  fills the page. Viewport-relative heights keep a `30rem` floor, which is the case a short
-  window can collapse; an absolute height is used exactly as given.
+  fills the page. The value is used exactly as given.
 - `molstar_ui`, for whether Mol\*'s own panels -- Structure Tools, the left panel, and the
   sequence strip -- start open. `hide` closes them without removing them: the wrench in the
   viewport still opens them, because it is gated by a different setting.
@@ -19,6 +33,11 @@ All notable changes to this project are documented here, in
   **Copy camera** button -- so a published page never carries an authoring control, and
   capturing needs neither a re-render nor the browser console. `psvCamera()` returns the
   same block for anyone who prefers the console.
+- Deep links to a view: the URL fragment `#view=<name>` opens the page on that view,
+  framed and captioned, and switching views rewrites the fragment in place so sharing a
+  view is copying the address bar. An unknown name falls back to the first view. Composes
+  with the authoring fragment as `#view=<name>&camera`, and Back still leaves the page
+  rather than walking the views.
 - Several named **views** of one structure in one page, each with its own CSV, colors,
   labels, representation, chains, heteroatom settings and caption. The page gets a
   **View** selector; every view is built when the page loads and switching only changes
@@ -29,7 +48,8 @@ All notable changes to this project are documented here, in
   on every symmetry mate, and leaves the mouseover tooltips alone. The labels are MolViewSpec
   primitives rather than Components-panel entries, so Mol\*'s own UI offers no way to switch
   them off.
-- A **Reset view** button in the generated page, reloading the view as it was written.
+- A **Reset view** button in the generated page, reloading the view as it was written,
+  camera included -- the view you are on, not the first one.
   It exists because MolViewSpec attaches per-residue color to each representation it
   creates, so a representation added afterwards from Mol\*'s Components panel arrives in
   Mol\*'s default element coloring and cannot be recolored from the UI. Tooltips and

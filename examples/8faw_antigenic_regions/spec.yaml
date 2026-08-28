@@ -27,7 +27,7 @@ views:
     # applies here; it is stated because no view of this spec has a default.
     glycans: snfg
     orientation:
-      position: [-184.29, -58.04, -3.92]
+      position: [-202.98, -58.1, -5.72]
       target: [-0.41, -57.45, 13.82]
       up: [0.1, 0.06, -0.99]
       radius: 76.11

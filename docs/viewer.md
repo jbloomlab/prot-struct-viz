@@ -18,12 +18,35 @@ CSV asked for at least one and the view could place it, and it moves all of them
 including the copy drawn on every symmetry mate of an assembly. Mouseover tooltips are
 separate and keep working while the labels are hidden.
 
-**Reset view** reloads the page as generated, putting the original coloring and camera
-back. It is there because of one limitation: a representation you *add* from Mol\*'s
-Components panel arrives in Mol\*'s default element coloring, not the CSV's, and there is
-no way to color it from the UI. Tooltips and labels keep working on it; only the color is
-missing. See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why,
+**Reset view** reloads the page as generated, putting the original coloring and the
+current view's camera back. It is there because of one limitation: a representation you
+*add* from Mol\*'s Components panel arrives in Mol\*'s default element coloring, not the
+CSV's, and there is no way to color it from the UI. Tooltips and labels keep working on
+it; only the color is missing. See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why,
 and for what the entries in the Components panel are named after.
+
+## Linking to a view
+
+The address bar names whichever view is on screen, so sharing one is copying the URL:
+
+```
+https://example.org/hemagglutinin.html#view=perth-2009-to-subclade-k
+```
+
+Opening that link starts on that view, framed and captioned, rather than on the first one.
+Switching views in the page rewrites the fragment in place, which is why you never have to
+work out the name yourself — go to the view you mean and copy what is in the bar. The
+browser's Back button is unaffected: it leaves the page rather than stepping back through
+the views you looked at.
+
+The name after `view=` is the view's name from the spec, lowercased with everything that is
+not a letter or digit turned into a hyphen. A name the page does not have is ignored and it
+opens on the first view, so an old link never lands on an error.
+
+A fragment is handled entirely by the browser and is never sent to the server, so this
+works the same over `file://`, a local server, and GitHub Pages, with nothing to configure.
+If a browser will not let a local file rewrite its own address bar, only the rewriting is
+lost — following a link still works.
 
 ## Size, and Mol\*'s own panels
 

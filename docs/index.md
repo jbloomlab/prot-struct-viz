@@ -95,7 +95,8 @@ git add docs/view.html && git commit -m "Add structure view" && git push
 ```
 
 Set Pages to serve from `/docs` on the default branch, and the view is at
-`https://<org>.github.io/<repo>/view.html`.
+`https://<org>.github.io/<repo>/view.html`. Add `#view=<name>` to point at one particular
+view of a multi-view page — see [linking to a view](viewer.md#linking-to-a-view).
 
 ## Where to go next
 

@@ -75,7 +75,7 @@ These two are optional, and describe the page rather than any view:
 
 | Key | Meaning |
 | --- | --- |
-| `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. A `30rem` floor is added to viewport-relative heights, which are the ones a short window can collapse; an absolute height is taken exactly as written. |
+| `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. The value is used exactly as written, so a viewport-relative height gives a short viewer on a short window. |
 | `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels — Structure Tools, the left panel, and the sequence strip — start open. `hide` means closed, not gone: the wrench in the viewport still opens them. |
 
 Both are about what the reader meets on the page, described in
@@ -199,13 +199,20 @@ views:
       radius: 76.1
 ```
 
-`position` and `target` are required. `up` defaults to `[0, 1, 0]`, and omitting `radius`
-leaves the zoom to Mol\*'s own fit of the scene. Nothing else belongs here — field of view,
-clipping and the rest are properties of the scene, and pinning them in a spec only makes a
-view behave oddly on a structure of a different size.
+`position` and `target` are required. `up` defaults to `[0, 1, 0]`.
+
+**Zoom is the distance between `position` and `target`** — move the position further out
+and the structure gets smaller. `radius` is not the zoom: it sets the near and far clipping
+planes and where the depth fog begins, and omitting it leaves those to Mol\*'s fit of the
+scene. Nothing else belongs here — field of view and the rest are properties of the scene,
+and pinning them in a spec only makes a view behave oddly on a structure of a different
+size.
 
 If the **first** view has an orientation it is also written into the MolViewSpec state, so
-the page opens already framed rather than snapping into place after loading.
+the page opens facing the right way rather than on Mol\*'s default fit of the scene. That
+node is only a first paint: MolViewSpec reads its position as a *reference* camera and
+pushes it about a third further out, so the page re-applies the orientation itself once the
+structure has loaded. What you see is the orientation as written.
 
 ### Capturing one
 
@@ -215,14 +222,17 @@ You are not expected to write those numbers. Get them from a rendered page:
 2. Open the HTML and **add `#camera` to the end of the URL**, then reload. A **Copy
    camera** button appears next to *Reset view*.
 3. Choose the view you are posing from the **View** selector, then rotate and zoom until
-   it looks right.
+   it looks right. To start on that view instead of clicking to it, open
+   `#view=<slug>&camera` — see [linking to a view](viewer.md#linking-to-a-view).
 4. Click **Copy camera**. The block is copied to your clipboard and also shown in a box
    below the controls, headed with the name of the view you are on.
-5. Paste it into that view in the spec, and re-render.
+5. Paste it into that view in the spec, and re-render. The re-render reproduces the pose
+   you captured, so you can capture again from it and converge rather than drift.
 
-`#camera` is a URL fragment, so it is never sent anywhere and works the same over
-`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on, and a
-link you share does not carry it — readers never see the button.
+`camera` is a URL fragment token, so it is never sent anywhere and works the same over
+`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on.
+Switching views keeps the token, but the page never adds one: a URL you copied off a page
+you were posing carries the view, and the button only appears for someone who asks for it.
 
 The box matters as much as the clipboard: a rendered page is usually opened over `file://`,
 which browsers do not treat as a secure context, so the clipboard API may be unavailable.

@@ -38,6 +38,13 @@ commit of that submodule; update periodically with
   `PluginExtensions.mvs.util.queryMVSRef` and walks the subtree to show or hide it.
   MolViewSpec has no way to mark a node hidden on load, so the initial hide is done in JS
   after the load, alongside the Labels checkbox and under one combined rule.
+- **The URL fragment is one shared namespace with a grammar.** `#` then
+  `&`-separated tokens: `view=<slug>` picks a view, `camera` reveals the authoring
+  button, and unknown tokens are ignored. Parse it with the page's `fragment()`; do not
+  compare `location.hash` to a literal, and do not claim `#` for anything that is not a
+  token. The page writes the fragment back with `history.replaceState` so Back keeps
+  leaving the page, and because replaceState fires no `hashchange` the listener needs no
+  guard against the page's own writes.
 - **Allowed values live in `_config.py`.** `REPRESENTATIONS`, `MISMATCH_MODES`, and the
   heteroatom flag choices are defined once and imported by the parser, the CLI, and the
   renderer. Do not restate a set of allowed values anywhere else.

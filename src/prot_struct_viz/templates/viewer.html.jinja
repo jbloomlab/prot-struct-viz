@@ -41,8 +41,7 @@
                 border-radius: 6px; font-size: 0.85rem; overflow-x: auto;
                 white-space: pre; user-select: all; }
   /* Mol* fills this box and positions its own UI inside it. */
-  #viewer { position: relative; width: 100%; height: {{ viewer_height }};
-            {%- if viewer_min_height %} min-height: {{ viewer_min_height }};{% endif %} }
+  #viewer { position: relative; width: 100%; height: {{ viewer_height }}; }
   /* Mol*'s snapshot stepper. This package expresses views as one state with hidden
      subtrees, never as MVS snapshots, so there is only ever the single snapshot the
      loader registers -- and with no title it reads as "[1/1] <timestamp>" beside a
@@ -109,6 +108,29 @@ view now on screen.">Copy camera</button>
     var ORIENTATIONS = {{ views | map(attribute='orientation') | list | tojson }};
     var CAMERA_MS = 400;
 
+    // The page's whole URL contract: '#' then '&'-separated tokens. Two are
+    // recognised, `view=<slug>` and `camera`; anything else is ignored, so a
+    // fragment a reader mangled degrades to the default view rather than to
+    // nothing. A fragment rather than a query string because it is never sent
+    // anywhere and behaves the same over file://, a local server, and Pages.
+    function fragment() {
+        var parsed = {view: null, camera: false};
+        window.location.hash.replace(/^#/, '').split('&').forEach(function (token) {
+            if (token === 'camera') {
+                parsed.camera = true;
+            } else if (token.indexOf('view=') === 0) {
+                // A view name is only mostly ASCII by convention, so the slug can
+                // arrive percent-encoded -- and decoding a malformed one throws.
+                try {
+                    parsed.view = decodeURIComponent(token.slice(5));
+                } catch (err) {
+                    console.warn('prot-struct-viz: unreadable view in ' + window.location.hash);
+                }
+            }
+        });
+        return parsed;
+    }
+
     function fail(err) {
         status.textContent = 'Failed to load: ' + err;
         console.error(err);
@@ -149,6 +171,33 @@ view now on screen.">Copy camera</button>
 
         function activeIndex() {
             return select ? VIEWS.indexOf(select.value) : 0;
+        }
+
+        // Point the selector at whatever the URL names, and say whether it did.
+        // A slug this page does not have is not an error: the page opens on its
+        // first view, which is what a reader following a stale link should get.
+        function selectFromFragment() {
+            var wanted = fragment().view;
+            if (!select || !wanted || VIEWS.indexOf(wanted) === -1) return false;
+            select.value = wanted;
+            return true;
+        }
+
+        // Keep the address bar naming what is on screen, so sharing a view is
+        // copying the URL. replaceState rather than assigning location.hash: Back
+        // still leaves the page instead of walking the views, and it fires no
+        // hashchange, so the listener below needs no guard against our own writes.
+        function writeFragment() {
+            var tokens = ['view=' + encodeURIComponent(select.value)];
+            if (fragment().camera) tokens.push('camera');   // never strip an author's button
+            var hash = '#' + tokens.join('&');
+            if (window.location.hash === hash) return;
+            try {
+                history.replaceState(null, '', location.pathname + location.search + hash);
+            } catch (err) {
+                // Some browsers refuse replaceState over file://, where a link is
+                // not shareable anyway. Reading the fragment still works there.
+            }
         }
 
         // Which view each state cell belongs to, as {cell ref: view slug}.
@@ -215,10 +264,29 @@ view now on screen.">Copy camera</button>
         // camera over a scene-fit baseline and recomputes radiusMax from the scene,
         // so a radius captured on one structure cannot clip on another. The second
         // argument is a transition duration, which is what animates the move.
-        function applyOrientation() {
+        function applyOrientation(ms) {
             var orientation = ORIENTATIONS[activeIndex()];
             if (!orientation) return;   // this view has no opinion; leave the camera
-            viewer.plugin.managers.camera.setSnapshot(orientation, CAMERA_MS);
+            viewer.plugin.managers.camera.setSnapshot(
+                orientation, ms === undefined ? CAMERA_MS : ms);
+        }
+
+        // Placing the camera from scratch -- on load, and after Reset reloads the
+        // state. Two differences from applyOrientation. A view pinning no camera of
+        // its own falls back to the opening view's, because that is what a reader
+        // gets by loading the page and switching to it, and a link to such a view
+        // should land in the same place. And it never animates: there is no pose the
+        // reader has seen for us to glide away from.
+        //
+        // It has to run even on a plain load. The state's own camera node is only an
+        // approximation -- MolViewSpec reads its position as a reference camera and
+        // scales the distance to the target by 1/(2*sin(fov/2)), about 1.31 at the
+        // default field of view -- so left alone the page opens a third too far out,
+        // and every capture of a camera back into the spec drifts further.
+        function placeOpeningCamera() {
+            var orientation = ORIENTATIONS[activeIndex()] || ORIENTATIONS[0];
+            if (!orientation) return;   // nothing pinned anywhere; Mol*'s fit stands
+            viewer.plugin.managers.camera.setSnapshot(orientation, 0);
         }
 
         if (toggle) { toggle.addEventListener('change', applyVisibility); }
@@ -230,14 +298,24 @@ view now on screen.">Copy camera</button>
             select.addEventListener('change', function () {
                 applyVisibility();
                 applyOrientation();
+                writeFragment();
             });
         }
 
+        // Someone pasted a different fragment into the address bar of a page that
+        // is already open. This is the one path where the glide is right: the
+        // reader is looking at the pose we are leaving.
+        window.addEventListener('hashchange', function () {
+            if (selectFromFragment()) {
+                applyVisibility();
+                applyOrientation();
+            }
+        });
+
         // --- authoring: capture the camera for a spec file ----------------------
         //
-        // Shown only when the URL ends in #camera, so a published page never carries
-        // it. A fragment rather than a query string: fragments are never sent
-        // anywhere and behave the same over file://, a local server, and Pages.
+        // Shown only when the URL carries the `camera` token, so a published page
+        // never has it. `#view=<slug>&camera` poses a view that is not the first.
         function cameraBlock() {
             var camera = viewer.plugin.canvas3d.camera.getSnapshot();
             var round = function (value) { return Math.round(value * 100) / 100; };
@@ -259,7 +337,7 @@ view now on screen.">Copy camera</button>
 
         var copyButton = document.getElementById('copy-camera');
         var cameraOut = document.getElementById('camera-out');
-        if (window.location.hash === '#camera') {
+        if (fragment().camera) {
             copyButton.hidden = false;
         }
         copyButton.addEventListener('click', function () {
@@ -284,10 +362,19 @@ view now on screen.">Copy camera</button>
             status.textContent = 'Resetting…';
             load().then(function () {
                 applyVisibility();
+                // Reloading restores the state's camera node, which frames the
+                // first view and approximately at that. Reset undoes what a reader
+                // did to the structure, not which view they chose, so put back the
+                // pose that view opens with.
+                placeOpeningCamera();
                 status.textContent = '';
             }).catch(fail);
         });
-        return load().then(applyVisibility);
+        return load().then(function () {
+            selectFromFragment();
+            applyVisibility();
+            placeOpeningCamera();
+        });
     }).then(function () {
         status.textContent = '';
     }).catch(fail);

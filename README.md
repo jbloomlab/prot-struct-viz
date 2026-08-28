@@ -48,7 +48,8 @@ prot-struct-viz spec.yaml
 
 That writes `view.html` and `view_report.txt`. One spec can hold several named **views**
 of the same structure — different colorings, labels, representations, or heteroatoms —
-and the page gets a selector that switches between them without moving the camera.
+and the page gets a selector that switches between them without moving the camera. The
+URL tracks the selector, so a link can point at one particular view.
 
 Every key, the CSV columns, and what the rendered page can do are in the documentation
 linked above.
