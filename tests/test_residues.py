@@ -22,12 +22,11 @@ B,1,#ff0000,a glycan the CSV claims,,
 
 def test_parse_good_csv(write_csv):
     coloring = parse_csv(write_csv(GOOD))
-    assert coloring.scheme_names == ["Default"]
     specs = {spec.key: spec for spec in coloring.specs}
     assert set(specs) == {("A", "169A"), ("A", "150"), ("A", "412B"), ("B", "1")}
 
     inserted = specs[("A", "169A")]
-    assert inserted.colors == {"Default": "#ff0000"}
+    assert inserted.color == "#ff0000"
     assert inserted.label == "Insertion-coded site"
     assert inserted.show_label is True
     assert inserted.representation == "ball-and-stick"
@@ -84,7 +83,7 @@ def test_missing_required_column(write_csv):
 
 
 def test_missing_color_column(write_csv):
-    with pytest.raises(InputError, match="missing required column 'color'"):
+    with pytest.raises(InputError, match=r"missing required column\(s\): \['color'\]"):
         parse_csv(write_csv("chain,residue,label\nA,5,hi\n"))
 
 
@@ -148,22 +147,15 @@ def test_no_data_rows_is_fatal(write_csv):
         parse_csv(write_csv("chain,residue,color\n"))
 
 
-def test_multiple_schemes(write_csv):
+def test_a_csv_describes_exactly_one_colouring(write_csv):
+    """Several colourings are several CSVs, one per view in the spec file.
+
+    A ``color:<Scheme>`` column used to mean a second colouring inside one file.
+    It no longer does, and must not be mistaken for the required column.
+    """
     text = "chain,residue,color:Entropy,color:Escape\nA,5,red,#000000\n"
-    coloring = parse_csv(write_csv(text))
-    assert coloring.scheme_names == ["Entropy", "Escape"]
-    assert coloring.specs[0].colors == {"Entropy": "#ff0000", "Escape": "#000000"}
-
-
-def test_mixing_bare_and_named_color_columns_is_fatal(write_csv):
-    text = "chain,residue,color,color:Escape\nA,5,red,blue\n"
-    with pytest.raises(InputError, match="both a bare 'color' column"):
+    with pytest.raises(InputError, match=r"missing required column\(s\)"):
         parse_csv(write_csv(text))
-
-
-def test_empty_scheme_name_is_fatal(write_csv):
-    with pytest.raises(InputError, match="empty scheme name"):
-        parse_csv(write_csv("chain,residue,color:\nA,5,red\n"))
 
 
 def test_missing_file(tmp_path):
@@ -198,16 +190,10 @@ def test_extra_columns_are_ignored(write_csv):
     coloring = parse_csv(write_csv(text))
     spec = coloring.specs[0]
     assert spec.key == ("A", "118")
-    assert spec.colors == {"Default": "#ff0000"}
+    assert spec.color == "#ff0000"
     assert spec.label == "Arg118"
     # The extra columns reach neither the spec nor the rendered output.
     assert not hasattr(spec, "notes")
-
-
-def test_extra_column_named_like_a_scheme_is_still_a_scheme(write_csv):
-    """'color:' is the scheme prefix, so it is not a free-for-all namespace."""
-    coloring = parse_csv(write_csv("chain,residue,color:Escape,notes\nA,5,red,hi\n"))
-    assert coloring.scheme_names == ["Escape"]
 
 
 def test_chain_representations_ignore_extra_columns(write_csv):
@@ -218,19 +204,18 @@ def test_chain_representations_ignore_extra_columns(write_csv):
 EXAMPLES_DIR = pathlib.Path(__file__).parent.parent / "examples"
 
 #: Every example directory, so a new one cannot land with an unparseable CSV.
-EXAMPLE_DIRS = sorted(p.parent for p in EXAMPLES_DIR.glob("*/command.sh"))
+EXAMPLE_DIRS = sorted(p.parent for p in EXAMPLES_DIR.glob("*/spec.yaml"))
 
 
 def test_examples_are_discoverable():
     """Guard the glob above: a rename would otherwise make the sweep vacuous."""
-    assert EXAMPLE_DIRS, f"no examples/*/command.sh under {EXAMPLES_DIR}"
+    assert EXAMPLE_DIRS, f"no examples/*/spec.yaml under {EXAMPLES_DIR}"
 
 
 @pytest.mark.parametrize("example", EXAMPLE_DIRS, ids=lambda p: p.name)
 def test_shipped_example_csvs_parse(example):
     """The examples are documentation; their inputs must stay valid."""
     coloring = parse_csv(example / "coloring.csv")
-    assert coloring.scheme_names == ["Default"]
     # Persistent labels are only on the short residue-name labels.
     for spec in coloring.specs:
         if spec.show_label:

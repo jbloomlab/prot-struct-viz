@@ -13,10 +13,13 @@
          color: #24292f; }
   #header { max-width: 60rem; margin-top: 1rem; }
   #header:empty { display: none; }
+  .caption[hidden] { display: none; }
   #controls { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
   #controls button { font: inherit; padding: 0.3rem 0.7rem; cursor: pointer;
                      border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
   #controls button:hover { background: #eaeef2; }
+  #controls select { font: inherit; padding: 0.3rem 0.4rem; cursor: pointer;
+                     border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
   #controls label { display: flex; gap: 0.3rem; align-items: center; cursor: pointer;
                     user-select: none; }
   #status { color: #57606a; font-size: 0.9rem; }
@@ -32,8 +35,18 @@
    rather than on however many paragraphs the Markdown runs to. The controls come
    first of the two, staying next to the thing they act on. #}
 <div id="controls">
+{%- if views | length > 1 %}
+  <label title="Switch between the views this page was built with. Every view is
+already drawn, so switching only changes what is shown -- the camera does not move.">
+    View
+    <select id="view-select">
+    {%- for view in views %}
+      <option value="{{ view.slug }}">{{ view.name }}</option>
+    {%- endfor %}
+    </select></label>
+{%- endif %}
   <button id="reset-view" type="button"
-          title="Reload this view as it was generated. A representation added from the
+          title="Reload this page as it was generated. A representation added from the
 Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</button>
 {%- if show_label_toggle %}
   <label title="Show or hide every label drawn on the structure, including the copy on
@@ -43,9 +56,14 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
   <span id="status">Loading structure&hellip;</span>
 </div>
 
-<div id="header">{{ title_html | safe }}</div>
+{# One caption per view; the selector shows the one belonging to the view on screen. #}
+<div id="header">
+{%- for view in views %}
+  <div class="caption" data-view="{{ view.slug }}"{% if not loop.first %} hidden{% endif %}>{{ view.caption | safe }}</div>
+{%- endfor %}
+</div>
 
-{# The whole view -- coordinates, annotations, and the MVS state -- as a base64
+{# The whole page -- coordinates, annotations, and the MVS state -- as a base64
    MVSX archive. Kept in a non-executing script block so the payload is never
    parsed as JavaScript. #}
 <script id="mvsx-payload" type="text/plain">{{ mvsx_base64 }}</script>
@@ -54,6 +72,7 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
 (function () {
     var status = document.getElementById('status');
     var payload = document.getElementById('mvsx-payload').textContent.trim();
+    var VIEWS = {{ views | map(attribute='slug') | list | tojson }};
 
     function fail(err) {
         status.textContent = 'Failed to load: ' + err;
@@ -88,65 +107,83 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
             return viewer.loadMvsData('base64,' + payload, 'mvsx');
         }
 
-        // Persistent labels are MVS primitives, so they are not an entry in the
-        // Components panel that a reader could switch off; the page has to offer the
-        // control itself. Mol* honours isHidden on the *representation* cell, so that
-        // is what we collect.
-        //
-        // They are found by object type rather than by the name of the transform that
-        // built them. Transform ids are namespace-qualified -- the primitive builder is
-        // "mvs.mvs-build-primitive-shape", not the bare name that appears in the
-        // source -- and "shape-representation-3d" is registered twice under two
-        // namespaces, so name matching is both easy to get wrong and ambiguous.
-        // PluginStateObject is a real exported API and every class on it has .is().
-        //
-        // This relies on labels being the only shape primitives we emit: the mesh and
-        // lines nodes Mol* creates alongside them yield StateObject.Null when empty, so
-        // no representation is built for either. Emit a mesh or a line from
-        // build_label_primitives and this would start hiding it too.
         var PSO = molstar.lib.plugin.PluginStateObject;
         var toggle = document.getElementById('label-toggle');
+        var select = document.getElementById('view-select');
 
-        function labelRepresentations() {
-            var refs = [];
-            viewer.plugin.state.data.cells.forEach(function (cell, ref) {
-                if (cell.obj && PSO.Shape.Representation3D.is(cell.obj)) refs.push(ref);
-            });
-            return refs;
-        }
-
-        // Called after every load, not just on change: reloading the payload rebuilds
-        // the state tree with fresh refs and everything visible, which would otherwise
-        // leave an unchecked box beside labels that came back.
-        function applyLabelVisibility() {
-            if (!toggle) return;
+        // Which view each state cell belongs to, as {cell ref: view slug}.
+        //
+        // Every view is one MVS structure node carrying ref="view:<slug>", which
+        // Mol* records as the cell tag "mvs-ref:view:<slug>" and resolves through
+        // queryMVSRef. Everything the view draws hangs below that node, so the
+        // owner map is that node plus its descendants. Rebuilt after every load,
+        // because reloading the payload mints fresh cell refs.
+        function ownerBySlug() {
             var state = viewer.plugin.state.data;
-            var hidden = !toggle.checked;
-            var refs = labelRepresentations();
-            // The checkbox is only rendered because labels were drawn, so finding none
-            // means an internal Mol* API moved under us. Say so: the first version of
-            // this code failed exactly here, and failed silently.
-            if (!refs.length) {
-                console.warn('prot-struct-viz: found no label representations to ' +
-                             'toggle; the Labels checkbox will do nothing.');
-            }
-            refs.forEach(function (ref) {
-                state.updateCellState(ref, { isHidden: hidden });
+            var util = molstar.PluginExtensions.mvs.util;
+            var owner = {};
+            VIEWS.forEach(function (slug) {
+                var found = util.queryMVSRef(viewer.plugin, 'view:' + slug);
+                if (!found || !found.length) {
+                    console.warn('prot-struct-viz: no cell tagged for view ' + slug);
+                    return;
+                }
+                var stack = [found[0].transform.ref];
+                while (stack.length) {
+                    var ref = stack.pop();
+                    owner[ref] = slug;
+                    var children = state.tree.children.get(ref);
+                    if (children) children.forEach(function (child) { stack.push(child); });
+                }
             });
+            return owner;
         }
 
-        if (toggle) {
-            toggle.addEventListener('change', applyLabelVisibility);
+        // One rule covers both controls, so neither can undo the other: a cell is
+        // hidden if it belongs to a view that is not on screen, or it draws labels
+        // and the Labels box is unchecked.
+        //
+        // Labels are found by object type rather than by transform name. Transform
+        // ids are namespace-qualified -- the primitive builder is
+        // "mvs.mvs-build-primitive-shape", not the bare name in the source -- and
+        // "shape-representation-3d" is registered under two namespaces, so name
+        // matching is both easy to get wrong and ambiguous. Scoping the scan to one
+        // view's subtree also keeps it off any shape a reader adds from the Mol* UI.
+        function applyVisibility() {
+            var state = viewer.plugin.state.data;
+            var active = select ? select.value : VIEWS[0];
+            var labelsShown = !toggle || toggle.checked;
+            var owner = ownerBySlug();
+            Object.keys(owner).forEach(function (ref) {
+                var cell = state.cells.get(ref);
+                if (!cell) return;
+                var isLabel = cell.obj && PSO.Shape.Representation3D.is(cell.obj);
+                state.updateCellState(ref, {
+                    isHidden: owner[ref] !== active || (isLabel && !labelsShown)
+                });
+            });
+            Array.prototype.forEach.call(
+                document.querySelectorAll('.caption'),
+                function (caption) {
+                    caption.hidden = caption.getAttribute('data-view') !== active;
+                }
+            );
         }
+
+        if (toggle) { toggle.addEventListener('change', applyVisibility); }
+        // Switching views only writes isHidden, so the camera stays exactly where
+        // the reader left it. That is the whole reason the views are prebuilt
+        // rather than reloaded one at a time.
+        if (select) { select.addEventListener('change', applyVisibility); }
 
         document.getElementById('reset-view').addEventListener('click', function () {
             status.textContent = 'Resetting…';
             load().then(function () {
-                applyLabelVisibility();
+                applyVisibility();
                 status.textContent = '';
             }).catch(fail);
         });
-        return load().then(applyLabelVisibility);
+        return load().then(applyVisibility);
     }).then(function () {
         status.textContent = '';
     }).catch(fail);

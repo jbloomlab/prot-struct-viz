@@ -50,9 +50,9 @@ class ValidationReport:
     structure_classes: dict[ResidueKey, ResidueClass]
 
     def is_fatal(self, mode: str) -> bool:
-        """Whether this report is fatal under an ``--on-mismatch`` mode."""
+        """Whether this report is fatal under an ``on_mismatch`` mode."""
         if mode not in MISMATCH_MODES:
-            raise InputError(f"unknown --on-mismatch mode {mode!r}")
+            raise InputError(f"unknown on_mismatch mode {mode!r}")
         if mode == "report":
             return False
         if mode == "error-any":
@@ -133,7 +133,7 @@ def validate(
     """
     if mode not in MISMATCH_MODES:
         raise InputError(
-            f"--on-mismatch must be one of {list(MISMATCH_MODES)}, got {mode!r}"
+            f"on_mismatch must be one of {list(MISMATCH_MODES)}, got {mode!r}"
         )
 
     csv_keys = keys(coloring)

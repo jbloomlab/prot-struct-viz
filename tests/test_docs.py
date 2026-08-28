@@ -71,3 +71,16 @@ def test_the_molstar_check_can_actually_fail():
     assert not any("fence" in line for line in prose.values())
     assert not UNESCAPED_MOLSTAR.search(dict(_prose_lines("a `Mol*` span"))[1])
     assert not UNESCAPED_MOLSTAR.search(dict(_prose_lines(r"the Mol\* UI"))[1])
+
+
+def test_every_option_reaches_the_spec_reference():
+    """`OPTION_DOCS` is the option list; the reference page is where readers meet it.
+
+    A new option that never reaches the docs is invisible, and the spec format has
+    no ``--help`` to fall back on.
+    """
+    from prot_struct_viz._config import OPTION_DOCS
+
+    reference = (REPO_ROOT / "docs" / "cli.md").read_text()
+    missing = [key for key in OPTION_DOCS if f"`{key}`" not in reference]
+    assert not missing, f"docs/cli.md does not mention {missing}"

@@ -1,0 +1,46 @@
+# Influenza A/Victoria/22/2020 (H3N2) hemagglutinin with the LSTc receptor
+# analogue bound (PDB 8FAW), as the biological trimer, with HA1 colored by
+# classical antigenic region and every residue labeled with its site number.
+#
+# Two views of the same coloring, which is what the view selector is for. The
+# surface is how an antigenic region reads as a patch an antibody could land on;
+# the cartoon shows where those patches sit on the fold, and how the receptor
+# analogue reaches into the binding site. Both are drawn when the page loads, so
+# switching between them does not move the camera.
+#
+# Every sugar is named in coloring.csv, so `glycans` never applies in either view:
+# the receptor analogue is black ball-and-stick and the host N-glycans are yellow.
+#
+# on_mismatch is the one departure from the usual: coloring.csv is machine-generated
+# from a numbering map, so a numbering slip would otherwise be a quiet line in the
+# report rather than a failed build.
+#
+# The `definitions` block exists only to hold the YAML anchor. The spec format has
+# no defaults -- every view states its own options -- and an anchor is how two
+# views avoid saying the same thing twice.
+#
+# Render it with:  prot-struct-viz spec.yaml
+
+structure: 8FAW
+out: ../output/8faw_antigenic_regions.html
+assembly: "1"
+on_mismatch: error-extra-in-csv
+
+definitions:
+  base: &base
+    csv: coloring.csv
+    default_color: "#d9d9d9"
+    waters: hide
+    ligands: show
+    glycans: snfg
+    ions: show
+
+views:
+  - <<: *base
+    name: Antigenic regions
+    title_md: title.md
+    default_representation: surface
+  - <<: *base
+    name: Fold and receptor
+    title_md: title_fold.md
+    default_representation: cartoon
