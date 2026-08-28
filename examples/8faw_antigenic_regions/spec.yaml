@@ -1,41 +1,5 @@
 # Influenza A/Victoria/22/2020 (H3N2) hemagglutinin with the LSTc receptor
-# analogue bound (PDB 8FAW), as the biological trimer, in four views that build
-# one argument: here are the antigenic regions, and here is where the virus
-# actually changes.
-#
-#   1. HA1 colored by classical antigenic region, host N-glycans in yellow.
-#   2. The same, with the host glycans taken away -- several of them sit over an
-#      antigenic region, and this is what is underneath.
-#   3. Red on every site that differs between A/Perth/16/2009 and subclade K,
-#      sixteen years of drift. 27 of the 40 land in the regions views 1-2 drew.
-#   4. Red on every site that differs between the 2025-2026 and 2026-2027
-#      vaccine strains -- the same target as view 3, one season instead.
-#
-# Each view names its own CSV, which is what makes the last two possible: they
-# drop the antigenic coloring entirely and paint only what changed, leaving the
-# rest of the surface at default_color.
-#
-# Views 2-4 set `glycans: hide`, and every one of 8FAW's sugars classifies as a
-# glycan -- the host N-glycans and the five of the receptor analogue alike. The
-# analogue survives anyway because those CSVs still name it: a residue named in
-# the CSV is drawn whatever the heteroatom options say. It is the landmark that
-# tells you which end of a protomer is membrane-distal, so it stays in all four.
-#
-# No view draws labels into the scene, so the page has no Labels button. Every
-# residue with a CSV row still carries its site -- `145_HA1`, or `N145S_HA1` in
-# the last two views -- as a mouseover tooltip.
-#
-# Only the first view pins a camera. Switching views does not move it, so
-# whatever the reader framed in view 1 stays framed through 2, 3 and 4 -- which
-# is the whole point of putting the same structure through four colorings.
-#
-# on_mismatch is the one departure from the usual: the CSVs are machine-generated
-# from a numbering map, so a numbering slip would otherwise be a quiet line in the
-# report rather than a failed build.
-#
-# The `definitions` block exists only to hold the YAML anchor. The spec format has
-# no defaults -- every view states its own options -- and an anchor is how four
-# views avoid saying the same thing four times.
+# analogue bound (PDB 8FAW), as the biological trimer.
 #
 # Render it with:  prot-struct-viz spec.yaml
 
@@ -63,9 +27,9 @@ views:
     # applies here; it is stated because no view of this spec has a default.
     glycans: snfg
     orientation:
-      position: [-173.5, 39.86, 2.46]
+      position: [-184.29, -58.04, -3.92]
       target: [-0.41, -57.45, 13.82]
-      up: [0.1, 0.05, -0.99]
+      up: [0.1, 0.06, -0.99]
       radius: 76.11
   - <<: *base
     name: antigenic regions

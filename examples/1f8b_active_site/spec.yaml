@@ -1,19 +1,14 @@
-# Influenza B neuraminidase (PDB 1F8B), biological tetramer, with the active-site
-# residues that contact the DANA inhibitor shaded by distance.
-#
-# One view, which is the simple case: with a single view the page renders no view
-# selector at all.
+# Influenza B/Beijing/1/87 neuraminidase with the DANA inhibitor bound (PDB
+# 1F8B), as the biological tetramer.
 #
 # Render it with:  prot-struct-viz spec.yaml
-# Paths are relative to this file, so it works from any directory. Run every
-# example at once with scripts/build_examples.sh.
 
 structure: 1F8B
 out: ../output/1f8b_active_site.html
 assembly: "1"
 on_mismatch: report
 # The one example that opens with Mol*'s own panels showing, so the docs site
-# shows both states. The other examples set `hide` and read as figures.
+# shows both states.
 molstar_ui: show
 
 views:
