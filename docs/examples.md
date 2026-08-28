@@ -13,11 +13,11 @@ Rebuild them all with `scripts/build_examples.sh`.
 
 ## Antigenic regions of influenza H3 hemagglutinin
 
-**Four views of one structure, each with its own CSV**, which is what lets the last two
+**Five views of one structure, each with its own CSV**, which is what lets the last three
 throw out the first two's coloring and paint only the sites that changed. Pick one from the
 **View** selector below the structure: only the first view pins a camera, so whatever you
 frame there stays framed through the rest. Display options are per view too — the first
-draws the host glycans from its CSV, the other three set `glycans: hide`.
+draws the host glycans from its CSV, the other four set `glycans: hide`.
 
 <!-- The src is a bare filename, not "examples/...", because MkDocs does not rewrite
      paths inside raw HTML the way it does Markdown links. This page is served at
@@ -40,13 +40,14 @@ prot-struct-viz spec.yaml
 
 | file | what it is |
 | --- | --- |
-| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: four views sharing one YAML anchor |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: five views sharing one YAML anchor |
 | [`antigenic-regions-w-glycans.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions-w-glycans.csv) | 499 rows: every modeled residue and every sugar |
 | [`antigenic-regions.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions.csv) | 493 rows: the same without the host-glycan rows, which is what lets that view's `glycans: hide` take them away |
 | [`perth-2009-to-subclade-k.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth-2009-to-subclade-k.csv) | 45 rows: 40 sites to paint, and the receptor analogue it keeps. Everything unnamed falls back to `default_color` |
 | [`2025-26-to-2026-27-vaccine.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/2025-26-to-2026-27-vaccine.csv) | 13 rows, the same shape over a shorter span |
-| [`antigenic-regions-w-glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions-w-glycans.md), [`antigenic-regions.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions.md), [`perth-2009-to-subclade-k.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth-2009-to-subclade-k.md), [`2025-26-to-2026-27-vaccine.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/2025-26-to-2026-27-vaccine.md) | the caption for each view — every input here is named after the view that reads it |
-| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates all four CSVs from a numbering map |
+| [`subclade-k-with-region-d-mutations.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/subclade-k-with-region-d-mutations.csv) | 15 rows: those 13 plus HA1 222 and 223 in the purple the first two views give antigenic region D, which is the one view here painting two classes of site at once |
+| [`antigenic-regions-w-glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions-w-glycans.md), [`antigenic-regions.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic-regions.md), [`perth-2009-to-subclade-k.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth-2009-to-subclade-k.md), [`2025-26-to-2026-27-vaccine.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/2025-26-to-2026-27-vaccine.md), [`subclade-k-with-region-d-mutations.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/subclade-k-with-region-d-mutations.md) | the caption for each view — every input here is named after the view that reads it |
+| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates all five CSVs from a numbering map |
 
 ## Antigenic regions of influenza H1 hemagglutinin
 

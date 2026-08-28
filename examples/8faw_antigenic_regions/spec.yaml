@@ -46,3 +46,8 @@ views:
     csv: 2025-26-to-2026-27-vaccine.csv
     title_md: 2025-26-to-2026-27-vaccine.md
     glycans: hide
+  - <<: *base
+    name: subclade K with region D mutations
+    csv: subclade-k-with-region-d-mutations.csv
+    title_md: subclade-k-with-region-d-mutations.md
+    glycans: hide
