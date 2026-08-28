@@ -134,6 +134,6 @@ any change to `viewer.py` or the template:
    from `.../helpers/indexing`. This is how the insertion-code behavior above was
    established.
 4. **Open the HTML in a browser** and confirm coloring, mouseover tooltips, persistent
-   labels, the assembly, SNFG glycans, and image export actually work. This cannot be
-   done from a non-interactive shell: generate the example, say what to look at, and
-   report that this step is the user's.
+   labels, the assembly, SNFG glycans, and image download from Mol\*'s own camera panel
+   actually work. This cannot be done from a non-interactive shell: generate the example,
+   say what to look at, and report that this step is the user's.

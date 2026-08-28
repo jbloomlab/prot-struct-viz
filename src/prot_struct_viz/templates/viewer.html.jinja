@@ -32,9 +32,6 @@
    rather than on however many paragraphs the Markdown runs to. The controls come
    first of the two, staying next to the thing they act on. #}
 <div id="controls">
-  <button id="export-image" type="button"
-          title="Download a PNG. Set size, resolution, and transparent background
-first with the camera icon in the viewport.">Export image</button>
   <button id="reset-view" type="button"
           title="Reload this view as it was generated. A representation added from the
 Mol* panel is not colored by the CSV; this puts the coloring back.">Reset view</button>
@@ -73,6 +70,9 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
         layoutShowRemoteState: false,
         layoutShowLeftPanel: true,
         collapseLeftPanel: true,
+        // The camera icon, which is the only route to an image. Its own panel is
+        // where the resolution is set, so a button of ours beside Reset view could
+        // only ever download at whatever that panel already said.
         viewportShowScreenshotControls: true,
         viewportShowExpand: true,
         viewportShowSelectionMode: true,
@@ -139,11 +139,6 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
             toggle.addEventListener('change', applyLabelVisibility);
         }
 
-        document.getElementById('export-image').addEventListener('click', function () {
-            // Downloads at whatever size, resolution, and transparency are set in
-            // Mol*'s own screenshot panel (the camera icon in the viewport).
-            viewer.plugin.helpers.viewportScreenshot.download();
-        });
         document.getElementById('reset-view').addEventListener('click', function () {
             status.textContent = 'Resetting…';
             load().then(function () {

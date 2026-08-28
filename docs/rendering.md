@@ -99,9 +99,6 @@ pass the path.
 The generated page has its own controls below the structure, under the viewport that
 holds Mol\*'s.
 
-**Export image** downloads a PNG at whatever size, resolution, and background
-transparency are set in Mol\*'s own screenshot panel — the camera icon in the viewport.
-
 **Reset view** reloads the view as generated. It is there because of one limitation worth
 knowing: the Mol\* Components panel stays live, but a representation you *add* from it
 arrives in Mol\*'s default element coloring, not the CSV's, and there is no way to color
@@ -115,3 +112,28 @@ separate and keep working while the labels are hidden.
 
 See [How it works](internals.md#annotation-tables-not-baked-in-colors) for why, and for
 what the entries in the Components panel are named after.
+
+## Saving an image
+
+The page has no export button of its own: Mol\*'s is better. The camera icon in the
+viewport opens a panel with a **Download** button and, above it, the settings that decide
+what gets downloaded — resolution, transparent background, whether the orientation axes
+are drawn, and the file format.
+
+The resolution presets are Viewport, HD (1280 x 720), Full HD (1920 x 1080), Ultra HD
+(3840 x 2160), 8K Ultra HD (7680 x 4320), and Custom. Custom runs from 128 px up to a
+limit your GPU sets — half the smaller of its maximum texture and renderbuffer sizes,
+which lands at 4096 or 8192 px per side on most machines; the panel's own slider shows
+the real figure. Mol\* does not check the *presets* against that limit, so on hardware at
+the lower end the 8K preset can fail where a custom size will not.
+
+A large export is genuinely sharper rather than a blow-up of the viewport. Mol\* renders
+it offscreen with settings the live view cannot afford: 16 jittered samples of
+anti-aliasing against the viewport's 4, and, where ambient occlusion is on, 128 occlusion
+samples against 32. Expect the render to take a few seconds at the larger sizes, and the
+view to freeze while it does.
+
+There is no ray tracing to turn on — Mol\* rasterizes, and its depth cues are screen-space
+effects. The nearest thing is the optional **Global Illumination** pass (keyboard `G`),
+which is off by default; a screenshot taken with it on runs it for more iterations than
+the live view does.
