@@ -13,11 +13,11 @@ Rebuild them all with `scripts/build_examples.sh`.
 
 ## Antigenic regions of influenza H3 hemagglutinin
 
-Colors a whole molecule from a generated CSV — 499 rows, one per residue — with 83 of them
-carrying a label drawn into the 3D scene. It also has **two views** of that coloring, a
-surface and a cartoon: pick one from the **View** selector below the structure and the
-camera stays where you left it. The second view pins its own camera, so switching to it also
-turns the trimer to face you.
+**Four views of one structure, each with its own CSV**, which is what lets the last two
+throw out the first two's coloring and paint only the sites that changed. Pick one from the
+**View** selector below the structure: only the first view pins a camera, so whatever you
+frame there stays framed through the rest. Display options are per view too — the first
+draws the host glycans from its CSV, the other three set `glycans: hide`.
 
 <!-- The src is a bare filename, not "examples/...", because MkDocs does not rewrite
      paths inside raw HTML the way it does Markdown links. This page is served at
@@ -40,10 +40,13 @@ prot-struct-viz spec.yaml
 
 | file | what it is |
 | --- | --- |
-| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: two views sharing one YAML anchor |
-| [`coloring.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/coloring.csv) | 499 rows, one per residue; 83 ask for a drawn label |
-| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md), [`title_fold.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_fold.md) | the caption for each view |
-| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates `coloring.csv` from a numbering map |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/spec.yaml) | the whole input: four views sharing one YAML anchor |
+| [`antigenic_regions.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic_regions.csv) | 499 rows: every modeled residue and every sugar |
+| [`antigenic_regions_no_glycans.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/antigenic_regions_no_glycans.csv) | 493 rows: the same without the host-glycan rows, which is what lets that view's `glycans: hide` take them away |
+| [`perth_to_subclade_k.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/perth_to_subclade_k.csv) | 45 rows: 40 sites to paint, and the receptor analogue it keeps. Everything unnamed falls back to `default_color` |
+| [`dc_2023_to_darwin_2025.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/dc_2023_to_darwin_2025.csv) | 13 rows, the same shape over a shorter span |
+| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title.md), [`title_no_glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_no_glycans.md), [`title_perth_to_subclade_k.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_perth_to_subclade_k.md), [`title_dc_to_darwin.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/title_dc_to_darwin.md) | the caption for each view |
+| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/8faw_antigenic_regions/make_coloring_csv.py) | generates all four CSVs from a numbering map |
 
 ## Antigenic regions of influenza H1 hemagglutinin
 

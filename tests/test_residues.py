@@ -4,6 +4,7 @@ import pathlib
 
 import pytest
 
+from prot_struct_viz import load_spec
 from prot_struct_viz._config import InputError
 from prot_struct_viz.residues import (
     normalize_color,
@@ -214,16 +215,28 @@ def test_examples_are_discoverable():
 
 @pytest.mark.parametrize("example", EXAMPLE_DIRS, ids=lambda p: p.name)
 def test_shipped_example_csvs_parse(example):
-    """The examples are documentation; their inputs must stay valid."""
-    coloring = parse_csv(example / "coloring.csv")
-    # Persistent labels are only on the short residue-name labels.
-    for spec in coloring.specs:
-        if spec.show_label:
-            assert spec.label is not None
+    """The examples are documentation; their inputs must stay valid.
 
-    chains = example / "chains.csv"
-    if chains.is_file():
-        assert parse_chain_representations(chains)
+    Driven off the spec rather than a fixed filename: a view names its own CSV,
+    and the H3 example has four of them. Anything the spec does not name is not
+    an input, and a CSV the spec names but that has been renamed or deleted
+    fails here rather than at the next build.
+    """
+    spec = load_spec(example / "spec.yaml")
+    seen = set()
+    for view in spec.views:
+        if view.csv in seen:
+            continue
+        seen.add(view.csv)
+        coloring = parse_csv(view.csv)
+        # Persistent labels are only on the short residue-name labels.
+        for residue in coloring.specs:
+            if residue.show_label:
+                assert residue.label is not None
+
+        if view.chain_representation is not None:
+            assert parse_chain_representations(view.chain_representation)
+    assert seen, f"{example.name}'s spec names no CSV"
 
 
 def test_label_color_and_size_parse(write_csv):

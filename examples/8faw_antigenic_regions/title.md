@@ -16,11 +16,11 @@ colored by the classical antigenic region each site belongs to, taken from Table
 - **yellow** — host N-glycans
 
 Every residue carries its site in HA1 or HA2 numbering — `145_HA1`, `1_HA2` — shown on
-mouseover, and drawn into the scene on the antigenic-site residues. The numbering follows
-the [H3N2 site numbering map](https://github.com/jbloomlab/flu-seqneut-2026/blob/main/data/nextstrain-prot-titers-tree_data/H3N2_site_numbering_map.tsv).
+mouseover. The numbering follows the
+[H3N2 site numbering map](https://github.com/jbloomlab/flu-seqneut-2026/blob/main/data/nextstrain-prot-titers-tree_data/H3N2_site_numbering_map.tsv).
 The protein is drawn as a surface, so each antigenic region reads as a contiguous patch an
-antibody could land on. Several of the yellow N-glycans sit over one.
+antibody could land on. Several of the yellow N-glycans sit over one; the next view takes
+them away.
 
 The view shows **assembly 1**, the biological trimer, which Mol\* generates in the browser
-from three crystal symmetry operations — the file embeds only the deposited protomer, so
-each label appears once per protomer.
+from three crystal symmetry operations — the file embeds only the deposited protomer.
