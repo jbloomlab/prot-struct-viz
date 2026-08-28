@@ -96,7 +96,8 @@ pass the path.
 
 ## In the viewer
 
-The generated page has its own controls above the structure, alongside Mol\*'s.
+The generated page has its own controls below the structure, under the viewport that
+holds Mol\*'s.
 
 **Export image** downloads a PNG at whatever size, resolution, and background
 transparency are set in Mol\*'s own screenshot panel — the camera icon in the viewport.

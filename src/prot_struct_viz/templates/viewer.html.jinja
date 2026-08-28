@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css"
       href="https://cdn.jsdelivr.net/npm/molstar@{{ molstar_version }}/build/viewer/molstar.css">
 <style>
-  body { margin: 0; padding: 0 1rem 1rem;
+  body { margin: 0; padding: 0.75rem 1rem 1rem;
          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
          color: #24292f; }
   #header { max-width: 60rem; margin-top: 1rem; }
@@ -26,6 +26,11 @@
 </head>
 <body>
 
+<div id="viewer"></div>
+
+{# Controls and caption both sit below the structure, so the page opens on the view
+   rather than on however many paragraphs the Markdown runs to. The controls come
+   first of the two, staying next to the thing they act on. #}
 <div id="controls">
   <button id="export-image" type="button"
           title="Download a PNG. Set size, resolution, and transparent background
@@ -41,10 +46,6 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
   <span id="status">Loading structure&hellip;</span>
 </div>
 
-<div id="viewer"></div>
-
-{# The caption sits below the structure so the page opens on the view rather than on
-   however many paragraphs the Markdown runs to. #}
 <div id="header">{{ title_html | safe }}</div>
 
 {# The whole view -- coordinates, annotations, and the MVS state -- as a base64
@@ -89,24 +90,27 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
 
         // Persistent labels are MVS primitives, so they are not an entry in the
         // Components panel that a reader could switch off; the page has to offer the
-        // control itself. Mol* builds one mvs-build-primitive-shape node per kind
-        // (mesh / labels / lines) under each primitives group, and honours isHidden on
-        // the *representation* child of that node -- setting it on the node itself does
-        // nothing. There is one group per set of assembly transforms, so collecting
-        // every match is what makes one click move every copy of every label.
+        // control itself. Mol* honours isHidden on the *representation* cell, so that
+        // is what we collect.
+        //
+        // They are found by object type rather than by the name of the transform that
+        // built them. Transform ids are namespace-qualified -- the primitive builder is
+        // "mvs.mvs-build-primitive-shape", not the bare name that appears in the
+        // source -- and "shape-representation-3d" is registered twice under two
+        // namespaces, so name matching is both easy to get wrong and ambiguous.
+        // PluginStateObject is a real exported API and every class on it has .is().
+        //
+        // This relies on labels being the only shape primitives we emit: the mesh and
+        // lines nodes Mol* creates alongside them yield StateObject.Null when empty, so
+        // no representation is built for either. Emit a mesh or a line from
+        // build_label_primitives and this would start hiding it too.
+        var PSO = molstar.lib.plugin.PluginStateObject;
         var toggle = document.getElementById('label-toggle');
 
         function labelRepresentations() {
-            var state = viewer.plugin.state.data;
             var refs = [];
-            state.cells.forEach(function (cell, ref) {
-                var parent = state.cells.get(cell.transform.parent);
-                if (!parent) return;
-                var transform = parent.transform;
-                if (transform.transformer.id === 'mvs-build-primitive-shape' &&
-                        transform.params && transform.params.kind === 'labels') {
-                    refs.push(ref);
-                }
+            viewer.plugin.state.data.cells.forEach(function (cell, ref) {
+                if (cell.obj && PSO.Shape.Representation3D.is(cell.obj)) refs.push(ref);
             });
             return refs;
         }
@@ -118,7 +122,15 @@ each symmetry mate. Mouseover tooltips are separate and keep working either way.
             if (!toggle) return;
             var state = viewer.plugin.state.data;
             var hidden = !toggle.checked;
-            labelRepresentations().forEach(function (ref) {
+            var refs = labelRepresentations();
+            // The checkbox is only rendered because labels were drawn, so finding none
+            // means an internal Mol* API moved under us. Say so: the first version of
+            // this code failed exactly here, and failed silently.
+            if (!refs.length) {
+                console.warn('prot-struct-viz: found no label representations to ' +
+                             'toggle; the Labels checkbox will do nothing.');
+            }
+            refs.forEach(function (ref) {
                 state.updateCellState(ref, { isHidden: hidden });
             });
         }

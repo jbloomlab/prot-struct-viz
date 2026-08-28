@@ -59,8 +59,9 @@ All notable changes to this project are documented here, in
 
 ### Changed
 
-- The `--title-md` caption is rendered below the structure rather than above it, so the page
-  opens on the view instead of on however many paragraphs the Markdown runs to.
+- The generated page's own controls and the `--title-md` caption are both rendered below the
+  structure rather than above it, so the page opens on the view instead of on however many
+  paragraphs the Markdown runs to.
 - Documentation is single-sourced in `docs/`; the README is now a front door that links
   to it rather than a second copy that drifts from it.
 - Examples live in `examples/<name>/` directories, each with the exact `command.sh` that
