@@ -14,7 +14,7 @@ molstar_ui: hide
 definitions:
   base: &base
     default_color: "#d9d9d9"
-    default_representation: surface
+    default_representation: spacefill
     waters: hide
     ligands: show
     ions: show
