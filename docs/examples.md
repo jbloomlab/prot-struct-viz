@@ -51,8 +51,10 @@ prot-struct-viz spec.yaml
 
 ## Antigenic regions of influenza H1 hemagglutinin
 
-The same job across a deposited assembly rather than a generated one: 9GSP contains all three
-protomers, so the CSV annotates every one of them — 1491 rows and 150 drawn labels.
+**The same five views over a deposited assembly rather than a generated one**: 9GSP contains
+all three protomers, so every CSV here annotates each of them by name, and the four sites that
+separate two subclades come to twelve rows. As in the H3 example, only the first view pins a
+camera and only the first draws the glycans from its CSV.
 
 <!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
      on the first example for why the two differ. -->
@@ -72,10 +74,14 @@ prot-struct-viz spec.yaml
 
 | file | what it is |
 | --- | --- |
-| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/spec.yaml) | the whole input: one view over the deposited trimer |
-| [`coloring.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/coloring.csv) | 1491 rows across three chains; 150 ask for a drawn label |
-| [`title.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/title.md) | the caption below the viewer |
-| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/make_coloring_csv.py) | generates `coloring.csv` from a numbering map |
+| [`spec.yaml`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/spec.yaml) | the whole input: five views sharing one YAML anchor, over the deposited trimer |
+| [`antigenic-regions-w-glycans.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/antigenic-regions-w-glycans.csv) | 1491 rows: every modeled residue of all three protomers, and every sugar |
+| [`antigenic-regions.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/antigenic-regions.csv) | 1464 rows: the same without the glycan rows, which is what lets that view's `glycans: hide` take them away |
+| [`california-2009-to-d-3-1.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/california-2009-to-d-3-1.csv) | 111 rows: 37 sites to paint, once per protomer. Everything unnamed falls back to `default_color` |
+| [`d-3-1-to-d-3-1-1.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/d-3-1-to-d-3-1-1.csv) | 12 rows, the same shape over a shorter span |
+| [`d-3-1-1-with-g155e.csv`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/d-3-1-1-with-g155e.csv) | 15 rows: those 12 plus HA1 155 in the indigo the first two views give antigenic region Sa, which is the one view here painting two classes of site at once |
+| [`antigenic-regions-w-glycans.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/antigenic-regions-w-glycans.md), [`antigenic-regions.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/antigenic-regions.md), [`california-2009-to-d-3-1.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/california-2009-to-d-3-1.md), [`d-3-1-to-d-3-1-1.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/d-3-1-to-d-3-1-1.md), [`d-3-1-1-with-g155e.md`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/d-3-1-1-with-g155e.md) | the caption for each view — every input here is named after the view that reads it |
+| [`make_coloring_csv.py`](https://github.com/jbloomlab/prot-struct-viz/blob/main/examples/9gsp_antigenic_regions/make_coloring_csv.py) | generates all five CSVs from a numbering map |
 
 ## Influenza B neuraminidase active site
 

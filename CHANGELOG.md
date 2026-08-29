@@ -60,7 +60,7 @@ All notable changes to this project are documented here, in
   rows and 83 drawn labels it is the first example to exercise the package at the scale of
   a whole molecule rather than a handful of sites.
 - A third example, `9gsp_antigenic_regions`: influenza H1 hemagglutinin, uncleaved (PDB
-  9GSP), with HA1 colored by classical antigenic site from Table 2 of Wilson et al. 2015
+  9GSP), with HA1 colored by classical antigenic region from Table 2 of Wilson et al. 2015
   Virology 485:252-62. 9GSP deposits the whole trimer rather than one protomer, so its 1491
   CSV rows and 150 drawn labels cover three chains without any assembly being generated.
 - Support for Python 3.14.
@@ -119,6 +119,17 @@ All notable changes to this project are documented here, in
   all five because a residue named in the CSV is drawn whatever the heteroatom options say.
   Only the first view pins a camera, and no view draws labels into the scene any more, so
   that page has no **Labels** button -- the site or the substitution is a tooltip instead.
+- The `9gsp_antigenic_regions` example is rebuilt on that same shape, with H1's own
+  comparisons: the classical antigenic regions of H1 HA1, the same with the N-glycans
+  hidden,
+  then the sites that differ between A/California/07/2009 and subclade D.3.1
+  (A/Missouri/11/2025), then the four that differ between D.3.1 and D.3.1.1
+  (A/Andalucia/PMC-00977/2025), then that last comparison again with HA1 155 -- where G155E
+  arises on the D.3.1.1 background -- picked out in the same indigo the first two views give
+  antigenic region Sa. 12 of the 37 modeled 2009-to-D.3.1 substitutions, and 1 of the 4
+  D.3.1-to-D.3.1.1 ones, land inside the antigenic regions the first two views draw. 9GSP
+  deposits the whole trimer, so every CSV names all three protomers rather than relying on
+  symmetry. Its drawn labels are gone too, so that page also has no **Labels** button.
 - **The whole input is now a single YAML spec file**, and the CLI is
   `prot-struct-viz spec.yaml` with no other options. Everything that was a flag is a key
   in that file, so a rendered page has one reviewable description rather than a shell
