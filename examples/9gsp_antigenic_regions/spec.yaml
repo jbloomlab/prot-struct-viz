@@ -11,15 +11,44 @@ assembly: au
 on_mismatch: error-extra-in-csv
 molstar_ui: hide
 
-views:
-  - name: Antigenic sites
-    csv: coloring.csv
-    title_md: title.md
+definitions:
+  base: &base
     default_color: "#d9d9d9"
     default_representation: surface
     waters: hide
     ligands: show
-    # Every sugar in the entry is named in coloring.csv, so `snfg` never applies
-    # here; it is stated because no view of this spec has a default.
-    glycans: snfg
     ions: show
+
+views:
+  - <<: *base
+    name: antigenic regions w glycans
+    csv: antigenic-regions-w-glycans.csv
+    title_md: antigenic-regions-w-glycans.md
+    # Every sugar in the entry is named in this view's CSV, so `snfg` never
+    # applies here; it is stated because no view of this spec has a default.
+    glycans: snfg
+    orientation:
+      position: [-21.56, 242.34, 168.7]
+      target: [126.87, 127.02, 121.9]
+      up: [0.15, -0.2, 0.97]
+      radius: 77.12
+  - <<: *base
+    name: antigenic regions
+    csv: antigenic-regions.csv
+    title_md: antigenic-regions.md
+    glycans: hide
+  - <<: *base
+    name: California/2009 to D.3.1
+    csv: california-2009-to-d-3-1.csv
+    title_md: california-2009-to-d-3-1.md
+    glycans: hide
+  - <<: *base
+    name: D.3.1 to D.3.1.1
+    csv: d-3-1-to-d-3-1-1.csv
+    title_md: d-3-1-to-d-3-1-1.md
+    glycans: hide
+  - <<: *base
+    name: D.3.1.1 with G155E
+    csv: d-3-1-1-with-g155e.csv
+    title_md: d-3-1-1-with-g155e.md
+    glycans: hide
