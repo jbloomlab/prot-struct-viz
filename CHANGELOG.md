@@ -106,6 +106,12 @@ All notable changes to this project are documented here, in
 
 ### Changed
 
+- Both hemagglutinin examples -- `8faw_antigenic_regions` and `9gsp_antigenic_regions` --
+  are drawn **spacefill** rather than as a molecular surface, so a colored antigenic region
+  reads as the atoms it is made of rather than as a smooth patch of envelope. All ten views
+  change, from one key per spec: the polymer rows of every CSV leave `representation` empty
+  and take the view's `default_representation`, while the glycans and the receptor analogue
+  keep the ball-and-stick their own rows ask for.
 - The `8faw_antigenic_regions` example now has **five views** instead of two, and makes an
   argument rather than showing the same coloring twice: the classical antigenic regions of
   H3 HA1, the same with the host N-glycans hidden, then the sites that differ between

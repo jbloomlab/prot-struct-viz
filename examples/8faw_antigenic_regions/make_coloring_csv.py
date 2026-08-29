@@ -146,7 +146,7 @@ SITES = {
 
 #: Colorblind-safe qualitative palette. Deliberately not the colors of the
 #: paper's own figure, whose yellow site B would be illegible against the pale
-#: gray used for the rest of the surface.
+#: gray used for the rest of the structure.
 # Paul Tol's "muted" scheme, cool subset. Every one of these is cool, so on the
 # structure warm means "changed or added" -- the red of a mutated site, the gold
 # of a glycan -- and nothing else is close to MUTATED_COLOR. The assignment keeps
