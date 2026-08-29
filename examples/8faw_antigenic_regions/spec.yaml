@@ -7,7 +7,7 @@ structure: 8FAW
 out: ../output/8faw_antigenic_regions.html
 assembly: "1"
 on_mismatch: error-extra-in-csv
-viewer_height: 70vh
+viewer_height: 80vh
 molstar_ui: hide
 
 definitions:
