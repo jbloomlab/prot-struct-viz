@@ -74,6 +74,15 @@ DEFAULT_LABEL_SIZE = 2.0
 #: (``cartoon`` by default) and would draw nothing for a ligand or ion.
 HETERO_CSV_REPRESENTATION = "ball-and-stick"
 
+
+class InputError(Exception):
+    """Raised on invalid user input (bad CSV, bad structure, failed validation).
+
+    The CLI catches this, writes the report, and exits non-zero. It never
+    carries a traceback to the user: the message is the whole story.
+    """
+
+
 _HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
@@ -112,14 +121,6 @@ def normalize_color(value: str) -> str:
     raise InputError(
         f"{value!r} is not a valid color: use hex (#1f77b4) or a CSS color name (red)"
     )
-
-
-class InputError(Exception):
-    """Raised on invalid user input (bad CSV, bad structure, failed validation).
-
-    The CLI catches this, writes the report, and exits non-zero. It never
-    carries a traceback to the user: the message is the whole story.
-    """
 
 
 @dataclasses.dataclass(frozen=True)
