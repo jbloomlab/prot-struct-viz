@@ -335,21 +335,78 @@ def test_each_view_gets_its_own_structure_node(rows):
         assert "tooltip_from_uri" in kinds
 
 
-def test_each_view_reads_its_own_annotation_member(rows):
+#: MVS nodes that name an annotation table.
+_FROM_URI = ("component_from_uri", "color_from_uri", "tooltip_from_uri")
+
+
+def _uris_per_view(state):
+    """Annotation URIs reachable from each view, as ``{ref: {uri, ...}}``.
+
+    Per subtree, not over the whole tree: a set collected globally would look
+    right even if every node under one view read the other view's table, which is
+    exactly the leak separate structure nodes exist to prevent.
+    """
+    return {
+        node["ref"]: {n["params"]["uri"] for n in _walk(node) if n["kind"] in _FROM_URI}
+        for node in _walk(state["root"])
+        if node["kind"] == "structure"
+    }
+
+
+def test_each_view_reads_only_its_own_annotation_member(rows):
     state, _ = build_state(
         [_build(rows, slug="one"), _build(rows, slug="two")],
         "mmcif",
         "structure.cif",
     )
-    uris = {
-        n["params"]["uri"]
-        for n in _walk(state["root"])
-        if n["kind"] in ("component_from_uri", "color_from_uri", "tooltip_from_uri")
+    assert _uris_per_view(state) == {
+        view_ref("one"): {f"./{annotation_member('one')}"},
+        view_ref("two"): {f"./{annotation_member('two')}"},
     }
-    assert uris == {
-        f"./{annotation_member('one')}",
-        f"./{annotation_member('two')}",
-    }
+
+
+def test_views_can_differ_in_every_display_option(coloring, deposited):
+    """Views share the parse and nothing below it, so nothing leaks between them.
+
+    Everything a view decides -- its base representation, whether glycans are
+    drawn, its default color -- has to land on its own subtree only.
+    """
+    cartoon = ViewConfig(default_representation="cartoon", glycans="snfg")
+    surface = ViewConfig(
+        default_representation="surface", glycans="hide", default_color="red"
+    )
+    builds = [
+        ViewBuild(
+            slug=slug,
+            config=config,
+            rows=build_annotations(coloring, deposited, config, {}),
+        )
+        for slug, config in (("one", cartoon), ("two", surface))
+    ]
+    state, _ = build_state(builds, "mmcif", "structure.cif")
+
+    per_view = {}
+    for node in _walk(state["root"]):
+        if node["kind"] != "structure":
+            continue
+        subtree = _walk(node)
+        per_view[node["ref"]] = (
+            {n["params"]["type"] for n in subtree if n["kind"] == "representation"},
+            {
+                n["params"]["color"]
+                for n in subtree
+                if n["kind"] == "color" and "color" in n["params"]
+            },
+        )
+
+    one_reps, one_colors = per_view[view_ref("one")]
+    two_reps, two_colors = per_view[view_ref("two")]
+    assert "cartoon" in one_reps and "cartoon" not in two_reps
+    assert "surface" in two_reps and "surface" not in one_reps
+    # glycans: snfg draws a carbohydrate layer; glycans: hide draws none.
+    assert "carbohydrate" in one_reps and "carbohydrate" not in two_reps
+    assert one_colors == {ViewConfig().default_color}
+    assert two_colors == {"#ff0000"}
 
 
 def test_page_refs_are_the_refs_in_the_state(tmp_path, write_csv, make_spec):
@@ -431,6 +488,43 @@ def test_label_toggle_appears_only_when_labels_are_drawn(
         )
     )
     assert 'id="label-toggle"' not in plain.read_text()
+
+
+def test_unplaceable_label_is_warned_about_and_offers_no_toggle(
+    tmp_path, write_csv, make_spec
+):
+    """A row asking for a label on a chain the view excludes leaves nothing to move.
+
+    This is the whole reason render subtracts the unplaced keys from the wanted
+    ones before deciding on the checkbox: counting the rows that *asked* would
+    render a checkbox that toggles nothing.
+    """
+    out = tmp_path / "view.html"
+    csv = write_csv("chain,residue,color,label,show_label\nA,118,red,Arg118,True\n")
+    spec = make_spec([("Only B", csv)], out)
+    spec = dataclasses.replace(
+        spec,
+        views=(
+            dataclasses.replace(
+                spec.views[0],
+                config=dataclasses.replace(spec.views[0].config, chains=("B",)),
+            ),
+        ),
+    )
+    render(spec)
+
+    report = (tmp_path / "view_report.txt").read_text()
+    assert "view 'Only B': 1 row(s) ask for a persistent label" in report
+    assert 'id="label-toggle"' not in out.read_text()
+
+
+def test_row_naming_no_such_residue_is_warned_about(tmp_path, write_csv, make_spec):
+    """It is dropped from the annotations, so the report is the only trace."""
+    out = tmp_path / "view.html"
+    csv = write_csv("chain,residue,color\nA,412,red\nZ,9999,blue\n")
+    render(make_spec([("Main", csv)], out))
+    report = (tmp_path / "view_report.txt").read_text()
+    assert "dropping 1 CSV row(s) that name no addressable residue" in report
 
 
 def test_view_selector_appears_only_with_more_than_one_view(
@@ -737,6 +831,37 @@ def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, make_spec)
     ).group(1)
     with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload.strip()))) as zf:
         assert STATE_MEMBER in zf.namelist()
+
+
+def test_pdb_input_reaches_the_archive_as_a_pdb_member(
+    tmp_path, write_csv, make_spec, structure
+):
+    """The archive member name and the parse format both follow the input format."""
+    coordinates = tmp_path / "1f8b.pdb"
+    structure.write_pdb(str(coordinates))
+    out = tmp_path / "view.html"
+    csv = write_csv("chain,residue,color\nA,412,red\n")
+    render(make_spec([("Main", csv)], out, structure=coordinates))
+
+    html = out.read_text()
+    payload = re.search(
+        r'<script id="mvsx-payload" type="text/plain">(.*?)</script>', html, re.S
+    ).group(1)
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload.strip()))) as zf:
+        assert "structure.pdb" in zf.namelist()
+        assert "structure.cif" not in zf.namelist()
+    parses = [n for n in _walk(_embedded_state(html)["root"]) if n["kind"] == "parse"]
+    assert [n["params"]["format"] for n in parses] == ["pdb"]
+
+
+def test_missing_title_file_is_fatal(tmp_path, write_csv, make_spec):
+    """Named but absent is a typo, not a request for no caption."""
+    out = tmp_path / "view.html"
+    spec = _with_title(
+        make_spec([("Main", write_csv(CSV))], out), tmp_path / "absent.md"
+    )
+    with pytest.raises(InputError, match="no such file"):
+        render(spec)
 
 
 def test_render_renders_the_markdown_title(tmp_path, write_csv, make_spec):

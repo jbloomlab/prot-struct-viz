@@ -157,6 +157,17 @@ def test_bad_option_value_is_fatal(tmp_path):
         load_spec(_spec(tmp_path, body))
 
 
+@pytest.mark.parametrize("key", ["waters", "ligands", "glycans", "ions"])
+def test_bad_heteroatom_flag_is_fatal(tmp_path, key):
+    """A typo here would silently change what the figure shows."""
+    body = "\n".join(
+        f"    {key}: sometimes" if line.strip().startswith(f"{key}:") else line
+        for line in _minimal().splitlines()
+    )
+    with pytest.raises(InputError, match=f"{key} must be one of"):
+        load_spec(_spec(tmp_path, body))
+
+
 def test_bad_default_color_is_fatal(tmp_path):
     """An unrecognized color reaches Mol\* as a string it silently ignores."""
     body = _minimal().replace('default_color: "#d9d9d9"', "default_color: not-a-color")
@@ -293,7 +304,7 @@ ORIENTED = """views:
     orientation:
       position: [11.2, -48.6, 187.3]
       target: [-0.4, -57.4, 13.8]
-      up: [0, 1, 0]
+      up: [0.1, 0.06, -0.99]
       radius: 76.1
 """
 
@@ -302,7 +313,8 @@ def test_orientation_is_parsed(tmp_path):
     view = load_spec(_spec(tmp_path, _minimal(ORIENTED))).views[0]
     assert view.orientation.position == (11.2, -48.6, 187.3)
     assert view.orientation.target == (-0.4, -57.4, 13.8)
-    assert view.orientation.up == (0.0, 1.0, 0.0)
+    # Not the fallback, so the parsing branch is actually exercised.
+    assert view.orientation.up == (0.1, 0.06, -0.99)
     assert view.orientation.radius == 76.1
     assert view.orientation.as_dict()["radius"] == 76.1
 
@@ -327,6 +339,39 @@ def test_orientation_up_and_radius_have_fallbacks(tmp_path):
     assert orientation.radius is None
     # radius is left out entirely rather than sent as null, so Mol* fits the scene.
     assert "radius" not in orientation.as_dict()
+
+
+def test_orientation_vector_must_be_three_numbers(tmp_path):
+    """YAML's booleans are ints, so `true` would otherwise pass as 1."""
+    for value, message in [
+        ("[1, 2]", "list of 3 numbers"),
+        ("[1, 2, true]", "must be 3 numbers"),
+        ('[1, 2, "x"]', "must be 3 numbers"),
+    ]:
+        body = _minimal(f"""views:
+  - <<: *base
+    name: Only view
+    csv: coloring.csv
+    orientation:
+      position: {value}
+      target: [0, 0, 0]
+""")
+        with pytest.raises(InputError, match=message):
+            load_spec(_spec(tmp_path, body))
+
+
+def test_orientation_radius_must_be_a_number(tmp_path):
+    body = _minimal("""views:
+  - <<: *base
+    name: Only view
+    csv: coloring.csv
+    orientation:
+      position: [1, 2, 3]
+      target: [0, 0, 0]
+      radius: far
+""")
+    with pytest.raises(InputError, match="orientation radius must be a number"):
+        load_spec(_spec(tmp_path, body))
 
 
 @pytest.mark.parametrize("key", ["position", "target"])
