@@ -50,9 +50,7 @@ def test_extra_in_pdb_only(write_csv, deposited):
     assert report.is_fatal("error-any") is True
 
 
-def test_extra_in_csv_tolerated_by_extra_in_pdb_mode(
-    complete_coloring, deposited, write_csv
-):
+def test_extra_in_csv_tolerated_by_extra_in_pdb_mode(deposited, write_csv):
     keys = sorted(addressable_residues(deposited)) + [("Z", "1")]
     coloring = _coloring_for(write_csv, keys)
     report = validate(coloring, deposited, None)

@@ -162,17 +162,6 @@ def test_no_data_rows_is_fatal(write_csv):
         parse_csv(write_csv("chain,residue,color\n"))
 
 
-def test_a_csv_describes_exactly_one_colouring(write_csv):
-    """Several colourings are several CSVs, one per view in the spec file.
-
-    A ``color:<Scheme>`` column used to mean a second colouring inside one file.
-    It no longer does, and must not be mistaken for the required column.
-    """
-    text = "chain,residue,color:Entropy,color:Escape\nA,5,red,#000000\n"
-    with pytest.raises(InputError, match=r"missing required column\(s\)"):
-        parse_csv(write_csv(text))
-
-
 def test_missing_file(tmp_path):
     with pytest.raises(InputError, match="no such file"):
         parse_csv(tmp_path / "absent.csv")

@@ -56,10 +56,9 @@ def test_molstar_asterisk_is_escaped():
 
     Python-Markdown -- unlike CommonMark, whose flanking rules reject it --
     pairs the asterisk in ``Mol*`` with the next ``*`` in the same paragraph.
-    That once rendered the docs home page as "the Mol UI ... is the initial*
-    state", with the emphasis on the wrong words and a stray asterisk left
-    over. Escaping it everywhere is the only rule that does not depend on
-    nobody ever adding emphasis to a paragraph that mentions Mol*.
+    So a paragraph mentioning Mol* and using emphasis renders with the emphasis
+    on the wrong words and a stray asterisk left over. Escaping it everywhere is
+    the only rule that does not depend on nobody ever adding that emphasis.
     """
     offenders = [
         f"{path.relative_to(REPO_ROOT)}:{number}"
@@ -97,9 +96,8 @@ def test_linked_repo_files_exist():
 
     `mkdocs build --strict` validates relative links between doc pages, but a
     link out to the repository on GitHub is just a URL to it. `docs/examples.md`
-    is built out of them: it names each example's inputs instead of inlining
-    them, which it used to do via `pymdownx.snippets`. Inlining could not go
-    stale; a link can, so this is what replaces that guarantee.
+    is built out of them: it names each example's inputs rather than inlining
+    them, and a link to a renamed file goes stale silently.
     """
     offenders = [
         f"{path.relative_to(REPO_ROOT)}:{number}: {target}"

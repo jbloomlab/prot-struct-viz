@@ -9,11 +9,16 @@ import zipfile
 
 import pytest
 
-from prot_struct_viz import ViewConfig, render
-from prot_struct_viz._config import InputError
+from prot_struct_viz import Spec, View, ViewConfig, render
+from prot_struct_viz._config import (
+    HETERO_CSV_REPRESENTATION,
+    REPRESENTATIONS,
+    InputError,
+)
 from prot_struct_viz.residues import parse_csv
 from prot_struct_viz.structure import assembly_instance_transforms, residue_centroids
 from prot_struct_viz.viewer import (
+    HETERO_LAYER_REPRESENTATIONS,
     MOLSTAR_VERSION,
     STATE_MEMBER,
     ViewBuild,
@@ -26,6 +31,34 @@ from prot_struct_viz.viewer import (
 
 #: Slug of the single view the state helpers below build.
 SLUG = "main"
+
+#: The MVS representation a CSV-named heteroatom gets, spelled the way the package
+#: spells it rather than repeated as a literal here.
+HETERO_CSV_REP = REPRESENTATIONS[HETERO_CSV_REPRESENTATION]
+
+
+@pytest.fixture(scope="module")
+def two_view_html(tmp_path_factory, fixture_cif):
+    """One rendered two-view page, for tests that only read its JavaScript.
+
+    Rendering is the slow part of those tests and none of them varies the spec,
+    so they share one page instead of each building an identical one.
+    """
+    directory = tmp_path_factory.mktemp("two_view")
+    csv = directory / "coloring.csv"
+    csv.write_text(CSV)
+    out = directory / "view.html"
+    render(
+        Spec(
+            structure=str(fixture_cif),
+            out=out,
+            views=tuple(
+                View(name=name, csv=csv, config=ViewConfig())
+                for name in ("First", "Second")
+            ),
+        )
+    )
+    return out.read_text()
 
 
 def _build(rows, config=None, labels=None, slug=SLUG):
@@ -129,22 +162,22 @@ def test_polymer_gets_the_base_representation(rows):
 
 def test_csv_named_heteroatom_is_not_drawn_as_cartoon(rows):
     """cartoon draws nothing for a ligand, so a CSV-named one falls back."""
-    assert _row(rows, "A", 0)["base_rep"] == "ball_and_stick"
-    assert _row(rows, "B", 1)["base_rep"] == "ball_and_stick"
+    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REP
+    assert _row(rows, "B", 1)["base_rep"] == HETERO_CSV_REP
 
 
 def test_csv_named_heteroatoms_leave_the_default_layers(rows):
-    """The whole point of 'the CSV always wins' over --ligands/--glycans/--ions."""
-    for chain, seq_id in [("A", 0), ("A", 998), ("B", 1)]:
-        assert "het_layer" not in _row(rows, chain, seq_id)
+    """The whole point of "the CSV always wins" over ligands/glycans/ions."""
     layers = {
         (r["auth_asym_id"], r["auth_seq_id"]): r["het_layer"]
         for r in rows
         if "het_layer" in r
     }
-    assert ("A", 0) not in layers  # the only ligand, and the CSV named it
-    assert layers[("A", 999)] == "ion"  # the calcium the CSV did not name
-    assert ("A", 998) not in layers
+    # The CSV names these three, so they are absent from the default layers.
+    for key in [("A", 0), ("A", 998), ("B", 1)]:
+        assert key not in layers
+    # The ones it does not name keep theirs.
+    assert layers[("A", 999)] == "ion"
     assert layers[("B", 2)] == "glycan"
 
 
@@ -183,8 +216,8 @@ def test_tooltips_are_annotation_fields(rows):
 
 def test_additive_representation_is_separate_from_base(rows):
     calcium = _row(rows, "A", 998)
-    assert calcium["base_rep"] == "ball_and_stick"
-    assert calcium["extra_rep"] == "spacefill"
+    assert calcium["base_rep"] == HETERO_CSV_REP
+    assert calcium["extra_rep"] == REPRESENTATIONS["spacefill"]
 
 
 def test_per_chain_representation_override(coloring, deposited):
@@ -269,8 +302,11 @@ def test_state_colors_base_components_but_not_hetero_layers(rows):
 def test_glycan_layer_uses_the_carbohydrate_representation(rows):
     state = _state(rows, ViewConfig())
     layers = _components(state, "het_layer")
-    assert layers["glycan"][0]["params"]["type"] == "carbohydrate"
-    assert layers["ion"][0]["params"]["type"] == "spacefill"
+    for residue_class in ("glycan", "ion"):
+        assert (
+            layers[residue_class][0]["params"]["type"]
+            == HETERO_LAYER_REPRESENTATIONS[residue_class]
+        )
 
 
 def test_state_adds_a_tooltip_node(rows):
@@ -444,9 +480,8 @@ def test_render_writes_html_and_report(tmp_path, write_csv, make_spec):
     assert 'id="reset-view"' in html
     assert 'id="mvsx-payload"' in html
     # The two APIs the Labels checkbox is built on: it finds the label
-    # representations by object type, then hides them. Lose either in a template edit
-    # and the checkbox still renders but moves nothing, which is how it shipped broken
-    # the first time.
+    # representations by object type, then hides them. Lose either in a template
+    # edit and the checkbox still renders but moves nothing.
     assert "PSO.Shape.Representation3D.is(cell.obj)" in html
     assert "updateCellState" in html
     # How the page finds a view's subtree: the MVS ref becomes a cell tag, and
@@ -573,11 +608,12 @@ def test_each_view_gets_a_caption_and_only_the_first_is_shown(
 def test_captions_are_stacked_so_switching_cannot_move_the_page(
     tmp_path, write_csv, make_spec
 ):
-    """The reported "structure jumps" bug, pinned in the markup that fixes it.
+    """Pinned in the markup, because the failure is remote from its cause.
 
-    Captions used to be `display: none`, so switching to a shorter one shortened
-    the document -- which scrolls the page and, when it takes the scrollbar away,
-    widens the content box and resizes the Mol* canvas sideways.
+    A caption hidden with `display: none` shortens the document when a shorter one
+    is shown -- which scrolls the page and, when it takes the scrollbar away,
+    widens the content box and resizes the Mol* canvas sideways. The structure
+    appears to jump for reasons that have nothing to do with the structure.
     """
     out = tmp_path / "view.html"
     csv = write_csv(CSV)
@@ -609,24 +645,18 @@ def test_no_caption_divs_when_no_view_has_one(tmp_path, write_csv, make_spec):
     assert "#header:empty { display: none; }" in html
 
 
-def test_viewer_height_reaches_the_page(tmp_path, write_csv, make_spec):
+@pytest.mark.parametrize("height", ["500px", "30vh"])
+def test_viewer_height_is_used_as_written(tmp_path, write_csv, make_spec, height):
+    """No floor and no clamp: a short height gives a short viewer.
+
+    A `min-height` here would silently win for any viewport-relative value below
+    it, so shortening the viewer in the spec would appear to do nothing.
+    """
     out = tmp_path / "view.html"
     spec = make_spec([("Only", write_csv(CSV))], out)
-    render(dataclasses.replace(spec, viewer_height="500px"))
-    html = out.read_text()
-    assert "height: 500px;" in html
-    assert "min-height" not in html.split("#viewer {")[1].split("}")[0]
-
-
-def test_viewer_height_is_never_overridden_by_a_floor(tmp_path, write_csv, make_spec):
-    """A `30rem` floor used to silently win: below a 1600px-tall window every
-    value under 30vh rendered at the same 480px, so shortening the viewer in the
-    spec did nothing. The height is now used as written."""
-    out = tmp_path / "view.html"
-    spec = make_spec([("Only", write_csv(CSV))], out)
-    render(dataclasses.replace(spec, viewer_height="30vh"))
+    render(dataclasses.replace(spec, viewer_height=height))
     viewer_rule = out.read_text().split("#viewer {")[1].split("}")[0]
-    assert "height: 30vh;" in viewer_rule
+    assert f"height: {height};" in viewer_rule
     assert "min-height" not in viewer_rule
 
 
@@ -747,12 +777,9 @@ def test_camera_capture_is_hidden_behind_the_url_fragment(
     assert "window.psvCamera" in html
 
 
-def test_deep_link_fragment_selects_a_view(tmp_path, write_csv, make_spec):
+def test_deep_link_fragment_selects_a_view(two_view_html):
     """`#view=<slug>` has to act at runtime, not change what is served."""
-    out = tmp_path / "view.html"
-    csv = write_csv(CSV)
-    render(make_spec([("First", csv), ("Second", csv)], out))
-    html = out.read_text()
+    html = two_view_html
     assert "token.indexOf('view=') === 0" in html
     assert "function selectFromFragment()" in html
     assert "addEventListener('hashchange'" in html
@@ -770,7 +797,7 @@ def test_deep_link_fragment_selects_a_view(tmp_path, write_csv, make_spec):
     assert "selected" not in re.search(r"<select.*?</select>", html, re.S).group(0)
 
 
-def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
+def test_load_always_places_the_camera(two_view_html):
     """The MVS camera node is only an approximation.
 
     MolViewSpec reads its `position` as a reference camera and scales the distance
@@ -779,10 +806,7 @@ def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
     camera drifts further. The page has to re-place the camera itself, on every
     load and not only when a fragment picked the view.
     """
-    out = tmp_path / "view.html"
-    csv = write_csv(CSV)
-    render(make_spec([("First", csv), ("Second", csv)], out))
-    on_load = out.read_text().split("return load().then(")[1].split("});")[0]
+    on_load = two_view_html.split("return load().then(")[1].split("});")[0]
     # After selectFromFragment, so it places the camera of whichever view the
     # fragment chose rather than of the first one.
     assert on_load.index("selectFromFragment()") < on_load.index(
@@ -790,26 +814,17 @@ def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
     )
 
 
-def test_switching_views_rewrites_the_fragment(tmp_path, write_csv, make_spec):
+def test_switching_views_rewrites_the_fragment(two_view_html):
     """Sharing a view should be copying the address bar."""
-    out = tmp_path / "view.html"
-    csv = write_csv(CSV)
-    render(make_spec([("First", csv), ("Second", csv)], out))
-    html = out.read_text()
+    html = two_view_html
     assert "history.replaceState(" in html
-    assert "history.pushState(" not in html  # Back leaves the page, as it always did
+    assert "history.pushState(" not in html  # so Back leaves the page
     assert "if (fragment().camera) tokens.push('camera');" in html
 
 
-def test_reset_restores_the_camera_of_the_view_you_are_on(
-    tmp_path, write_csv, make_spec
-):
+def test_reset_restores_the_camera_of_the_view_you_are_on(two_view_html):
     """Reloading the state resets the camera to the first view's pose; undo that."""
-    out = tmp_path / "view.html"
-    csv = write_csv(CSV)
-    render(make_spec([("First", csv), ("Second", csv)], out))
-    html = out.read_text()
-    reset = html.split("document.getElementById('reset-view')")[1]
+    reset = two_view_html.split("document.getElementById('reset-view')")[1]
     assert "placeOpeningCamera()" in reset.split("})")[0]
 
 
@@ -938,8 +953,8 @@ def test_every_annotation_row_names_a_representation_or_layer(rows):
 def test_per_chain_override_does_not_reach_csv_named_heteroatoms(coloring, deposited):
     """A chain's polymer representation would draw nothing for its ligand."""
     rows = build_annotations(coloring, deposited, ViewConfig(), {"A": "cartoon"})
-    assert _row(rows, "A", 0)["base_rep"] == "ball_and_stick"
-    assert _row(rows, "A", 998)["base_rep"] == "ball_and_stick"
+    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REP
+    assert _row(rows, "A", 998)["base_rep"] == HETERO_CSV_REP
     # The polymer on that chain still follows the override.
     assert _row(rows, "A", 100)["base_rep"] == "cartoon"
 
