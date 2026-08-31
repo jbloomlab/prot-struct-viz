@@ -82,7 +82,7 @@ def normalize_color(value: str) -> str:
 
     Every color the user can give -- the CSV's ``color`` and ``label_color``
     columns and the spec's ``default_color`` -- comes through here, so an invalid
-    color fails at the boundary rather than reaching Mol\* as a string it silently
+    color fails at the boundary rather than reaching Mol* as a string it silently
     ignores.
 
     Parameters

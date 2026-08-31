@@ -169,7 +169,7 @@ def test_bad_heteroatom_flag_is_fatal(tmp_path, key):
 
 
 def test_bad_default_color_is_fatal(tmp_path):
-    """An unrecognized color reaches Mol\* as a string it silently ignores."""
+    """An unrecognized color reaches Mol* as a string it silently ignores."""
     body = _minimal().replace('default_color: "#d9d9d9"', "default_color: not-a-color")
     with pytest.raises(InputError, match="default_color: .*is not a valid color"):
         load_spec(_spec(tmp_path, body))
