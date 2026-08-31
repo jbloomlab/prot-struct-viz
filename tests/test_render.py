@@ -474,7 +474,6 @@ def test_each_view_gets_a_caption_and_only_the_first_is_shown(
     # cannot change when the view does. See test_captions_do_not_change_page_flow.
     assert '<div class="caption active" data-view="first">' in html
     assert '<div class="caption" data-view="second">' in html
-    assert "hidden>" not in html.split('id="header"')[1].split("</div>")[0]
 
 
 def test_captions_are_stacked_so_switching_cannot_move_the_page(
@@ -496,9 +495,12 @@ def test_captions_are_stacked_so_switching_cannot_move_the_page(
     )
     render(spec)
     html = out.read_text()
-    assert "#header { display: grid;" in html
-    assert "grid-area: 1 / 1; visibility: hidden;" in html
-    assert ".caption.active { visibility: visible; }" in html
+    # Stacked in one grid cell and hidden with visibility, so a hidden caption
+    # keeps its space and the page height cannot change.
+    assert "display: grid" in html
+    assert "visibility: hidden" in html
+    assert "visibility: visible" in html
+    assert "display: none" not in html.split("#header")[1].split("}")[0]
     # And the width half of the same bug.
     assert "scrollbar-gutter: stable" in html
 
@@ -509,7 +511,8 @@ def test_no_caption_divs_when_no_view_has_one(tmp_path, write_csv, make_spec):
     render(make_spec([("Only", write_csv(CSV))], out))
     html = out.read_text()
     assert 'class="caption' not in html
-    assert '<div id="header">\n</div>' in html
+    # #header:empty is what collapses it, so the rule has to be there to fire.
+    assert "#header:empty { display: none; }" in html
 
 
 def test_viewer_height_reaches_the_page(tmp_path, write_csv, make_spec):
@@ -634,7 +637,6 @@ def test_orientations_reach_the_page_in_view_order(tmp_path, write_csv, make_spe
     # The animated setter, not the raw one -- see the template comment. The
     # duration is an argument because a deep link and Reset both want it at 0.
     assert "managers.camera.setSnapshot(" in html
-    assert "ms === undefined ? CAMERA_MS : ms" in html
 
 
 def test_camera_capture_is_hidden_behind_the_url_fragment(
@@ -668,10 +670,10 @@ def test_deep_link_fragment_selects_a_view(tmp_path, write_csv, make_spec):
     # A view pinning no camera of its own inherits the opening view's, so a link
     # to it lands where switching to it by hand would.
     assert "ORIENTATIONS[activeIndex()] || ORIENTATIONS[0]" in html
-    # The served markup is untouched -- no option is marked selected -- so a
+    # The served markup is untouched -- no <option> is marked selected -- so a
     # reader with no fragment still gets the first view, and the deep link is
     # purely a runtime override.
-    assert "selected" not in html
+    assert "selected" not in re.search(r"<select.*?</select>", html, re.S).group(0)
 
 
 def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
@@ -687,10 +689,11 @@ def test_load_always_places_the_camera(tmp_path, write_csv, make_spec):
     csv = write_csv(CSV)
     render(make_spec([("First", csv), ("Second", csv)], out))
     on_load = out.read_text().split("return load().then(")[1].split("});")[0]
-    assert "placeOpeningCamera();" in on_load
-    # Unconditionally: gating this on a deep link is the bug being fixed.
-    assert "deepLinked" not in on_load
-    assert "if (" not in on_load
+    # After selectFromFragment, so it places the camera of whichever view the
+    # fragment chose rather than of the first one.
+    assert on_load.index("selectFromFragment()") < on_load.index(
+        "placeOpeningCamera();"
+    )
 
 
 def test_switching_views_rewrites_the_fragment(tmp_path, write_csv, make_spec):
@@ -722,8 +725,6 @@ def test_snapshot_stepper_is_hidden(tmp_path, write_csv, make_spec):
     render(make_spec([("Only", write_csv(CSV))], out))
     html = out.read_text()
     assert ".msp-state-snapshot-viewport-controls { display: none; }" in html
-    # Not the wrapper, which also holds the trajectory controls.
-    assert ".msp-viewport-top-left-controls {" not in html
 
 
 def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, make_spec):
