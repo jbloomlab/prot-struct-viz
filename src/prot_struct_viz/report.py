@@ -42,7 +42,7 @@ def report_path_for(out_path: pathlib.Path) -> pathlib.Path:
     """
     out_path = pathlib.Path(out_path)
     if out_path.suffix.lower() != ".html":
-        raise InputError(f"--out must end in '.html', got {out_path.name!r}")
+        raise InputError(f"out must end in '.html', got {out_path.name!r}")
     return out_path.with_name(out_path.stem + REPORT_SUFFIX)
 
 

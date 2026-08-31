@@ -79,7 +79,7 @@ def test_csv_row_on_a_water_gets_targeted_message(write_csv, deposited):
     assert water in report.in_csv_not_structure
     text = report.format()
     assert "targets a water residue" in text
-    assert "use --waters" in text
+    assert "'waters' key" in text
     assert "no such residue" not in text
 
 

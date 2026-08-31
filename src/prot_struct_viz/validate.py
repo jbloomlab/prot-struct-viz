@@ -75,7 +75,7 @@ class ValidationReport:
         for chain, residue in sorted(self.csv_targets_water, key=sort_key):
             lines.append(
                 f"  {chain}/{residue} targets a water residue; waters are not "
-                "individually addressable, use --waters"
+                "individually addressable, use the view's 'waters' key"
             )
 
         lines.append("")
