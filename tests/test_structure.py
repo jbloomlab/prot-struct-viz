@@ -73,7 +73,7 @@ def test_residue_counts_cover_every_residue(structure, deposited):
 def test_chain_subset(structure):
     subset = get_deposited_residues(structure, ["B"])
     assert {chain for chain, _ in subset} == {"B"}
-    assert residue_counts(structure, ["B"]) == {"B": 7}
+    assert len(subset) == 7
 
 
 def test_unknown_chain_is_fatal(structure):

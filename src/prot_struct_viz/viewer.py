@@ -179,9 +179,7 @@ def _default_layer(residue_class: ResidueClass, config: ViewConfig) -> str | Non
         "ion": config.ions == "show",
         "water": config.waters == "show",
     }
-    if residue_class in visible and visible[residue_class]:
-        return residue_class
-    return None
+    return residue_class if visible.get(residue_class) else None
 
 
 def _distinct(rows: list[dict], field: str) -> list[str]:
@@ -275,11 +273,13 @@ class ViewBuild:
     config: ViewConfig
     rows: list[dict]
     labels: tuple | None = None
-    orientation: dict | None = None
 
 
 def build_state(
-    builds: list[ViewBuild], fmt: str, structure_member: str
+    builds: list[ViewBuild],
+    fmt: str,
+    structure_member: str,
+    opening_orientation: dict | None = None,
 ) -> tuple[dict, dict[str, list[ResidueKey]]]:
     """Build the MolViewSpec state drawing every view.
 
@@ -296,6 +296,10 @@ def build_state(
         ``"mmcif"`` or ``"pdb"``.
     structure_member
         Name of the coordinate file inside the MVSX archive.
+    opening_orientation
+        Camera snapshot for the view the page opens on, or ``None`` to leave the
+        framing to Mol*. MVS holds exactly one camera, so this is an argument
+        rather than something read off a view: only one of them can be expressed.
 
     Returns
     -------
@@ -305,9 +309,8 @@ def build_state(
     """
     builder = create_builder()
 
-    # MVS has exactly one camera -- the node is root-level and the loader keeps the
-    # last one it sees -- so only the view the page opens on can be expressed here.
-    # Every other view's orientation is applied by the page when you switch to it.
+    # Every other view's orientation is applied by the page when you switch to it;
+    # MVS cannot carry them, which is why only one arrives here.
     #
     # This node is a first paint, not the final camera. MolViewSpec reads its
     # position as a *reference* camera, one that just fits a sphere of radius
@@ -318,12 +321,11 @@ def build_state(
     # copies the position verbatim and is what the reader ends up looking at. The
     # node also cannot carry `radius`: MVS camera params are target, position, up
     # and near, so Orientation.radius reaches only the page's ORIENTATIONS array.
-    opening = builds[0].orientation if builds else None
-    if opening is not None:
+    if opening_orientation is not None:
         builder.camera(
-            target=opening["target"],
-            position=opening["position"],
-            up=opening["up"],
+            target=opening_orientation["target"],
+            position=opening_orientation["position"],
+            up=opening_orientation["up"],
         )
 
     parsed = builder.download(url=_archive_uri(structure_member)).parse(format=fmt)
@@ -345,7 +347,7 @@ def build_state(
         rows = build.rows
         has_color = any("color" in row for row in rows)
 
-        def _styled(component, representation_type, has_color=has_color):
+        def _styled(component, representation_type):
             representation = component.representation(type=representation_type)
             representation.color(color=config.default_color)
             if has_color:

@@ -28,14 +28,8 @@ from prot_struct_viz.viewer import (
 SLUG = "main"
 
 
-def _build(rows, config=None, labels=None, slug=SLUG, orientation=None):
-    return ViewBuild(
-        slug=slug,
-        config=config or ViewConfig(),
-        rows=rows,
-        labels=labels,
-        orientation=orientation,
-    )
+def _build(rows, config=None, labels=None, slug=SLUG):
+    return ViewBuild(slug=slug, config=config or ViewConfig(), rows=rows, labels=labels)
 
 
 def _embedded_state(html):
@@ -549,36 +543,62 @@ def test_molstar_ui_hidden_starts_the_panels_closed(tmp_path, write_csv, make_sp
     assert "layoutShowControls: true" in out.read_text()
 
 
-def test_first_view_orientation_becomes_the_mvs_camera(rows):
-    """So the page opens already framed instead of snapping after the load.
-
-    MVS keeps only one camera -- the node is root-level -- so this can only ever
-    be the view the page opens on. The rest are applied by the page on switch.
-    """
+def test_opening_orientation_becomes_the_mvs_camera(rows):
+    """So the page opens already framed instead of snapping after the load."""
     from prot_struct_viz import Orientation
 
     opening = Orientation(position=(1.0, 2.0, 3.0), target=(0.0, 0.0, 0.0)).as_dict()
-    other = Orientation(position=(9.0, 9.0, 9.0), target=(1.0, 1.0, 1.0)).as_dict()
     state, _ = build_state(
-        [
-            _build(rows, slug="one", orientation=opening),
-            _build(rows, slug="two", orientation=other),
-        ],
+        [_build(rows, slug="one"), _build(rows, slug="two")],
         "mmcif",
         "structure.cif",
+        opening,
     )
     cameras = [n for n in _walk(state["root"]) if n["kind"] == "camera"]
     assert len(cameras) == 1
     assert cameras[0]["params"]["position"] == [1.0, 2.0, 3.0]
 
 
-def test_no_camera_node_when_the_first_view_has_no_orientation(rows):
+def test_no_camera_node_without_an_opening_orientation(rows):
     state, _ = build_state(
         [_build(rows, slug="one"), _build(rows, slug="two")],
         "mmcif",
         "structure.cif",
     )
     assert not [n for n in _walk(state["root"]) if n["kind"] == "camera"]
+
+
+def test_the_mvs_camera_is_the_first_view_s(tmp_path, write_csv, make_spec):
+    """MVS holds one camera, and the page opens on the first view.
+
+    A later view's orientation must not reach it, or the page would open framed
+    on something the reader is not looking at.
+    """
+    from prot_struct_viz import Orientation
+
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    spec = make_spec([("First", csv), ("Second", csv)], out)
+    spec = dataclasses.replace(
+        spec,
+        views=tuple(
+            dataclasses.replace(
+                view,
+                orientation=Orientation(
+                    position=(index + 1.0, 0.0, 0.0), target=(0.0, 0.0, 0.0)
+                ),
+            )
+            for index, view in enumerate(spec.views)
+        ),
+    )
+    render(spec)
+    cameras = [
+        n
+        for n in _walk(_embedded_state(out.read_text())["root"])
+        if n["kind"] == "camera"
+    ]
+    assert len(cameras) == 1
+    assert cameras[0]["params"]["position"] == [1.0, 0.0, 0.0]
 
 
 def test_orientations_reach_the_page_in_view_order(tmp_path, write_csv, make_spec):

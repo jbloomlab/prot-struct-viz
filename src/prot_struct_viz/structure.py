@@ -221,15 +221,11 @@ def addressable_residues(
     return {key for key, cls in deposited.items() if cls in ADDRESSABLE_CLASSES}
 
 
-def residue_counts(
-    structure: gemmi.Structure, chains: list[str] | None = None
-) -> dict[str, int]:
+def residue_counts(structure: gemmi.Structure) -> dict[str, int]:
     """Per-chain residue counts, for the progress log."""
-    wanted = set(chains) if chains is not None else None
     counts: dict[str, int] = {}
     for chain in structure[0]:
-        if wanted is None or chain.name in wanted:
-            counts[chain.name] = counts.get(chain.name, 0) + len(chain)
+        counts[chain.name] = counts.get(chain.name, 0) + len(chain)
     return counts
 
 

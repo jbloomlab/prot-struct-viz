@@ -98,6 +98,9 @@ def render(spec: Spec) -> pathlib.Path:
 
         for view in spec.views:
             config = view.config
+            orientation = (
+                view.orientation.as_dict() if view.orientation is not None else None
+            )
             reporter.log("")
             reporter.log(f"=== view: {view.name} ===")
 
@@ -160,17 +163,7 @@ def render(spec: Spec) -> pathlib.Path:
                 assembly_instance_transforms(parsed, spec.assembly),
             )
             builds.append(
-                ViewBuild(
-                    slug=view.slug,
-                    config=config,
-                    rows=rows,
-                    labels=labels,
-                    orientation=(
-                        view.orientation.as_dict()
-                        if view.orientation is not None
-                        else None
-                    ),
-                )
+                ViewBuild(slug=view.slug, config=config, rows=rows, labels=labels)
             )
             wanted_labels |= {
                 (view.slug, spec_.key) for spec_ in coloring.specs if spec_.show_label
@@ -183,11 +176,7 @@ def render(spec: Spec) -> pathlib.Path:
                     # same string build_state put on the structure node.
                     "ref": view_ref(view.slug),
                     "caption": render_title(view.title_md),
-                    "orientation": (
-                        view.orientation.as_dict()
-                        if view.orientation is not None
-                        else None
-                    ),
+                    "orientation": orientation,
                 }
             )
 
@@ -198,7 +187,10 @@ def render(spec: Spec) -> pathlib.Path:
             )
 
         structure_member = "structure.cif" if fmt == "mmcif" else "structure.pdb"
-        state, unplaced = build_state(builds, fmt, structure_member)
+        # The page opens on the first view, so its camera is the one MVS can hold.
+        state, unplaced = build_state(
+            builds, fmt, structure_member, captions[0]["orientation"]
+        )
         for view in spec.views:
             if unplaced[view.slug]:
                 reporter.log("")

@@ -8,7 +8,6 @@ run still leaves a record of everything up to the error. That is why the
 from __future__ import annotations
 
 import pathlib
-import sys
 
 from ._config import InputError
 from .validate import ValidationReport
@@ -49,15 +48,14 @@ def report_path_for(out_path: pathlib.Path) -> pathlib.Path:
 class Reporter:
     """Writes progress and validation output to stdout and to the report file."""
 
-    def __init__(self, report_path: pathlib.Path, stream=None):
+    def __init__(self, report_path: pathlib.Path):
         self.report_path = pathlib.Path(report_path)
         self.report_path.parent.mkdir(parents=True, exist_ok=True)
         self._file = open(self.report_path, "w", encoding="utf-8")
-        self._stream = sys.stdout if stream is None else stream
 
     def log(self, line: str = "") -> None:
         """Write one line to both stdout and the report file."""
-        print(line, file=self._stream)
+        print(line)
         print(line, file=self._file)
         self._file.flush()
 
