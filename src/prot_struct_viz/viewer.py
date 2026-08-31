@@ -67,6 +67,8 @@ def view_ref(slug: str) -> str:
 
     Mol* exposes this as the cell tag ``mvs-ref:<ref>``, which the page resolves
     with ``PluginExtensions.mvs.util.queryMVSRef`` to find the subtree to toggle.
+    The rendered page is given these strings rather than rebuilding them, so this
+    is the only place the format is written.
     """
     return f"view:{slug}"
 
@@ -429,10 +431,11 @@ def render_html(
     mvsx
         The archive, embedded base64 in a non-executing script block.
     views
-        One dict per view, in page order, with ``name``, ``slug``, ``caption``
-        (an HTML fragment, possibly empty) and ``orientation`` (a camera snapshot
-        or ``None``). The first is shown on load; the selector is rendered only
-        when there is more than one.
+        One dict per view, in page order, with ``name``, ``slug``, ``ref`` (the
+        MVS ref from `view_ref`, which the page hands to ``queryMVSRef``),
+        ``caption`` (an HTML fragment, possibly empty) and ``orientation`` (a
+        camera snapshot or ``None``). The first is shown on load; the selector is
+        rendered only when there is more than one.
     page_title
         The HTML ``<title>``.
     show_label_toggle

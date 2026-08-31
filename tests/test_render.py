@@ -2,6 +2,7 @@
 
 import base64
 import dataclasses
+import io
 import json
 import re
 import zipfile
@@ -20,6 +21,7 @@ from prot_struct_viz.viewer import (
     build_annotations,
     build_mvsx,
     build_state,
+    view_ref,
 )
 
 #: Slug of the single view the state helpers below build.
@@ -34,6 +36,15 @@ def _build(rows, config=None, labels=None, slug=SLUG, orientation=None):
         labels=labels,
         orientation=orientation,
     )
+
+
+def _embedded_state(html):
+    """The MVS state out of a rendered page's base64 MVSX payload."""
+    payload = re.search(
+        r'<script id="mvsx-payload" type="text/plain">(.*?)</script>', html, re.S
+    ).group(1)
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload.strip()))) as zf:
+        return json.loads(zf.read(STATE_MEMBER))
 
 
 def _state(rows, config=None, labels=None):
@@ -286,7 +297,7 @@ def test_no_tooltip_node_without_tooltips(write_csv, deposited):
 def test_mvsx_archive_members(rows, coordinate_text):
     state = _state(rows, ViewConfig())
     archive = build_mvsx(state, coordinate_text, "structure.cif", {SLUG: rows})
-    with zipfile.ZipFile(__import__("io").BytesIO(archive)) as zf:
+    with zipfile.ZipFile(io.BytesIO(archive)) as zf:
         assert set(zf.namelist()) == {
             STATE_MEMBER,
             "structure.cif",
@@ -303,7 +314,7 @@ def test_views_share_the_coordinates_and_not_the_annotations(rows, coordinate_te
     archive = build_mvsx(
         state, coordinate_text, "structure.cif", {"one": rows, "two": rows}
     )
-    with zipfile.ZipFile(__import__("io").BytesIO(archive)) as zf:
+    with zipfile.ZipFile(io.BytesIO(archive)) as zf:
         assert set(zf.namelist()) == {
             STATE_MEMBER,
             "structure.cif",
@@ -323,7 +334,7 @@ def test_each_view_gets_its_own_structure_node(rows):
         "structure.cif",
     )
     structures = [n for n in _walk(state["root"]) if n["kind"] == "structure"]
-    assert [n.get("ref") for n in structures] == ["view:one", "view:two"]
+    assert [n.get("ref") for n in structures] == [view_ref("one"), view_ref("two")]
     assert len([n for n in _walk(state["root"]) if n["kind"] == "parse"]) == 1
     for node in structures:
         kinds = {child["kind"] for child in node["children"]}
@@ -345,6 +356,25 @@ def test_each_view_reads_its_own_annotation_member(rows):
         f"./{annotation_member('one')}",
         f"./{annotation_member('two')}",
     }
+
+
+def test_page_refs_are_the_refs_in_the_state(tmp_path, write_csv, make_spec):
+    """The page finds a view's subtree by ref, so a mismatch hides every view.
+
+    Nothing else catches it: queryMVSRef returning nothing only logs a warning,
+    and the page then renders with every subtree left visible.
+    """
+    out = tmp_path / "view.html"
+    csv = write_csv(CSV)
+    render(make_spec([("First", csv), ("Second", csv)], out))
+    html = out.read_text()
+
+    page_refs = json.loads(re.search(r"var REFS = (\[.*?\]);", html).group(1))
+    state = _embedded_state(html)
+    state_refs = [
+        n.get("ref") for n in _walk(state["root"]) if n["kind"] == "structure"
+    ]
+    assert page_refs == state_refs == [view_ref("first"), view_ref("second")]
 
 
 def test_render_writes_html_and_report(tmp_path, write_csv, make_spec):
@@ -684,9 +714,7 @@ def test_rendered_html_embeds_a_loadable_archive(tmp_path, write_csv, make_spec)
         out.read_text(),
         re.S,
     ).group(1)
-    with zipfile.ZipFile(
-        __import__("io").BytesIO(base64.b64decode(payload.strip()))
-    ) as zf:
+    with zipfile.ZipFile(io.BytesIO(base64.b64decode(payload.strip()))) as zf:
         assert STATE_MEMBER in zf.namelist()
 
 

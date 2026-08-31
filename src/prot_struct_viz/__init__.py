@@ -23,6 +23,7 @@ from .viewer import (
     build_state,
     render_html,
     render_title,
+    view_ref,
 )
 from .report import Reporter, display_path, report_path_for
 from .residues import keys, parse_chain_representations, parse_csv
@@ -194,6 +195,9 @@ def render(spec: Spec) -> pathlib.Path:
                 {
                     "name": view.name,
                     "slug": view.slug,
+                    # The page resolves this through queryMVSRef; it must be the
+                    # same string build_state put on the structure node.
+                    "ref": view_ref(view.slug),
                     "caption": render_title(view.title_md),
                     "orientation": (
                         view.orientation.as_dict()
