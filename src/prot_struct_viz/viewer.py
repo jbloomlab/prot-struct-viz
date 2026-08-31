@@ -67,16 +67,20 @@ def view_ref(slug: str) -> str:
 
     Mol* exposes this as the cell tag ``mvs-ref:<ref>``, which the page resolves
     with ``PluginExtensions.mvs.util.queryMVSRef`` to find the subtree to toggle.
+    The rendered page is given these strings rather than rebuilding them, so this
+    is the only place the format is written.
     """
     return f"view:{slug}"
 
 
-#: Representation used for each class of heteroatom the CSV does not name.
+#: Representation used for each class of heteroatom the CSV does not name. Named
+#: through REPRESENTATIONS so the MVS spelling of a representation lives in one
+#: place.
 HETERO_LAYER_REPRESENTATIONS = {
-    "ligand": "ball_and_stick",
-    "glycan": "carbohydrate",
-    "ion": "spacefill",
-    "water": "ball_and_stick",
+    "ligand": REPRESENTATIONS["ball-and-stick"],
+    "glycan": REPRESENTATIONS["carbohydrate"],
+    "ion": REPRESENTATIONS["spacefill"],
+    "water": REPRESENTATIONS["ball-and-stick"],
 }
 
 #: Camera-facing offset, in Angstroms, so label text floats in front of the residue
@@ -177,9 +181,7 @@ def _default_layer(residue_class: ResidueClass, config: ViewConfig) -> str | Non
         "ion": config.ions == "show",
         "water": config.waters == "show",
     }
-    if residue_class in visible and visible[residue_class]:
-        return residue_class
-    return None
+    return residue_class if visible.get(residue_class) else None
 
 
 def _distinct(rows: list[dict], field: str) -> list[str]:
@@ -273,11 +275,13 @@ class ViewBuild:
     config: ViewConfig
     rows: list[dict]
     labels: tuple | None = None
-    orientation: dict | None = None
 
 
 def build_state(
-    builds: list[ViewBuild], fmt: str, structure_member: str
+    builds: list[ViewBuild],
+    fmt: str,
+    structure_member: str,
+    opening_orientation: dict | None = None,
 ) -> tuple[dict, dict[str, list[ResidueKey]]]:
     """Build the MolViewSpec state drawing every view.
 
@@ -294,6 +298,10 @@ def build_state(
         ``"mmcif"`` or ``"pdb"``.
     structure_member
         Name of the coordinate file inside the MVSX archive.
+    opening_orientation
+        Camera snapshot for the view the page opens on, or ``None`` to leave the
+        framing to Mol*. MVS holds exactly one camera, so this is an argument
+        rather than something read off a view: only one of them can be expressed.
 
     Returns
     -------
@@ -303,9 +311,8 @@ def build_state(
     """
     builder = create_builder()
 
-    # MVS has exactly one camera -- the node is root-level and the loader keeps the
-    # last one it sees -- so only the view the page opens on can be expressed here.
-    # Every other view's orientation is applied by the page when you switch to it.
+    # Every other view's orientation is applied by the page when you switch to it;
+    # MVS cannot carry them, which is why only one arrives here.
     #
     # This node is a first paint, not the final camera. MolViewSpec reads its
     # position as a *reference* camera, one that just fits a sphere of radius
@@ -316,12 +323,11 @@ def build_state(
     # copies the position verbatim and is what the reader ends up looking at. The
     # node also cannot carry `radius`: MVS camera params are target, position, up
     # and near, so Orientation.radius reaches only the page's ORIENTATIONS array.
-    opening = builds[0].orientation if builds else None
-    if opening is not None:
+    if opening_orientation is not None:
         builder.camera(
-            target=opening["target"],
-            position=opening["position"],
-            up=opening["up"],
+            target=opening_orientation["target"],
+            position=opening_orientation["position"],
+            up=opening_orientation["up"],
         )
 
     parsed = builder.download(url=_archive_uri(structure_member)).parse(format=fmt)
@@ -343,7 +349,7 @@ def build_state(
         rows = build.rows
         has_color = any("color" in row for row in rows)
 
-        def _styled(component, representation_type, has_color=has_color):
+        def _styled(component, representation_type):
             representation = component.representation(type=representation_type)
             representation.color(color=config.default_color)
             if has_color:
@@ -419,8 +425,8 @@ def render_html(
     views: list[dict],
     page_title: str,
     show_label_toggle: bool,
-    viewer_height: str = "70vh",
-    molstar_ui: str = "show",
+    viewer_height: str,
+    molstar_ui: str,
 ) -> str:
     """Render the viewer template around a base64 MVSX payload.
 
@@ -429,10 +435,11 @@ def render_html(
     mvsx
         The archive, embedded base64 in a non-executing script block.
     views
-        One dict per view, in page order, with ``name``, ``slug``, ``caption``
-        (an HTML fragment, possibly empty) and ``orientation`` (a camera snapshot
-        or ``None``). The first is shown on load; the selector is rendered only
-        when there is more than one.
+        One dict per view, in page order, with ``name``, ``slug``, ``ref`` (the
+        MVS ref from `view_ref`, which the page hands to ``queryMVSRef``),
+        ``caption`` (an HTML fragment, possibly empty) and ``orientation`` (a
+        camera snapshot or ``None``). The first is shown on load; the selector is
+        rendered only when there is more than one.
     page_title
         The HTML ``<title>``.
     show_label_toggle

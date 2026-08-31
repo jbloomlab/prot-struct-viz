@@ -7,6 +7,7 @@ import pytest
 from prot_struct_viz._config import InputError
 from prot_struct_viz.structure import (
     addressable_residues,
+    assembly_instance_transforms,
     assembly_names,
     get_assembly_chains,
     get_deposited_residues,
@@ -73,7 +74,7 @@ def test_residue_counts_cover_every_residue(structure, deposited):
 def test_chain_subset(structure):
     subset = get_deposited_residues(structure, ["B"])
     assert {chain for chain, _ in subset} == {"B"}
-    assert residue_counts(structure, ["B"]) == {"B": 7}
+    assert len(subset) == 7
 
 
 def test_unknown_chain_is_fatal(structure):
@@ -88,9 +89,51 @@ def test_assembly_chains(structure):
     assert get_assembly_chains(structure, "au") is None
 
 
-def test_unknown_assembly_is_fatal(structure):
+@pytest.mark.parametrize(
+    "function", [get_assembly_chains, assembly_instance_transforms]
+)
+def test_unknown_assembly_is_fatal(structure, function):
+    """Both entry points into an assembly report it the same way."""
     with pytest.raises(InputError, match="not defined by this structure"):
-        get_assembly_chains(structure, "7")
+        function(structure, "7")
+
+
+def test_gzipped_local_file_is_decompressed(tmp_path, fixture_cif):
+    """`.gz` is transparent, and the format comes from the suffix underneath it."""
+    import gzip
+
+    path = tmp_path / "1f8b.cif.gz"
+    with gzip.open(path, "wt", encoding="utf-8") as handle:
+        handle.write(fixture_cif.read_text())
+    text, fmt = resolve_structure(str(path))
+    assert fmt == "mmcif"
+    assert len(get_deposited_residues(load_structure(text, fmt))) > 0
+
+
+def test_pdb_format_is_read(tmp_path, structure, deposited):
+    """PDB files carry no entities, so classification falls back to the component.
+
+    Every addressable residue must still be reachable under the same author key,
+    since that is what a CSV written against the mmCIF would name.
+    """
+    path = tmp_path / "1f8b.pdb"
+    structure.write_pdb(str(path))
+    text, fmt = resolve_structure(str(path))
+    assert fmt == "pdb"
+    from_pdb = get_deposited_residues(load_structure(text, fmt))
+    assert addressable_residues(deposited) <= addressable_residues(from_pdb)
+
+
+def test_unknown_format_is_fatal(coordinate_text):
+    with pytest.raises(InputError, match="unknown coordinate format"):
+        load_structure(coordinate_text, "sdf")
+
+
+def test_unknown_suffix_is_fatal(tmp_path):
+    path = tmp_path / "coords.xyz"
+    path.write_text("nope\n")
+    with pytest.raises(InputError, match="cannot tell the format"):
+        resolve_structure(str(path))
 
 
 def test_no_models_is_fatal():

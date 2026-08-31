@@ -15,18 +15,13 @@ import dataclasses
 import pathlib
 import re
 
-import pandas as pd
-
-from ._colors import CSS_COLORS
-from ._config import REPRESENTATIONS, InputError
+from ._config import REPRESENTATIONS, InputError, normalize_color
 
 #: ``(chain, residue)``, where residue is a string carrying any insertion code.
 ResidueKey = tuple[str, str]
 
 #: An author residue number with an optional single-letter insertion code.
 RESIDUE_RE = re.compile(r"^(-?\d+)([A-Za-z]?)$")
-
-_HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -58,38 +53,6 @@ class ColoringData:
     specs: list[ResidueSpec]
 
 
-def normalize_color(value: str) -> str:
-    """Normalize a hex or CSS/X11 named color to lowercase ``#rrggbb``.
-
-    Parameters
-    ----------
-    value
-        A hex color (``#abc`` or ``#aabbcc``) or a CSS color name (``red``).
-
-    Returns
-    -------
-    str
-        The color as ``#rrggbb``.
-
-    Raises
-    ------
-    InputError
-        If the value is not a recognized color.
-    """
-    text = value.strip()
-    if _HEX_RE.match(text):
-        digits = text[1:].lower()
-        if len(digits) == 3:
-            digits = "".join(c * 2 for c in digits)
-        return f"#{digits}"
-    named = CSS_COLORS.get(text.lower())
-    if named is not None:
-        return named
-    raise InputError(
-        f"{value!r} is not a valid color: use hex (#1f77b4) or a CSS color name (red)"
-    )
-
-
 def split_residue(residue: str) -> tuple[int, str]:
     """Split a residue string into its author number and insertion code.
 
@@ -109,29 +72,42 @@ def keys(coloring: ColoringData) -> set[ResidueKey]:
     return {spec.key for spec in coloring.specs}
 
 
-def _read_header(path: pathlib.Path) -> list[str]:
-    """The raw header row, so duplicate column names can be caught."""
-    with open(path, newline="", encoding="utf-8") as f:
-        for row in csv.reader(f):
-            return [cell.strip() for cell in row]
-    raise InputError(f"{path} is empty")
+def _read_table(path: pathlib.Path) -> tuple[list[str], list[tuple[int, dict]]]:
+    """Read a CSV as strings, returning its header and its rows with line numbers.
 
-
-def _read_table(path: pathlib.Path) -> pd.DataFrame:
-    """Read a CSV with every cell a string and blanks as ``""``.
-
-    Reading as strings is what keeps residue numbers from being coerced to
-    integers, which would silently drop insertion codes.
+    Every cell stays a string and a blank cell stays ``""``: nothing is coerced,
+    which is what keeps a residue number from losing an insertion code or a
+    leading zero. The line number comes from the reader rather than being counted,
+    so a blank line in the middle of a file cannot shift the numbers an error
+    message quotes.
     """
     if not path.is_file():
         raise InputError(f"no such file: {path}")
-    header = _read_header(path)
-    duplicated = sorted({c for c in header if header.count(c) > 1})
-    if duplicated:
-        raise InputError(f"{path}: duplicate column name(s): {duplicated}")
-    frame = pd.read_csv(path, dtype=str, keep_default_na=False)
-    frame.columns = [str(c).strip() for c in frame.columns]
-    return frame
+    # utf-8-sig so a file saved by Excel does not arrive with a BOM welded to the
+    # first column name.
+    with open(path, newline="", encoding="utf-8-sig") as handle:
+        reader = csv.reader(handle)
+        try:
+            header = [cell.strip() for cell in next(reader)]
+        except StopIteration:
+            raise InputError(f"{path} is empty") from None
+        duplicated = sorted({c for c in header if header.count(c) > 1})
+        if duplicated:
+            raise InputError(f"{path}: duplicate column name(s): {duplicated}")
+
+        rows: list[tuple[int, dict]] = []
+        for cells in reader:
+            if not cells:
+                continue  # a blank line separating blocks of rows
+            if len(cells) > len(header):
+                raise InputError(
+                    f"{path}: line {reader.line_num} has {len(cells)} fields but "
+                    f"the header names {len(header)} column(s)"
+                )
+            # A short row is padded, so a trailing optional column may be absent.
+            padded = [*cells, *[""] * (len(header) - len(cells))]
+            rows.append((reader.line_num, dict(zip(header, padded))))
+    return header, rows
 
 
 def _parse_bool(value: str, line: int) -> bool:
@@ -192,9 +168,9 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
         offending lines are reported together rather than one at a time.
     """
     path = pathlib.Path(path)
-    frame = _read_table(path)
+    header, table = _read_table(path)
 
-    missing = [c for c in ("chain", "residue", "color") if c not in frame.columns]
+    missing = [c for c in ("chain", "residue", "color") if c not in header]
     if missing:
         raise InputError(f"{path}: missing required column(s): {missing}")
 
@@ -202,12 +178,11 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
     specs: list[ResidueSpec] = []
     seen: dict[ResidueKey, int] = {}
 
-    for offset, row in enumerate(frame.to_dict("records")):
-        line = offset + 2  # +1 for the header, +1 for 1-based line numbers
+    for line, row in table:
         row_problems: list[str] = []
 
-        chain = str(row["chain"]).strip()
-        residue = str(row["residue"]).strip()
+        chain = row["chain"].strip()
+        residue = row["residue"].strip()
         for name, value in (("chain", chain), ("residue", residue)):
             if value == "":
                 row_problems.append(
@@ -221,7 +196,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
                 row_problems.append(f"line {line}, column 'residue': {err}")
 
         color = ""
-        raw = str(row["color"]).strip()
+        raw = row["color"].strip()
         if raw == "":
             row_problems.append(f"line {line}, column 'color': required value is blank")
         else:
@@ -230,10 +205,10 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
             except InputError as err:
                 row_problems.append(f"line {line}, column 'color': {err}")
 
-        label = str(row.get("label", "")).strip() or None
+        label = row.get("label", "").strip() or None
 
         try:
-            show_label = _parse_bool(str(row.get("show_label", "")), line)
+            show_label = _parse_bool(row.get("show_label", ""), line)
         except InputError as err:
             row_problems.append(str(err))
             show_label = False
@@ -243,7 +218,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
                 "persistent label needs text to draw"
             )
 
-        representation = str(row.get("representation", "")).strip() or None
+        representation = row.get("representation", "").strip() or None
         if representation is not None and representation not in REPRESENTATIONS:
             row_problems.append(
                 f"line {line}, column 'representation': {representation!r} is not "
@@ -251,7 +226,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
             )
             representation = None
 
-        label_color = str(row.get("label_color", "")).strip() or None
+        label_color = row.get("label_color", "").strip() or None
         if label_color is not None:
             try:
                 label_color = normalize_color(label_color)
@@ -260,7 +235,7 @@ def parse_csv(path: pathlib.Path) -> ColoringData:
                 label_color = None
 
         try:
-            label_size = _parse_label_size(str(row.get("label_size", "")), line)
+            label_size = _parse_label_size(row.get("label_size", ""), line)
         except InputError as err:
             row_problems.append(str(err))
             label_size = None
@@ -306,17 +281,16 @@ def parse_chain_representations(path: pathlib.Path) -> dict[str, str]:
         `prot_struct_viz._config.REPRESENTATIONS`.
     """
     path = pathlib.Path(path)
-    frame = _read_table(path)
-    missing = [c for c in ("chain", "representation") if c not in frame.columns]
+    header, table = _read_table(path)
+    missing = [c for c in ("chain", "representation") if c not in header]
     if missing:
         raise InputError(f"{path}: missing required column(s): {missing}")
 
     problems: list[str] = []
     overrides: dict[str, str] = {}
-    for offset, row in enumerate(frame.to_dict("records")):
-        line = offset + 2
-        chain = str(row["chain"]).strip()
-        representation = str(row["representation"]).strip()
+    for line, row in table:
+        chain = row["chain"].strip()
+        representation = row["representation"].strip()
         if chain == "":
             problems.append(f"line {line}, column 'chain': required value is blank")
             continue

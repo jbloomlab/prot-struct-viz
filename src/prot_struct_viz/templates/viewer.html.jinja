@@ -104,6 +104,8 @@ view now on screen.">Copy camera</button>
     var payload = document.getElementById('mvsx-payload').textContent.trim();
     var VIEWS = {{ views | map(attribute='slug') | list | tojson }};
     var NAMES = {{ views | map(attribute='name') | list | tojson }};
+    // MVS refs, built by viewer.view_ref so the format lives in one place.
+    var REFS = {{ views | map(attribute='ref') | list | tojson }};
     // Per view: a camera snapshot to move to, or null to leave the camera alone.
     var ORIENTATIONS = {{ views | map(attribute='orientation') | list | tojson }};
     var CAMERA_MS = 400;
@@ -155,6 +157,8 @@ view now on screen.">Copy camera</button>
         viewportShowSelectionMode: true,
         viewportShowAnimation: false
     }).then(function (viewer) {
+        // Deliberately global: docs/spec.md tells an author to reach the raw camera
+        // through `viewer.plugin.canvas3d.camera.getSnapshot()` in the console.
         window.viewer = viewer;
 
         // MVS attaches per-residue color to each representation it creates, so a
@@ -211,8 +215,8 @@ view now on screen.">Copy camera</button>
             var state = viewer.plugin.state.data;
             var util = molstar.PluginExtensions.mvs.util;
             var owner = {};
-            VIEWS.forEach(function (slug) {
-                var found = util.queryMVSRef(viewer.plugin, 'view:' + slug);
+            VIEWS.forEach(function (slug, index) {
+                var found = util.queryMVSRef(viewer.plugin, REFS[index]);
                 if (!found || !found.length) {
                     console.warn('prot-struct-viz: no cell tagged for view ' + slug);
                     return;

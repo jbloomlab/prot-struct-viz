@@ -75,7 +75,7 @@ class ValidationReport:
         for chain, residue in sorted(self.csv_targets_water, key=sort_key):
             lines.append(
                 f"  {chain}/{residue} targets a water residue; waters are not "
-                "individually addressable, use --waters"
+                "individually addressable, use the view's 'waters' key"
             )
 
         lines.append("")
@@ -107,12 +107,11 @@ def validate(
     coloring: ColoringData,
     deposited: dict[ResidueKey, ResidueClass],
     assembly_chains: set[str] | None,
-    mode: str,
 ) -> ValidationReport:
     """Compare CSV keys against the deposited residues.
 
-    All three mismatch sets are always computed;
-    `ValidationReport.is_fatal` is what applies the mode.
+    All three mismatch sets are always computed; `ValidationReport.is_fatal` is
+    what applies the ``on_mismatch`` mode, and the only place that reads it.
 
     Parameters
     ----------
@@ -123,19 +122,11 @@ def validate(
         `prot_struct_viz.structure.get_deposited_residues`.
     assembly_chains
         Chains used by the chosen assembly, or ``None`` for the asymmetric unit.
-    mode
-        One of `prot_struct_viz._config.MISMATCH_MODES`. Validated here so
-        a bad mode fails before any work is done.
 
     Returns
     -------
     ValidationReport
     """
-    if mode not in MISMATCH_MODES:
-        raise InputError(
-            f"on_mismatch must be one of {list(MISMATCH_MODES)}, got {mode!r}"
-        )
-
     csv_keys = keys(coloring)
     addressable = addressable_residues(deposited)
 

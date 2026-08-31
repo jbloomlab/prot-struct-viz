@@ -19,11 +19,13 @@ commit of that submodule; update periodically with
   The `src/` layout needs `dev-mode-dirs = ["src"]` for editable installs to work.
 - **One input: the YAML spec.** `prot-struct-viz spec.yaml` is the whole CLI; there are
   no flags. `spec.load_spec` parses it into a `Spec` of `View`s, each a name, a CSV, and a
-  `ViewConfig`, and `render(spec)` takes it from there. Every option is described once in
-  `_config.OPTION_DOCS`, whose keys are also the spec's keys and `ViewConfig`'s field
-  names. Adding an option means a `ViewConfig` field, an `OPTION_DOCS` entry, and a row in
-  `docs/spec.md` — never a second description. `tests/test_docs.py` checks that every
-  `OPTION_DOCS` key reaches the reference page.
+  `ViewConfig`, and `render(spec)` takes it from there. A spec key, a `ViewConfig` field
+  name and a `docs/spec.md` row all use the same name; `spec.OPTION_KEYS` is that list,
+  built from the loader's own key tuples so it cannot fall behind them. **What an option
+  means is written once, in `docs/spec.md`** — the page a reader actually gets — and
+  nowhere in the source. Adding an option means a `ViewConfig` field, an entry in the
+  relevant `spec.py` key tuple, and a row in `docs/spec.md`; `tests/test_docs.py` checks
+  every key reaches that page.
 - **The spec format has no defaults, on purpose.** Every per-view key must be stated, so a
   spec is readable without knowing what the package would have filled in; YAML anchors are
   how repetition is removed, and the ignored top-level `definitions` key is where they
@@ -33,8 +35,9 @@ commit of that submodule; update periodically with
 - **A view is one MVS `structure` node, not one component.** Views share the `download`
   and `parse` nodes and nothing below them, because Mol\* collects `tooltip_from_uri` per
   structure node -- one shared node would merge every view's tooltips into one mouseover.
-  Each structure node carries `ref="view:<slug>"`, which Mol\* exposes as the cell tag
-  `mvs-ref:view:<slug>`; the page resolves it with
+  Each structure node carries a ref built by `viewer.view_ref` — the only place that
+  format is written — which Mol\* exposes as the cell tag `mvs-ref:<ref>`. The refs are
+  passed to the template rather than rebuilt there; the page resolves one with
   `PluginExtensions.mvs.util.queryMVSRef` and walks the subtree to show or hide it.
   MolViewSpec has no way to mark a node hidden on load, so the initial hide is done in JS
   after the load, alongside the Labels checkbox and under one combined rule.
@@ -45,9 +48,11 @@ commit of that submodule; update periodically with
   token. The page writes the fragment back with `history.replaceState` so Back keeps
   leaving the page, and because replaceState fires no `hashchange` the listener needs no
   guard against the page's own writes.
-- **Allowed values live in `_config.py`.** `REPRESENTATIONS`, `MISMATCH_MODES`, and the
-  heteroatom flag choices are defined once and imported by the parser, the CLI, and the
-  renderer. Do not restate a set of allowed values anywhere else.
+- **Defaults and allowed values live in `_config.py`**, each written once and imported
+  by the parser and the renderer -- `REPRESENTATIONS`, `MISMATCH_MODES`,
+  `MOLSTAR_UI_MODES`, `HETERO_FLAG_CHOICES`, and the `DEFAULT_*` constants. Do not
+  restate a default or a set of allowed values anywhere else, including in a dataclass
+  field default that could name the constant instead.
 - **Docstring style is NumPy** (Parameters / Returns with the `----------` underline), to
   match `mkdocs.yml`'s `docstring_style: numpy`.
 - **Author numbering throughout.** Residues are keyed `(auth_asym_id, "<num><icode>")`
@@ -62,15 +67,15 @@ commit of that submodule; update periodically with
 - **Record user-facing changes in `CHANGELOG.md`** under `## [Unreleased]` as you make
   them, in [Keep a Changelog](https://keepachangelog.com/) format.
 - **`docs/` is the single source; `README.md` is a front door.** New reference material
-  goes in `docs/` and is linked from the README, never written into both. The two prose
-  copies that preceded this rule had already drifted in four places.
+  goes in `docs/` and is linked from the README, never written into both. Two prose
+  copies of the same thing drift, and the drift is invisible until a reader hits it.
 - **Escape `Mol\*` in every Markdown file.** Python-Markdown -- unlike CommonMark, whose
   flanking rules reject it -- pairs a bare `Mol*` with the next `*` in the same paragraph
   and silently italicizes the wrong span. `tests/test_docs.py` enforces this.
 - **Test the docs mechanically, never editorially.** A check in `tests/test_docs.py` earns
   its place only if it catches a *silent* breakage that nothing else already enforces --
   the `Mol\*` escape, a `blob/main/` link to a path that no longer exists, an
-  `OPTION_DOCS` key that never reached `docs/spec.md`. Never assert that a particular
+  `OPTION_KEYS` entry that never reached `docs/spec.md`. Never assert that a particular
   sentence, link or count is present: that pins an editorial choice, so shortening a page
   fails a test with nothing actually wrong. A negative control belongs on the regex, with
   a synthetic string -- not on the live prose. Anchors are `mkdocs build --strict`'s job
@@ -104,15 +109,13 @@ commit of that submodule; update periodically with
   no structure-level or global color node. `tooltip_from_uri` and the label primitives
   attach to the structure and do survive. The template's **Reset view** button reloads the
   state from the payload still in the DOM, which is the only way back. Do not describe the
-  Mol\* UI as freely editable without this caveat; `docs/internals.md` once did.
+  Mol\* UI as freely editable without this caveat.
 - **Releases are tag-driven.** Push a `v*` tag matching `pyproject.toml`'s `version` and
   `release.yml` publishes to PyPI by trusted publishing (OIDC, no stored token). The
   recipe is in that workflow's header comment.
 - **Structures fetched from RCSB are not cached**, deliberately: only the coordinate text
   is used, so a cache bought one HTTP request in exchange for a stale-file failure mode.
-  A local path as `structure` is the escape hatch. Relatedly, never put
-  `show_default=True` on a click option whose default is home-relative -- `mkdocs-click`
-  would bake the docs builder's `$HOME` into the published CLI reference.
+  A local path as `structure` is the escape hatch.
 
 ## Mol\* / MolViewSpec (read this before writing any viewer code)
 

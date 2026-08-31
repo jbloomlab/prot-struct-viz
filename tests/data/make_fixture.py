@@ -1,11 +1,11 @@
 """Trim the deposited 1F8B mmCIF down to the test fixture.
 
 Run by hand, not by the test suite; its output (``1f8b_trimmed.cif``) is
-committed. Keeps all polymer, glycan, ligand, and ion residues and only the
-first few waters, so the fixture exercises every residue class and the
-insertion-coded sites while staying small.
+committed. Drops every water past the first ``KEEP_WATERS`` and rewrites the
+file with gemmi, keeping everything else -- so the fixture still exercises every
+residue class and the insertion-coded sites while staying small.
 
-    python tests/data/_make_fixture.py <deposited 1F8B.cif> tests/data/1f8b_trimmed.cif
+    python tests/data/make_fixture.py <deposited 1F8B.cif> tests/data/1f8b_trimmed.cif
 """
 
 import sys

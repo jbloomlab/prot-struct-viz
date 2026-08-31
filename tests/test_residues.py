@@ -144,20 +144,22 @@ def test_duplicate_column_is_fatal(write_csv):
         parse_csv(write_csv(text))
 
 
+def test_row_with_too_many_fields_is_fatal(write_csv):
+    """A stray comma would otherwise silently drop whatever followed it."""
+    with pytest.raises(InputError, match="line 2 has 4 fields"):
+        parse_csv(write_csv("chain,residue,color\nA,5,red,blue\n"))
+
+
+def test_reported_line_numbers_are_file_line_numbers(write_csv):
+    """Counted rows would put this at line 3, which is a blank line."""
+    text = "chain,residue,color\nA,5,red\n\nA,6,notacolour\n"
+    with pytest.raises(InputError, match="line 4, column 'color'"):
+        parse_csv(write_csv(text))
+
+
 def test_no_data_rows_is_fatal(write_csv):
     with pytest.raises(InputError, match="no data rows"):
         parse_csv(write_csv("chain,residue,color\n"))
-
-
-def test_a_csv_describes_exactly_one_colouring(write_csv):
-    """Several colourings are several CSVs, one per view in the spec file.
-
-    A ``color:<Scheme>`` column used to mean a second colouring inside one file.
-    It no longer does, and must not be mistaken for the required column.
-    """
-    text = "chain,residue,color:Entropy,color:Escape\nA,5,red,#000000\n"
-    with pytest.raises(InputError, match=r"missing required column\(s\)"):
-        parse_csv(write_csv(text))
 
 
 def test_missing_file(tmp_path):

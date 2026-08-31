@@ -15,9 +15,10 @@ The exception is keys whose absence is itself the answer. ``chains`` omitted
 means every chain, ``title_md`` omitted means no caption, ``chain_representation``
 omitted means no per-chain overrides. There is nothing for the author to say.
 
-Key names are the field names of `prot_struct_viz.ViewConfig` and the keys of
-`prot_struct_viz._config.OPTION_DOCS`, so the spec file, the Python API, and the
-docs cannot drift apart about what an option means.
+Key names are the field names of `prot_struct_viz.ViewConfig`, so the spec file
+and the Python API cannot drift apart about what an option is called. `OPTION_KEYS`
+is every one of them, and ``tests/test_docs.py`` checks each reaches the reference
+page -- an option nobody documented is an option nobody can use.
 """
 
 from __future__ import annotations
@@ -28,17 +29,22 @@ import re
 
 import yaml
 
-from ._config import InputError, ViewConfig
+from ._config import (
+    DEFAULT_MOLSTAR_UI,
+    DEFAULT_VIEWER_HEIGHT,
+    MOLSTAR_UI_MODES,
+    InputError,
+    ViewConfig,
+)
 
 #: Top-level keys every spec must give.
 SHARED_KEYS = ("structure", "out", "assembly", "on_mismatch")
 
-#: Top-level keys that may be omitted. These describe the page rather than the
-#: view -- how tall the viewport is, whether Mol*'s own panels start open -- and
-#: they default to what the package did before they existed, so adding one to the
-#: format does not invalidate a spec written without it. The no-defaults rule is
-#: about *views*: a view has to describe itself, because that is what makes a spec
-#: readable on its own.
+#: Top-level keys that may be omitted. These describe the *page* -- how tall the
+#: viewport is, whether Mol*'s own panels start open -- rather than what is drawn,
+#: so a spec that says nothing about them is still a complete description of the
+#: figure. The no-defaults rule is about views: a view has to describe itself,
+#: because that is what makes a spec readable on its own.
 OPTIONAL_SHARED_KEYS = ("viewer_height", "molstar_ui")
 
 #: Lengths the viewer height may be given in. Anything else is a typo, and a typo
@@ -71,6 +77,16 @@ OPTIONAL_VIEW_KEYS = ("chains", "chain_representation", "title_md", "orientation
 #: ``up`` and ``radius`` have sensible fallbacks, so a hand-written orientation can
 #: give just the two that matter.
 ORIENTATION_KEYS = ("position", "target", "up", "radius")
+
+#: Every key a spec may carry, `DEFINITIONS_KEY` aside -- built from the tuples
+#: above rather than listed again, so it cannot fall behind them.
+OPTION_KEYS = (
+    *SHARED_KEYS,
+    *OPTIONAL_SHARED_KEYS,
+    "views",
+    *REQUIRED_VIEW_KEYS,
+    *OPTIONAL_VIEW_KEYS,
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -127,8 +143,8 @@ class Spec:
     views: tuple[View, ...]
     assembly: str = "au"
     on_mismatch: str = "report"
-    viewer_height: str = "70vh"
-    molstar_ui: str = "show"
+    viewer_height: str = DEFAULT_VIEWER_HEIGHT
+    molstar_ui: str = DEFAULT_MOLSTAR_UI
 
 
 def _slug(name: str) -> str:
@@ -138,10 +154,7 @@ def _slug(name: str) -> str:
     in both a zip path and a Mol* cell tag.
     """
     kept = [character if character.isalnum() else "-" for character in name.lower()]
-    slug = "".join(kept).strip("-")
-    while "--" in slug:
-        slug = slug.replace("--", "-")
-    return slug
+    return re.sub(r"-+", "-", "".join(kept)).strip("-")
 
 
 def _require_mapping(value, what: str, path: pathlib.Path) -> dict:
@@ -217,11 +230,14 @@ def _parse_orientation(value, where: str, path: pathlib.Path) -> Orientation:
         isinstance(radius, bool) or not isinstance(radius, (int, float))
     ):
         raise InputError(f"{path}: {where} orientation radius must be a number")
+    # `up` omitted falls through to Orientation's own default rather than
+    # restating it here.
+    optional_up = {"up": _vec3(raw["up"], "up", where, path)} if "up" in raw else {}
     return Orientation(
         position=_vec3(raw["position"], "position", where, path),
         target=_vec3(raw["target"], "target", where, path),
-        up=_vec3(raw["up"], "up", where, path) if "up" in raw else (0.0, 1.0, 0.0),
         radius=None if radius is None else float(radius),
+        **optional_up,
     )
 
 
@@ -325,7 +341,7 @@ def load_spec(path: str | pathlib.Path) -> Spec:
         )
 
     for attribute, label in (("name", "name"), ("slug", "name (once simplified)")):
-        seen = {}
+        seen: set[str] = set()
         for view in views:
             value = getattr(view, attribute)
             if value in seen:
@@ -333,7 +349,7 @@ def load_spec(path: str | pathlib.Path) -> Spec:
                     f"{path}: two views share the {label} {value!r}; the selector "
                     "would not be able to tell them apart"
                 )
-            seen[value] = True
+            seen.add(value)
 
     structure = document["structure"]
     if not isinstance(structure, str) or not structure.strip():
@@ -342,9 +358,10 @@ def load_spec(path: str | pathlib.Path) -> Spec:
 
     # assembly and on_mismatch are shared, so they are stamped onto every view's
     # config rather than left at the placeholder _build_view used. That keeps a
-    # View's config a complete, truthful description of how that view is built,
-    # and ViewConfig does the validating -- it is the only place that knows the
-    # allowed assemblies and mismatch modes.
+    # View's config a complete, truthful description of how that view is built.
+    # ViewConfig validates on_mismatch, being the only place that knows the allowed
+    # modes; `assembly` cannot be checked without the structure, so it is checked
+    # by structure.get_assembly_chains once the entry has been read.
     on_mismatch = document["on_mismatch"]
     views = tuple(
         dataclasses.replace(
@@ -356,16 +373,17 @@ def load_spec(path: str | pathlib.Path) -> Spec:
         for view in views
     )
 
-    viewer_height = str(document.get("viewer_height", "70vh")).strip()
+    viewer_height = str(document.get("viewer_height", DEFAULT_VIEWER_HEIGHT)).strip()
     if not _CSS_LENGTH.match(viewer_height):
         raise InputError(
             f"{path}: viewer_height {viewer_height!r} is not a CSS length; use a "
             "number with one of px, rem, em, vh, %"
         )
-    molstar_ui = document.get("molstar_ui", "show")
-    if molstar_ui not in ("show", "hide"):
+    molstar_ui = document.get("molstar_ui", DEFAULT_MOLSTAR_UI)
+    if molstar_ui not in MOLSTAR_UI_MODES:
         raise InputError(
-            f"{path}: molstar_ui must be one of ['show', 'hide'], got {molstar_ui!r}"
+            f"{path}: molstar_ui must be one of {list(MOLSTAR_UI_MODES)}, got "
+            f"{molstar_ui!r}"
         )
 
     return Spec(

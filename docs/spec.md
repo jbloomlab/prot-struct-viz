@@ -79,7 +79,7 @@ Required in every view:
 | --- | --- |
 | `name` | Label for this view in the selector. Must be unique. |
 | `csv` | Residue color/label/representation table for this view. See the [CSV schema](csv-schema.md). |
-| `default_color` | Color for structure residues that have no CSV row. |
+| `default_color` | Color for structure residues that have no CSV row. Hex or a CSS color name, same as the CSV's `color` column. |
 | `default_representation` | Base representation for the whole displayed polymer: `cartoon`, `ball-and-stick`, `spacefill`, `surface`, or `carbohydrate`. |
 | `waters` | `show` or `hide`. Waters are not individually addressable from the CSV. |
 | `ligands` | `show` or `hide` ligands not named in the CSV (element-colored ball-and-stick). |

@@ -49,28 +49,23 @@ def write_csv(tmp_path):
 def make_spec(fixture_cif):
     """A `Spec` over the fixture structure, for tests that call ``render``.
 
-    Views are given as ``(name, csv_path)`` pairs or as ready-made `View`s, so a
-    test can say "two views" without restating what a view is.
+    Views are given as ``(name, csv_path)`` pairs, so a test can say "two views"
+    without restating what a view is. Use `dataclasses.replace` on the result to
+    vary anything else.
     """
 
     def _make(views, out, *, structure=None, assembly="au", on_mismatch="report"):
-        built = []
-        for view in views:
-            if isinstance(view, View):
-                built.append(view)
-                continue
-            name, csv = view
-            built.append(
+        return Spec(
+            structure=str(structure or fixture_cif),
+            out=pathlib.Path(out),
+            views=tuple(
                 View(
                     name=name,
                     csv=pathlib.Path(csv),
                     config=ViewConfig(assembly=assembly, on_mismatch=on_mismatch),
                 )
-            )
-        return Spec(
-            structure=str(structure or fixture_cif),
-            out=pathlib.Path(out),
-            views=tuple(built),
+                for name, csv in views
+            ),
             assembly=assembly,
             on_mismatch=on_mismatch,
         )
