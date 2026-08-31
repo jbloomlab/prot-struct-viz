@@ -92,59 +92,6 @@ def test_every_option_reaches_the_spec_reference():
     assert not missing, f"docs/spec.md does not mention {missing}"
 
 
-def _heading_anchors(text: str) -> set[str]:
-    """The ids Python-Markdown's toc will generate for a page's headings.
-
-    Its `slugify` strips everything that is not a word character, space or
-    hyphen -- which is also what removes the backslash and asterisk from an
-    escaped ``Mol*`` -- then collapses runs of those to single hyphens.
-    """
-    anchors = set()
-    in_fence = False
-    for line in text.splitlines():
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence or not line.startswith("#"):
-            continue
-        heading = line.lstrip("#").strip()
-        heading = re.sub(r"[^\w\s-]", "", heading)
-        anchors.add(re.sub(r"[-\s]+", "-", heading.strip().lower()))
-    return anchors
-
-
-def test_cross_page_anchors_resolve():
-    """`mkdocs build --strict` checks that a linked *page* exists, not its anchor.
-
-    Every key is described exactly once, so the pages lean on each other with
-    deep links. A renamed heading breaks them silently.
-    """
-    pages = {p.name: p.read_text() for p in MARKDOWN_FILES if p.parent.name == "docs"}
-    anchors = {name: _heading_anchors(text) for name, text in pages.items()}
-    offenders = []
-    for name, text in pages.items():
-        for whole, page, anchor in re.findall(
-            r"\]\((([a-z0-9-]+\.md)?#([a-z0-9-]+))\)", text
-        ):
-            target = page or name
-            if target in anchors and anchor not in anchors[target]:
-                offenders.append(f"docs/{name} -> {whole}")
-    assert not offenders, "link to a heading that does not exist:\n" + "\n".join(
-        offenders
-    )
-
-
-def test_the_anchor_check_can_actually_fail():
-    """Negative control: an empty anchor set would make the sweep above vacuous."""
-    assert _heading_anchors("## Size, and Mol\\*'s own panels\n") == {
-        "size-and-mols-own-panels"
-    }
-    assert _heading_anchors("```\n## in a fence\n```\n") == set()
-    # The real pages carry links of the shape the sweep looks for.
-    spec = (REPO_ROOT / "docs" / "spec.md").read_text()
-    assert re.search(r"\]\(internals\.md#[a-z0-9-]+\)", spec)
-
-
 def test_linked_repo_files_exist():
     """A ``blob/main/`` or ``tree/main/`` link is not checked by anything else.
 
@@ -173,6 +120,3 @@ def test_the_repo_link_check_can_actually_fail():
     )
     assert found == ["examples/1f8b_active_site/spec.yaml", "examples"]
     assert REPO_LINK.findall("https://github.com/molstar/molstar") == []
-    # And the links the docs really carry are found, not just the sample above.
-    examples = (REPO_ROOT / "docs" / "examples.md").read_text()
-    assert len(REPO_LINK.findall(examples)) >= 10

@@ -24,6 +24,14 @@ markdown_extensions:
   - tables
   - pymdownx.superfences
 
+# Every key is described exactly once, so the pages lean on each other with deep
+# links. MkDocs logs a broken anchor at `info` by default, which --strict ignores;
+# at `warn` it fails the build. Anchors are resolved from the rendered HTML, so
+# this covers the mkdocstrings headings on python-api.md too.
+validation:
+  links:
+    anchors: warn
+
 plugins:
   - search
   - mkdocstrings:

@@ -6,12 +6,8 @@ The whole input is one YAML file:
 prot-struct-viz spec.yaml
 ```
 
-There are no other options. Everything is a key in the spec, which means a rendered
-page has one reviewable, version-controllable description rather than a shell command
-someone has to reconstruct.
-
-Paths inside a spec — `csv`, `out`, `title_md`, `chain_representation` — resolve
-relative to the spec file, not to the working directory. A spec and its inputs are a
+Paths inside a spec (`csv`, `out`, `title_md`, `chain_representation`) resolve
+relative to the spec file, not to the working directory, making a spec and its inputs a
 directory you can move or copy.
 
 ## Shape
@@ -42,47 +38,38 @@ views:
     default_representation: cartoon
 ```
 
-## No defaults
+## Use YAML anchors for repeated elements
 
-**A view fills in nothing on your behalf.** Every key in the required list below must be
-present in every view, or the spec is rejected naming what is missing. The point is that
-a spec can be read on its own: what it says is what you get, with nothing to look up.
-
-Repetition is removed with [YAML anchors](https://yaml.org/spec/1.2.2/#3222-anchors-and-aliases),
-not with defaults — define the shared part once, merge it in with `<<:`, and override
-per view as above. The top-level `definitions` key exists only to give an anchor
-somewhere to live; the loader ignores it entirely.
+Most keys do not have defaults. Instead repetition is removed with
+[YAML anchors](https://yaml.org/spec/1.2.2/#3222-anchors-and-aliases): define the shared
+part once, merge it in with `<<:`, and override per view as above. The top-level
+`definitions` key exists only to give an anchor somewhere to live; the loader ignores it
+entirely.
 
 The exception is keys whose absence is itself the answer: `chains` omitted means every
 chain, `title_md` omitted means no caption, `chain_representation` omitted means no
-per-chain overrides. There is nothing for you to state.
+per-chain overrides.
 
 ## Top-level keys
 
-These four are required, alongside `views`.
+Required keys, alongside `views`.
 
 | Key | Meaning |
 | --- | --- |
-| `structure` | PDB ID to fetch from RCSB, or path to a local `.cif`/`.pdb` file (`.gz` is decompressed). Downloads are not cached; see [How it works](internals.md#structures-are-not-cached). |
+| `structure` | PDB ID to fetch from RCSB, or path to a local `.cif`/`.pdb` file (`.gz` is decompressed). |
 | `out` | Output HTML file. Must end in `.html`. The report is written beside it as `<stem>_report.txt`. |
 | `assembly` | `au` for the deposited asymmetric unit, or an assembly id such as `"1"`. Quote it: YAML would otherwise read `1` as a number. See [Assemblies](#assemblies). |
 | `on_mismatch` | What to do when a CSV's residue set and the structure's differ. See [Checking the CSV against the structure](#checking-the-csv-against-the-structure). |
 
-`views` is a non-empty list, in the order the page offers them. The first is shown on
-load. With one view the page renders no selector at all.
+`views` is a non-empty list of views, in the order the rendered page offers them. The
+first is shown on load. With one view the page renders no selector at all.
 
-These two are optional, and describe the page rather than any view:
+There are two optional top-level keys:
 
 | Key | Meaning |
 | --- | --- |
 | `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. The value is used exactly as written, so a viewport-relative height gives a short viewer on a short window. |
-| `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels — Structure Tools, the left panel, and the sequence strip — start open. `hide` means closed, not gone: the wrench in the viewport still opens them. |
-
-Both are about what the reader meets on the page, described in
-[The rendered page](viewer.md). They have defaults where per-view keys do not, and the
-distinction is deliberate: a view has to describe itself, because that is what makes a spec
-readable on its own, while these describe the page and default to what the package did
-before they existed.
+| `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels (Structure Tools, the left panel, and the sequence strip) start open or closed. Either way, the wrench in the viewport toggles them, so `hide` means closed, not unavailable. |
 
 ## Per-view keys
 
@@ -99,19 +86,14 @@ Required in every view:
 | `glycans` | `snfg` or `hide` for glycans not named in the CSV. A glycan named in the CSV is never drawn as an SNFG symbol. |
 | `ions` | `show` or `hide` ions not named in the CSV (element-colored spacefill). |
 
-Optional, where leaving the key out says something:
+Optional keys for every view:
 
 | Key | Meaning |
 | --- | --- |
 | `chains` | Deposited chain IDs this view displays, as a list (`[A, B]`) or a comma-separated string. Omit to display every chain. It is a display filter only: validation still runs against every deposited chain, and rows for excluded chains are reported as a warning rather than as mismatches. |
 | `chain_representation` | CSV with columns `chain,representation`, overriding the base representation for those chains. Omit for none. See below. |
-| `title_md` | Markdown file rendered into a caption below the viewer, shown while this view is on screen — a legend, or a link back to the source. It sits *under* the structure so the page opens on the view rather than on however many paragraphs the Markdown runs to. Omit for no caption. |
-| `orientation` | Where the camera sits for this view. Omit to leave the camera wherever the reader put it. See below. |
-
-Everything above is per view, so two views of one structure can differ in coloring,
-representation, labels, chains, which heteroatoms they draw, and where the camera sits.
-Only `structure`, `out`, `assembly` and `on_mismatch` are shared: every view draws the same
-molecule, in the same assembly, into the same page.
+| `title_md` | Markdown file rendered into a caption below the viewer, shown while this view is on screen. Omit for no caption. |
+| `orientation` | Initial orientation of the structure. See below for how to get your desired orientation. |
 
 ## Assemblies
 
@@ -119,7 +101,7 @@ molecule, in the same assembly, into the same page.
 
 | value | shows |
 | --- | --- |
-| `au` (default) | the deposited asymmetric unit, exactly as in the file |
+| `au` | the deposited asymmetric unit, exactly as in the file |
 | `1`, `2`, … | a biological assembly, using any id the entry defines |
 
 A CSV row applies to **every symmetry copy** of the chain it names, so a residue
@@ -183,9 +165,9 @@ a CSV row landing on a water gets a message pointing at `waters` rather than a g
 
 ## Orientation
 
-A view may pin its own camera. Switching to it then glides the camera there over about
-400 ms; switching to a view *without* an `orientation` does not move the camera at all,
-which is the default and the reason a view has to opt in.
+A view may pin its own camera orientation with the `orientation` key. Switching to it
+then glides the camera to that orientation; switching to a view *without* an
+`orientation` does not move the camera at all.
 
 ```yaml
 views:
@@ -199,45 +181,21 @@ views:
       radius: 76.1
 ```
 
-`position` and `target` are required. `up` defaults to `[0, 1, 0]`.
+`position` and `target` are required; `up` defaults to `[0, 1, 0]`, and `radius` may be
+omitted.
 
-**Zoom is the distance between `position` and `target`** — move the position further out
-and the structure gets smaller. `radius` is not the zoom: it sets the near and far clipping
-planes and where the depth fog begins, and omitting it leaves those to Mol\*'s fit of the
-scene. Nothing else belongs here — field of view and the rest are properties of the scene,
-and pinning them in a spec only makes a view behave oddly on a structure of a different
-size.
-
-If the **first** view has an orientation it is also written into the MolViewSpec state, so
-the page opens facing the right way rather than on Mol\*'s default fit of the scene. That
-node is only a first paint: MolViewSpec reads its position as a *reference* camera and
-pushes it about a third further out, so the page re-applies the orientation itself once the
-structure has loaded. What you see is the orientation as written.
-
-### Capturing one
-
-You are not expected to write those numbers. Get them from a rendered page:
+You are not expected to write out the `orientation` by hand. Instead, get it from a
+rendered page after moving the structure to the orientation you want:
 
 1. Render the spec with the view listed but no `orientation` yet.
 2. Open the HTML and **add `#camera` to the end of the URL**, then reload. A **Copy
-   camera** button appears next to *Reset view*.
-3. Choose the view you are posing from the **View** selector, then rotate and zoom until
-   it looks right. To start on that view instead of clicking to it, open
-   `#view=<slug>&camera` — see [linking to a view](viewer.md#linking-to-a-view).
+   camera** button appears next to *Reset view*. If the URL already has a `#` because it
+   names a view, add `&camera` after it (`#view=<slug>&camera`).
+3. Select the view you are posing, then rotate and zoom with the mouse until it looks
+   right.
 4. Click **Copy camera**. The block is copied to your clipboard and also shown in a box
    below the controls, headed with the name of the view you are on.
-5. Paste it into that view in the spec, and re-render. The re-render reproduces the pose
-   you captured, so you can capture again from it and converge rather than drift.
-
-`camera` is a URL fragment token, so it is never sent anywhere and works the same over
-`file://`, a local server, or GitHub Pages. Nothing needs re-rendering to turn it on.
-Switching views keeps the token, but the page never adds one: a URL you copied off a page
-you were posing carries the view, and the button only appears for someone who asks for it.
-
-The box matters as much as the clipboard: a rendered page is usually opened over `file://`,
-which browsers do not treat as a secure context, so the clipboard API may be unavailable.
-The button tries it, falls back, and shows the text either way; the status line says which
-happened.
+5. Paste it into that view in the spec, and re-render to get the orientation you captured.
 
 If you prefer the console, `psvCamera()` returns the same block, and
 `viewer.plugin.canvas3d.camera.getSnapshot()` gives the raw camera.
