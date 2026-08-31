@@ -8,6 +8,7 @@ import pytest
 
 from prot_struct_viz import load_spec
 from prot_struct_viz._config import InputError
+from prot_struct_viz.spec import REQUIRED_VIEW_KEYS, SHARED_KEYS
 
 BASE = """definitions:
   base: &base
@@ -105,7 +106,7 @@ def test_shared_keys_are_stamped_onto_every_view(tmp_path):
     assert spec.views[0].config.on_mismatch == "report"
 
 
-@pytest.mark.parametrize("key", ["structure", "out", "assembly", "on_mismatch"])
+@pytest.mark.parametrize("key", SHARED_KEYS)
 def test_missing_shared_key_is_fatal(tmp_path, key):
     body = "\n".join(
         line for line in _minimal().splitlines() if not line.startswith(f"{key}:")
@@ -115,8 +116,7 @@ def test_missing_shared_key_is_fatal(tmp_path, key):
 
 
 @pytest.mark.parametrize(
-    "key",
-    ["default_color", "default_representation", "waters", "ligands", "glycans", "ions"],
+    "key", [k for k in REQUIRED_VIEW_KEYS if k not in ("name", "csv")]
 )
 def test_missing_view_key_is_fatal(tmp_path, key):
     """No defaults: a view states its options or the spec is rejected."""

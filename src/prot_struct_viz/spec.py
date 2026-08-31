@@ -15,9 +15,10 @@ The exception is keys whose absence is itself the answer. ``chains`` omitted
 means every chain, ``title_md`` omitted means no caption, ``chain_representation``
 omitted means no per-chain overrides. There is nothing for the author to say.
 
-Key names are the field names of `prot_struct_viz.ViewConfig` and the keys of
-`prot_struct_viz._config.OPTION_DOCS`, so the spec file, the Python API, and the
-docs cannot drift apart about what an option means.
+Key names are the field names of `prot_struct_viz.ViewConfig`, so the spec file
+and the Python API cannot drift apart about what an option is called. `OPTION_KEYS`
+is every one of them, and ``tests/test_docs.py`` checks each reaches the reference
+page -- an option nobody documented is an option nobody can use.
 """
 
 from __future__ import annotations
@@ -71,6 +72,16 @@ OPTIONAL_VIEW_KEYS = ("chains", "chain_representation", "title_md", "orientation
 #: ``up`` and ``radius`` have sensible fallbacks, so a hand-written orientation can
 #: give just the two that matter.
 ORIENTATION_KEYS = ("position", "target", "up", "radius")
+
+#: Every key a spec may carry, `DEFINITIONS_KEY` aside -- built from the tuples
+#: above rather than listed again, so it cannot fall behind them.
+OPTION_KEYS = (
+    *SHARED_KEYS,
+    *OPTIONAL_SHARED_KEYS,
+    "views",
+    *REQUIRED_VIEW_KEYS,
+    *OPTIONAL_VIEW_KEYS,
+)
 
 
 @dataclasses.dataclass(frozen=True)

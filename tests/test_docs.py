@@ -80,15 +80,15 @@ def test_the_molstar_check_can_actually_fail():
 
 
 def test_every_option_reaches_the_spec_reference():
-    """`OPTION_DOCS` is the option list; the reference page is where readers meet it.
+    """The loader knows every key; the reference page is where readers meet one.
 
-    A new option that never reaches the docs is invisible, and the spec format has
-    no ``--help`` to fall back on.
+    An option that never reaches the docs is invisible, and the spec format has no
+    ``--help`` to fall back on.
     """
-    from prot_struct_viz._config import OPTION_DOCS
+    from prot_struct_viz.spec import OPTION_KEYS
 
     reference = (REPO_ROOT / "docs" / "spec.md").read_text()
-    missing = [key for key in OPTION_DOCS if f"`{key}`" not in reference]
+    missing = [key for key in OPTION_KEYS if f"`{key}`" not in reference]
     assert not missing, f"docs/spec.md does not mention {missing}"
 
 

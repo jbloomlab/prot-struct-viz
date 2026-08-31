@@ -19,11 +19,13 @@ commit of that submodule; update periodically with
   The `src/` layout needs `dev-mode-dirs = ["src"]` for editable installs to work.
 - **One input: the YAML spec.** `prot-struct-viz spec.yaml` is the whole CLI; there are
   no flags. `spec.load_spec` parses it into a `Spec` of `View`s, each a name, a CSV, and a
-  `ViewConfig`, and `render(spec)` takes it from there. Every option is described once in
-  `_config.OPTION_DOCS`, whose keys are also the spec's keys and `ViewConfig`'s field
-  names. Adding an option means a `ViewConfig` field, an `OPTION_DOCS` entry, and a row in
-  `docs/spec.md` — never a second description. `tests/test_docs.py` checks that every
-  `OPTION_DOCS` key reaches the reference page.
+  `ViewConfig`, and `render(spec)` takes it from there. A spec key, a `ViewConfig` field
+  name and a `docs/spec.md` row all use the same name; `spec.OPTION_KEYS` is that list,
+  built from the loader's own key tuples so it cannot fall behind them. **What an option
+  means is written once, in `docs/spec.md`** — the page a reader actually gets — and
+  nowhere in the source. Adding an option means a `ViewConfig` field, an entry in the
+  relevant `spec.py` key tuple, and a row in `docs/spec.md`; `tests/test_docs.py` checks
+  every key reaches that page.
 - **The spec format has no defaults, on purpose.** Every per-view key must be stated, so a
   spec is readable without knowing what the package would have filled in; YAML anchors are
   how repetition is removed, and the ignored top-level `definitions` key is where they
