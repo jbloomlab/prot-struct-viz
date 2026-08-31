@@ -144,9 +144,7 @@ def render(spec: Spec) -> pathlib.Path:
             coloring = parse_csv(view.csv)
             reporter.log(f"CSV: {display_path(view.csv)}, {len(coloring.specs)} rows")
 
-            report = validate(
-                coloring, deposited_all, assembly_chains, spec.on_mismatch
-            )
+            report = validate(coloring, deposited_all, assembly_chains)
             reporter.write_validation(report)
             fatal = fatal or report.is_fatal(spec.on_mismatch)
 

@@ -342,9 +342,10 @@ def load_spec(path: str | pathlib.Path) -> Spec:
 
     # assembly and on_mismatch are shared, so they are stamped onto every view's
     # config rather than left at the placeholder _build_view used. That keeps a
-    # View's config a complete, truthful description of how that view is built,
-    # and ViewConfig does the validating -- it is the only place that knows the
-    # allowed assemblies and mismatch modes.
+    # View's config a complete, truthful description of how that view is built.
+    # ViewConfig validates on_mismatch, being the only place that knows the allowed
+    # modes; `assembly` cannot be checked without the structure, so it is checked
+    # by structure.get_assembly_chains once the entry has been read.
     on_mismatch = document["on_mismatch"]
     views = tuple(
         dataclasses.replace(
