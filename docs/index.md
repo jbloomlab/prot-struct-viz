@@ -1,11 +1,9 @@
 # prot-struct-viz
 
-Render a protein structure as a **self-contained static HTML file** using
-[Mol\*](https://molstar.org/), with residues colored, labeled, and styled from a CSV.
-
-Everything the view needs — coordinates, colors, tooltips, labels — is embedded in the
-one file, so it can be dropped on any static host with no backend. See the
-[examples](examples.md) for a live one.
+Render one or more views of a protein structure as a **self-contained static HTML file**
+using [Mol\*](https://molstar.org/), with residues colored, labeled, and styled from YAML
+and CSV configuration.
+See the [examples](examples.md) for an illustration.
 
 ## Install
 
@@ -13,7 +11,8 @@ one file, so it can be dropped on any static host with no backend. See the
 pip install prot-struct-viz
 ```
 
-Or from a checkout, which is also how you get the development and docs extras:
+Or, to develop the package, check out the latest code from
+[GitHub](https://github.com/jbloomlab/prot-struct-viz) and run:
 
 ```bash
 python3 -m venv .venv
@@ -51,6 +50,8 @@ views:
     ions: show
 ```
 
+Then simply run:
+
 ```bash
 prot-struct-viz spec.yaml
 ```
@@ -58,15 +59,11 @@ prot-struct-viz spec.yaml
 That writes `view.html` (the page) and `view_report.txt` (the progress log, and a report
 on any disagreement between the CSV and the structure).
 
-The spec is the whole input: there are no other flags. Every key is listed in the
-[spec reference](spec.md).
+See the [spec reference](spec.md) for details on how to write the YAML and CSV files.
 
 ## Several views of one structure
 
-A spec may list more than one view, and the page then offers a selector. Views are
-independent — each has its own CSV, colors, labels, representation, and heteroatom
-settings — but they share one structure and one camera, so switching between them
-does not move the view:
+A spec may list more than one view, and the page then offers a selector:
 
 ```yaml
 views:
@@ -81,13 +78,10 @@ views:
     # ... the rest of the required keys
 ```
 
-The format fills in no defaults: every view states its own options. Use a YAML anchor
-to say the shared part once.
-
 ## Sharing the view
 
-The output is a single file with no server side, so committing it to a repository with
-GitHub Pages enabled is all that is needed:
+The output is a single HTML file with no server side, so committing it to a repository
+with GitHub Pages enabled is all that is needed to share it:
 
 ```bash
 mkdir -p docs && cp view.html docs/
@@ -95,8 +89,8 @@ git add docs/view.html && git commit -m "Add structure view" && git push
 ```
 
 Set Pages to serve from `/docs` on the default branch, and the view is at
-`https://<org>.github.io/<repo>/view.html`. Add `#view=<name>` to point at one particular
-view of a multi-view page — see [linking to a view](viewer.md#linking-to-a-view).
+`https://<org>.github.io/<repo>/view.html`. Add `#view=<slug>` to point at one particular
+view of a multi-view page (see [linking to a view](viewer.md#linking-to-a-view)).
 
 ## Where to go next
 

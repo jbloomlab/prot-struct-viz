@@ -67,6 +67,15 @@ commit of that submodule; update periodically with
 - **Escape `Mol\*` in every Markdown file.** Python-Markdown -- unlike CommonMark, whose
   flanking rules reject it -- pairs a bare `Mol*` with the next `*` in the same paragraph
   and silently italicizes the wrong span. `tests/test_docs.py` enforces this.
+- **Test the docs mechanically, never editorially.** A check in `tests/test_docs.py` earns
+  its place only if it catches a *silent* breakage that nothing else already enforces --
+  the `Mol\*` escape, a `blob/main/` link to a path that no longer exists, an
+  `OPTION_DOCS` key that never reached `docs/spec.md`. Never assert that a particular
+  sentence, link or count is present: that pins an editorial choice, so shortening a page
+  fails a test with nothing actually wrong. A negative control belongs on the regex, with
+  a synthetic string -- not on the live prose. Anchors are `mkdocs build --strict`'s job
+  via `validation.links.anchors`, which resolves them from the rendered HTML and so covers
+  the mkdocstrings headings a hand-rolled slugify cannot see.
 - **Examples are spec-driven directories**: `examples/<name>/` holds the inputs plus
   `spec.yaml`, the literal input. `docs/examples.md` gives the command and *links* the
   input files rather than inlining them -- inlining made the page mostly verbatim YAML and
