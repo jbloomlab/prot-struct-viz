@@ -87,9 +87,7 @@ SITES = {
 #: of definitions do not actually assert.
 # Paul Tol's "muted" scheme, cool subset. Every one of these is cool, so on the
 # structure warm means "changed or added" -- the red of a mutated site, the gold
-# of a glycan -- and nothing else is close to MUTATED_COLOR. The assignment keeps
-# green and purple on the sites that already had them, so only the colors that
-# had to move got new names.
+# of a glycan -- and nothing else is close to MUTATED_COLOR.
 SITE_COLORS = {
     "Sa": "#332288",
     "Sb": "#88CCEE",

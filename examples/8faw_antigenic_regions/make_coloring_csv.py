@@ -61,7 +61,7 @@ POLYMER_CHAIN = "A"
 #: reducing end first. Naming a sugar in the CSV is what replaces its 3D-SNFG
 #: symbols with a plain colored ball-and-stick. Every sugar in the entry is named
 #: here -- the receptor analogue and the host N-glycans alike -- so nothing is
-#: left to the --glycans default.
+#: left to a view's `glycans` setting.
 RECEPTOR_CHAIN = "D"
 
 #: Antigenic sites A-E of H3 HA1, from Table 2 ("Amino acids assigned to
@@ -149,9 +149,7 @@ SITES = {
 #: gray used for the rest of the structure.
 # Paul Tol's "muted" scheme, cool subset. Every one of these is cool, so on the
 # structure warm means "changed or added" -- the red of a mutated site, the gold
-# of a glycan -- and nothing else is close to MUTATED_COLOR. The assignment keeps
-# green and purple on the sites that already had them, so only the colors that
-# had to move got new names.
+# of a glycan -- and nothing else is close to MUTATED_COLOR.
 SITE_COLORS = {
     "A": "#332288",
     "B": "#88CCEE",
@@ -167,9 +165,10 @@ HA2_COLOR = "#bdbdbd"
 RECEPTOR_COLOR = "#000000"
 GLYCAN_COLOR = "#ffd700"
 
-#: Sites that differ between the two HAs of a comparison. Deliberately site A's
-#: red from the palette above: these views drop the antigenic-region coloring
-#: entirely, so the two never appear on the same structure.
+#: Sites that differ between the two HAs of a comparison. Warm, where every
+#: `SITE_COLORS` entry is cool: the last three views drop the antigenic-region
+#: coloring, and the one of them that puts a region color back has to hold it
+#: apart from this.
 MUTATED_COLOR = "#e41a1c"
 
 #: HA1 222 and 223, drawn on top of a mutation list in one view. They are two of
@@ -422,14 +421,16 @@ def polymer_rows(polymer, numbering):
         if number in numbering:
             protein, site = numbering[number]
         else:
-            # The map stops one residue short of what 8FAW models. Extend it by
-            # its own constant HA2 offset rather than dropping the residue,
-            # which would leave the HA2 C-terminus uncolored and unlabeled.
+            # 8FAW models one residue past the end of the map: author 502, the
+            # HA2 C-terminus, which is HA2 site 173. The map's HA2 offset is
+            # constant, so applying it here gives that site rather than guessing
+            # -- and dropping the residue instead would leave the C-terminus
+            # uncolored and unlabeled.
             protein, site = "HA2", number - ha2_offset
             print(
                 f"note: residue {number} is past the end of the numbering map; "
-                f"assigning {site}_{protein} by the map's own HA2 offset "
-                f"of {ha2_offset}"
+                f"it is in HA2, and the map's own HA2 offset of {ha2_offset} "
+                f"puts it at {site}_{protein}"
             )
         region = site_of(site) if protein == "HA1" else None
         # One label for every residue, antigenic site or not: the site number
@@ -464,7 +465,7 @@ def receptor_rows(receptor):
     """One row per LSTc sugar, in every CSV.
 
     Every view keeps the receptor analogue: it is the landmark that says which
-    end of a protomer is membrane-distal. Three of the four views set ``glycans:
+    end of a protomer is membrane-distal. Four of the five views set ``glycans:
     hide``, and 8FAW's sugars all classify as glycans -- the host N-glycans and
     these five alike -- so naming them here is the only reason they survive.
     """
@@ -489,7 +490,7 @@ def receptor_rows(receptor):
 def glycan_rows(glycans):
     """One row per host N-glycan sugar, drawn in one color rather than as SNFG.
 
-    Only the first view's CSV gets these. Leaving them out of the other three is
+    Only the first view's CSV gets these. Leaving them out of the other four is
     what lets those views' ``glycans: hide`` take them away, since a residue
     named in the CSV is drawn whatever the heteroatom options say.
     """
