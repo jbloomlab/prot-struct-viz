@@ -12,6 +12,7 @@ geometry cost scales with the number of views.
 
 from __future__ import annotations
 
+import importlib.metadata
 import pathlib
 
 from ._config import InputError, ViewConfig
@@ -39,7 +40,9 @@ from .structure import (
 )
 from .validate import validate
 
-__version__ = "0.1.0"
+#: Read from the installed distribution metadata, so pyproject.toml's ``version``
+#: is the only place a release number is written.
+__version__ = importlib.metadata.version("prot-struct-viz")
 
 __all__ = [
     "InputError",
