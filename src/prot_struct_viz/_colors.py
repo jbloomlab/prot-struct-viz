@@ -1,4 +1,4 @@
-"""CSS/X11 named colors, for normalizing the CSV ``color`` column to hex."""
+"""The CSS/X11 named color table. `prot_struct_viz._config.normalize_color` uses it."""
 
 # CSS Color Module Level 4 named colors. Keys are lowercase; values are #rrggbb.
 CSS_COLORS = {

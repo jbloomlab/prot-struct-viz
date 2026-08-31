@@ -9,6 +9,9 @@ disagree about what an option means or what it is called.
 from __future__ import annotations
 
 import dataclasses
+import re
+
+from ._colors import CSS_COLORS
 
 #: Default color for structure residues that have no CSV row.
 DEFAULT_COLOR = "#d9d9d9"
@@ -114,6 +117,46 @@ OPTION_DOCS = {
 }
 
 
+_HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+
+
+def normalize_color(value: str) -> str:
+    """Normalize a hex or CSS/X11 named color to lowercase ``#rrggbb``.
+
+    Every color the user can give -- the CSV's ``color`` and ``label_color``
+    columns and the spec's ``default_color`` -- comes through here, so an invalid
+    color fails at the boundary rather than reaching Mol\* as a string it silently
+    ignores.
+
+    Parameters
+    ----------
+    value
+        A hex color (``#abc`` or ``#aabbcc``) or a CSS color name (``red``).
+
+    Returns
+    -------
+    str
+        The color as ``#rrggbb``.
+
+    Raises
+    ------
+    InputError
+        If the value is not a recognized color.
+    """
+    text = value.strip()
+    if _HEX_RE.match(text):
+        digits = text[1:].lower()
+        if len(digits) == 3:
+            digits = "".join(c * 2 for c in digits)
+        return f"#{digits}"
+    named = CSS_COLORS.get(text.lower())
+    if named is not None:
+        return named
+    raise InputError(
+        f"{value!r} is not a valid color: use hex (#1f77b4) or a CSS color name (red)"
+    )
+
+
 class InputError(Exception):
     """Raised on invalid user input (bad CSV, bad structure, failed validation).
 
@@ -161,3 +204,15 @@ class ViewConfig:
                 f"default_representation must be one of {sorted(REPRESENTATIONS)}, "
                 f"got {self.default_representation!r}"
             )
+        if not isinstance(self.default_color, str):
+            raise InputError(
+                f"default_color must be a color, got "
+                f"{type(self.default_color).__name__}"
+            )
+        # Normalized rather than merely checked, so that every color reaching the
+        # MVS state is #rrggbb whether it came from the spec or from a CSV cell.
+        try:
+            normalized = normalize_color(self.default_color)
+        except InputError as err:
+            raise InputError(f"default_color: {err}") from None
+        object.__setattr__(self, "default_color", normalized)

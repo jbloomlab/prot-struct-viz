@@ -157,6 +157,21 @@ def test_bad_option_value_is_fatal(tmp_path):
         load_spec(_spec(tmp_path, body))
 
 
+def test_bad_default_color_is_fatal(tmp_path):
+    """An unrecognized color reaches Mol\* as a string it silently ignores."""
+    body = _minimal().replace('default_color: "#d9d9d9"', "default_color: not-a-color")
+    with pytest.raises(InputError, match="default_color: .*is not a valid color"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_default_color_is_normalized(tmp_path):
+    """A CSS name and a short hex reach the state the same way a CSV cell does."""
+    body = _minimal().replace('default_color: "#d9d9d9"', "default_color: red")
+    assert load_spec(_spec(tmp_path, body)).views[0].config.default_color == "#ff0000"
+    body = _minimal().replace('default_color: "#d9d9d9"', 'default_color: "#ABC"')
+    assert load_spec(_spec(tmp_path, body)).views[0].config.default_color == "#aabbcc"
+
+
 def test_bad_on_mismatch_is_fatal(tmp_path):
     body = _minimal().replace("on_mismatch: report", "on_mismatch: shout")
     with pytest.raises(InputError, match="on_mismatch must be one of"):

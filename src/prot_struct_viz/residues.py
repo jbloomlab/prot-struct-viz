@@ -17,16 +17,13 @@ import re
 
 import pandas as pd
 
-from ._colors import CSS_COLORS
-from ._config import REPRESENTATIONS, InputError
+from ._config import REPRESENTATIONS, InputError, normalize_color
 
 #: ``(chain, residue)``, where residue is a string carrying any insertion code.
 ResidueKey = tuple[str, str]
 
 #: An author residue number with an optional single-letter insertion code.
 RESIDUE_RE = re.compile(r"^(-?\d+)([A-Za-z]?)$")
-
-_HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -56,38 +53,6 @@ class ColoringData:
     """
 
     specs: list[ResidueSpec]
-
-
-def normalize_color(value: str) -> str:
-    """Normalize a hex or CSS/X11 named color to lowercase ``#rrggbb``.
-
-    Parameters
-    ----------
-    value
-        A hex color (``#abc`` or ``#aabbcc``) or a CSS color name (``red``).
-
-    Returns
-    -------
-    str
-        The color as ``#rrggbb``.
-
-    Raises
-    ------
-    InputError
-        If the value is not a recognized color.
-    """
-    text = value.strip()
-    if _HEX_RE.match(text):
-        digits = text[1:].lower()
-        if len(digits) == 3:
-            digits = "".join(c * 2 for c in digits)
-        return f"#{digits}"
-    named = CSS_COLORS.get(text.lower())
-    if named is not None:
-        return named
-    raise InputError(
-        f"{value!r} is not a valid color: use hex (#1f77b4) or a CSS color name (red)"
-    )
 
 
 def split_residue(residue: str) -> tuple[int, str]:
