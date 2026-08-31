@@ -154,10 +154,7 @@ def _slug(name: str) -> str:
     in both a zip path and a Mol* cell tag.
     """
     kept = [character if character.isalnum() else "-" for character in name.lower()]
-    slug = "".join(kept).strip("-")
-    while "--" in slug:
-        slug = slug.replace("--", "-")
-    return slug
+    return re.sub(r"-+", "-", "".join(kept)).strip("-")
 
 
 def _require_mapping(value, what: str, path: pathlib.Path) -> dict:
@@ -344,7 +341,7 @@ def load_spec(path: str | pathlib.Path) -> Spec:
         )
 
     for attribute, label in (("name", "name"), ("slug", "name (once simplified)")):
-        seen = {}
+        seen: set[str] = set()
         for view in views:
             value = getattr(view, attribute)
             if value in seen:
@@ -352,7 +349,7 @@ def load_spec(path: str | pathlib.Path) -> Spec:
                     f"{path}: two views share the {label} {value!r}; the selector "
                     "would not be able to tell them apart"
                 )
-            seen[value] = True
+            seen.add(value)
 
     structure = document["structure"]
     if not isinstance(structure, str) or not structure.strip():

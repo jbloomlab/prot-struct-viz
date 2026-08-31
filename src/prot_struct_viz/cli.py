@@ -18,10 +18,9 @@ from ._config import InputError
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
-@click.argument(
-    "spec",
-    type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path),
-)
+# No exists=True: load_spec checks the file itself, and click's own message would
+# pre-empt it, so the same check would exist in two places with two wordings.
+@click.argument("spec", type=click.Path(dir_okay=False, path_type=pathlib.Path))
 @click.version_option(__version__)
 def main(spec):
     """Render a protein structure as a self-contained static HTML Mol* view.

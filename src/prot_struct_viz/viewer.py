@@ -73,12 +73,14 @@ def view_ref(slug: str) -> str:
     return f"view:{slug}"
 
 
-#: Representation used for each class of heteroatom the CSV does not name.
+#: Representation used for each class of heteroatom the CSV does not name. Named
+#: through REPRESENTATIONS so the MVS spelling of a representation lives in one
+#: place.
 HETERO_LAYER_REPRESENTATIONS = {
-    "ligand": "ball_and_stick",
-    "glycan": "carbohydrate",
-    "ion": "spacefill",
-    "water": "ball_and_stick",
+    "ligand": REPRESENTATIONS["ball-and-stick"],
+    "glycan": REPRESENTATIONS["carbohydrate"],
+    "ion": REPRESENTATIONS["spacefill"],
+    "water": REPRESENTATIONS["ball-and-stick"],
 }
 
 #: Camera-facing offset, in Angstroms, so label text floats in front of the residue

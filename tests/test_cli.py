@@ -199,8 +199,10 @@ def test_bad_spec_exits_nonzero(tmp_path):
 
 
 def test_missing_spec_file_exits_nonzero(tmp_path):
+    """The package's own message, not click's, so one check owns the wording."""
     result = _run([str(tmp_path / "absent.yaml")])
-    assert result.exit_code == 2  # click rejects the argument before we see it
+    assert result.exit_code == 1
+    assert "no such file" in result.output
 
 
 def test_anchors_supply_the_shared_view_keys(tmp_path, write_csv, fixture_cif):

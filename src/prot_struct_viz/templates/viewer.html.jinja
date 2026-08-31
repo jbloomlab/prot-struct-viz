@@ -157,6 +157,8 @@ view now on screen.">Copy camera</button>
         viewportShowSelectionMode: true,
         viewportShowAnimation: false
     }).then(function (viewer) {
+        // Deliberately global: docs/spec.md tells an author to reach the raw camera
+        // through `viewer.plugin.canvas3d.camera.getSnapshot()` in the console.
         window.viewer = viewer;
 
         // MVS attaches per-residue color to each representation it creates, so a
