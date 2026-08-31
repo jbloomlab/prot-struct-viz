@@ -229,24 +229,22 @@ def residue_counts(structure: gemmi.Structure) -> dict[str, int]:
     return counts
 
 
-def get_assembly_chains(
+def _assembly_generators(
     structure: gemmi.Structure, assembly_id: str
-) -> set[str] | None:
-    """Deposited author chain IDs used by an assembly (``None`` for ``"au"``).
+) -> list[tuple[set[str], list]]:
+    """An assembly's generators, as ``(author chain IDs, operators)`` pairs.
 
     Assembly generators name subchains (``label_asym_id``), so they are mapped
-    back to the author chain IDs the CSV uses.
+    back to the author chain IDs the CSV uses. Grouped per generator rather than
+    flattened, because each generator applies its own operators to its own
+    chains.
     """
-    if assembly_id == "au":
-        return None
-
-    available = [assembly.name for assembly in structure.assemblies]
     matching = [a for a in structure.assemblies if a.name == assembly_id]
     if not matching:
         raise InputError(
             f"assembly {assembly_id!r} is not defined by this structure; "
-            f"available assemblies are {available or '(none)'} (or 'au' for the "
-            "deposited asymmetric unit)"
+            f"available assemblies are {assembly_names(structure) or '(none)'} "
+            "(or 'au' for the deposited asymmetric unit)"
         )
 
     subchain_to_chain: dict[str, str] = {}
@@ -254,13 +252,25 @@ def get_assembly_chains(
         for residue in chain:
             subchain_to_chain.setdefault(residue.subchain, chain.name)
 
-    chains: set[str] = set()
+    generators = []
     for generator in matching[0].generators:
-        chains.update(generator.chains)
+        chains = set(generator.chains)
         for subchain in generator.subchains:
             if subchain in subchain_to_chain:
                 chains.add(subchain_to_chain[subchain])
-    return chains
+        generators.append((chains, list(generator.operators)))
+    return generators
+
+
+def get_assembly_chains(
+    structure: gemmi.Structure, assembly_id: str
+) -> set[str] | None:
+    """Deposited author chain IDs used by an assembly (``None`` for ``"au"``)."""
+    if assembly_id == "au":
+        return None
+    return set().union(
+        *(chains for chains, _ in _assembly_generators(structure, assembly_id))
+    )
 
 
 def assembly_names(structure: gemmi.Structure) -> list[str]:
@@ -338,10 +348,8 @@ def assembly_instance_transforms(
 ) -> list[tuple[set[str], list[list[float]]]]:
     """The transforms an assembly applies, grouped by the chains they apply to.
 
-    An assembly may have several generators, each applying its own operators to its
-    own subchains, so the transforms are returned per generator rather than as one
-    flat list -- replicating a label by an operator that does not apply to its chain
-    would put the label nowhere near the structure.
+    Replicating a label by an operator that does not apply to its chain would put
+    the label nowhere near the structure, which is why these stay grouped.
 
     Returns
     -------
@@ -351,26 +359,7 @@ def assembly_instance_transforms(
     """
     if assembly_id == "au":
         return []
-
-    matching = [a for a in structure.assemblies if a.name == assembly_id]
-    if not matching:
-        raise InputError(
-            f"assembly {assembly_id!r} is not defined by this structure; "
-            f"available assemblies are {assembly_names(structure) or '(none)'}"
-        )
-
-    subchain_to_chain: dict[str, str] = {}
-    for chain in structure[0]:
-        for residue in chain:
-            subchain_to_chain.setdefault(residue.subchain, chain.name)
-
-    groups = []
-    for generator in matching[0].generators:
-        chains = set(generator.chains)
-        for subchain in generator.subchains:
-            if subchain in subchain_to_chain:
-                chains.add(subchain_to_chain[subchain])
-        groups.append(
-            (chains, [_transform_to_mat4(op.transform) for op in generator.operators])
-        )
-    return groups
+    return [
+        (chains, [_transform_to_mat4(op.transform) for op in operators])
+        for chains, operators in _assembly_generators(structure, assembly_id)
+    ]

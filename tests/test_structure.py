@@ -7,6 +7,7 @@ import pytest
 from prot_struct_viz._config import InputError
 from prot_struct_viz.structure import (
     addressable_residues,
+    assembly_instance_transforms,
     assembly_names,
     get_assembly_chains,
     get_deposited_residues,
@@ -88,9 +89,13 @@ def test_assembly_chains(structure):
     assert get_assembly_chains(structure, "au") is None
 
 
-def test_unknown_assembly_is_fatal(structure):
+@pytest.mark.parametrize(
+    "function", [get_assembly_chains, assembly_instance_transforms]
+)
+def test_unknown_assembly_is_fatal(structure, function):
+    """Both entry points into an assembly report it the same way."""
     with pytest.raises(InputError, match="not defined by this structure"):
-        get_assembly_chains(structure, "7")
+        function(structure, "7")
 
 
 def test_no_models_is_fatal():
