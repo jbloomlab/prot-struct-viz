@@ -27,7 +27,6 @@ dependencies = [
     "jinja2>=3.0",
     "markdown-it-py>=3.0",
     "molviewspec>=1.8,<2",
-    "pandas>=2.0",
     "pyyaml>=6",
 ]
 
