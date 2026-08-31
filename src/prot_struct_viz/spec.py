@@ -29,17 +29,22 @@ import re
 
 import yaml
 
-from ._config import InputError, ViewConfig
+from ._config import (
+    DEFAULT_MOLSTAR_UI,
+    DEFAULT_VIEWER_HEIGHT,
+    MOLSTAR_UI_MODES,
+    InputError,
+    ViewConfig,
+)
 
 #: Top-level keys every spec must give.
 SHARED_KEYS = ("structure", "out", "assembly", "on_mismatch")
 
-#: Top-level keys that may be omitted. These describe the page rather than the
-#: view -- how tall the viewport is, whether Mol*'s own panels start open -- and
-#: they default to what the package did before they existed, so adding one to the
-#: format does not invalidate a spec written without it. The no-defaults rule is
-#: about *views*: a view has to describe itself, because that is what makes a spec
-#: readable on its own.
+#: Top-level keys that may be omitted. These describe the *page* -- how tall the
+#: viewport is, whether Mol*'s own panels start open -- rather than what is drawn,
+#: so a spec that says nothing about them is still a complete description of the
+#: figure. The no-defaults rule is about views: a view has to describe itself,
+#: because that is what makes a spec readable on its own.
 OPTIONAL_SHARED_KEYS = ("viewer_height", "molstar_ui")
 
 #: Lengths the viewer height may be given in. Anything else is a typo, and a typo
@@ -138,8 +143,8 @@ class Spec:
     views: tuple[View, ...]
     assembly: str = "au"
     on_mismatch: str = "report"
-    viewer_height: str = "70vh"
-    molstar_ui: str = "show"
+    viewer_height: str = DEFAULT_VIEWER_HEIGHT
+    molstar_ui: str = DEFAULT_MOLSTAR_UI
 
 
 def _slug(name: str) -> str:
@@ -228,11 +233,14 @@ def _parse_orientation(value, where: str, path: pathlib.Path) -> Orientation:
         isinstance(radius, bool) or not isinstance(radius, (int, float))
     ):
         raise InputError(f"{path}: {where} orientation radius must be a number")
+    # `up` omitted falls through to Orientation's own default rather than
+    # restating it here.
+    optional_up = {"up": _vec3(raw["up"], "up", where, path)} if "up" in raw else {}
     return Orientation(
         position=_vec3(raw["position"], "position", where, path),
         target=_vec3(raw["target"], "target", where, path),
-        up=_vec3(raw["up"], "up", where, path) if "up" in raw else (0.0, 1.0, 0.0),
         radius=None if radius is None else float(radius),
+        **optional_up,
     )
 
 
@@ -368,16 +376,17 @@ def load_spec(path: str | pathlib.Path) -> Spec:
         for view in views
     )
 
-    viewer_height = str(document.get("viewer_height", "70vh")).strip()
+    viewer_height = str(document.get("viewer_height", DEFAULT_VIEWER_HEIGHT)).strip()
     if not _CSS_LENGTH.match(viewer_height):
         raise InputError(
             f"{path}: viewer_height {viewer_height!r} is not a CSS length; use a "
             "number with one of px, rem, em, vh, %"
         )
-    molstar_ui = document.get("molstar_ui", "show")
-    if molstar_ui not in ("show", "hide"):
+    molstar_ui = document.get("molstar_ui", DEFAULT_MOLSTAR_UI)
+    if molstar_ui not in MOLSTAR_UI_MODES:
         raise InputError(
-            f"{path}: molstar_ui must be one of ['show', 'hide'], got {molstar_ui!r}"
+            f"{path}: molstar_ui must be one of {list(MOLSTAR_UI_MODES)}, got "
+            f"{molstar_ui!r}"
         )
 
     return Spec(

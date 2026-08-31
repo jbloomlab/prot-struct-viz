@@ -19,6 +19,24 @@ DEFAULT_COLOR = "#d9d9d9"
 #: Representation applied to the whole displayed polymer unless overridden.
 DEFAULT_REPRESENTATION = "cartoon"
 
+#: Height of the viewer box when the spec does not give one, as a CSS length.
+DEFAULT_VIEWER_HEIGHT = "70vh"
+
+#: Whether Mol*'s own panels start open when the spec does not say.
+DEFAULT_MOLSTAR_UI = "show"
+
+#: Whether Mol*'s own panels start open or closed.
+MOLSTAR_UI_MODES = ("show", "hide")
+
+#: Allowed values for each heteroatom flag. Glycans take ``snfg`` rather than
+#: ``show`` because showing one means drawing it as a 3D-SNFG symbol.
+HETERO_FLAG_CHOICES = {
+    "waters": ("show", "hide"),
+    "ligands": ("show", "hide"),
+    "glycans": ("snfg", "hide"),
+    "ions": ("show", "hide"),
+}
+
 #: What to do when the CSV and the structure disagree about the residue set.
 MISMATCH_MODES = (
     "error-any",
@@ -127,12 +145,7 @@ class ViewConfig:
                 f"on_mismatch must be one of {list(MISMATCH_MODES)}, got "
                 f"{self.on_mismatch!r}"
             )
-        for name, allowed in [
-            ("waters", ("hide", "show")),
-            ("ligands", ("show", "hide")),
-            ("glycans", ("snfg", "hide")),
-            ("ions", ("show", "hide")),
-        ]:
+        for name, allowed in HETERO_FLAG_CHOICES.items():
             value = getattr(self, name)
             if value not in allowed:
                 raise InputError(

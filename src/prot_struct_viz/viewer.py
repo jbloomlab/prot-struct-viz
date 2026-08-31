@@ -419,8 +419,8 @@ def render_html(
     views: list[dict],
     page_title: str,
     show_label_toggle: bool,
-    viewer_height: str = "70vh",
-    molstar_ui: str = "show",
+    viewer_height: str,
+    molstar_ui: str,
 ) -> str:
     """Render the viewer template around a base64 MVSX payload.
 
