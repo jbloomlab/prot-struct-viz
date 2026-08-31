@@ -24,35 +24,22 @@ pip install prot-struct-viz
 
 ## Quick start
 
-```yaml
-# spec.yaml
-structure: 1F8B
-out: view.html
-assembly: "1"
-on_mismatch: report
-
-views:
-  - name: Active site
-    csv: coloring.csv
-    default_color: "#d9d9d9"
-    default_representation: cartoon
-    waters: hide
-    ligands: show
-    glycans: snfg
-    ions: show
-```
+Write a CSV of the residues you want to say something about, and a spec file naming the
+structure, where the HTML goes, and one or more **views** of it. Then:
 
 ```bash
 prot-struct-viz spec.yaml
 ```
 
-That writes `view.html` and `view_report.txt`. One spec can hold several named **views**
-of the same structure — different colorings, labels, representations, or heteroatoms —
-and the page gets a selector that switches between them without moving the camera. The
-URL tracks the selector, so a link can point at one particular view.
+That writes the page, plus a report on any disagreement between the CSV and the
+structure. One spec can hold several named views — different colorings, labels,
+representations, or heteroatoms — and the page gets a selector that switches between them
+without moving the camera. The URL tracks the selector, so a link can point at one
+particular view.
 
-Every key, the CSV columns, and what the rendered page can do are in the documentation
-linked above.
+The [quick start](https://jbloomlab.github.io/prot-struct-viz/#quick-start) shows both
+files in full; the documentation covers every spec key, the CSV columns, and what a
+reader of the output can click.
 
 ## Development
 
