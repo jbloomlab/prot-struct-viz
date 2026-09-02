@@ -28,6 +28,14 @@ DEFAULT_MOLSTAR_UI = "show"
 #: Whether Mol*'s own panels start open or closed.
 MOLSTAR_UI_MODES = ("show", "hide")
 
+#: Rendering look applied to the whole page when the spec does not say.
+DEFAULT_STYLE = "default"
+
+#: Rendering looks a page may ask for. ``illustrative`` is Mol*'s own flat-shaded,
+#: outlined, ambient-occluded look; ``default`` is Mol*'s untouched rendering.
+#: Neither changes a color: every color on the page comes from the CSV.
+STYLES = ("default", "illustrative")
+
 #: Allowed values for each heteroatom flag. Glycans take ``snfg`` rather than
 #: ``show`` because showing one means drawing it as a 3D-SNFG symbol.
 HETERO_FLAG_CHOICES = {
@@ -45,20 +53,28 @@ MISMATCH_MODES = (
     "report",
 )
 
-#: Representations a user may name, mapped to the MolViewSpec representation type.
-#: This is the single source of allowed values for the CSV ``representation``
-#: column, ``default_representation``, and ``chain_representation``.
+#: Representations a user may name, mapped to the keyword arguments the MolViewSpec
+#: builder's ``representation()`` is called with. This is the single source of
+#: allowed values for the CSV ``representation`` column, ``default_representation``,
+#: and ``chain_representation``.
+#:
+#: The value is kwargs rather than a type string because a token may name a
+#: *parameterized* representation: Gaussian is not a type of its own in
+#: MolViewSpec but a ``surface_type`` of the surface representation. The token is
+#: also what identifies a representation everywhere else in this package, so two
+#: tokens differing only in a parameter stay distinguishable.
 #:
 #: Mol* itself also draws ``backbone``, ``line``, and ``putty``, but the
 #: molviewspec Python package we build the state with does not accept them yet,
 #: so naming one would produce a state that fails validation. They are left out
 #: rather than offered and silently broken.
 REPRESENTATIONS = {
-    "cartoon": "cartoon",
-    "ball-and-stick": "ball_and_stick",
-    "spacefill": "spacefill",
-    "surface": "surface",
-    "carbohydrate": "carbohydrate",
+    "cartoon": {"type": "cartoon"},
+    "ball-and-stick": {"type": "ball_and_stick"},
+    "spacefill": {"type": "spacefill"},
+    "surface": {"type": "surface"},
+    "gaussian-surface": {"type": "surface", "surface_type": "gaussian"},
+    "carbohydrate": {"type": "carbohydrate"},
 }
 
 #: Color of persistent on-structure label text when the CSV does not give one.

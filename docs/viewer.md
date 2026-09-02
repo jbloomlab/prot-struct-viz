@@ -35,13 +35,19 @@ The name after `#view=` is the view's name from the spec, lowercased with everyt
 is not a letter or digit turned into a hyphen. A name the page does not have is ignored
 and it opens on the first view, so an old link never lands on an error.
 
-## Size, and Mol\*'s own panels
+## Size, shading, and Mol\*'s own panels
 
-Two spec keys decide what the page looks like when it opens:
+Three spec keys decide what the page looks like when it opens:
 [`viewer_height`](spec.md#top-level-keys) sets how tall the viewer box is — the width
-always fills the page — and [`molstar_ui`](spec.md#top-level-keys) whether Mol\*'s own
-panels start open or closed. Closed is not gone: the wrench in the viewport opens them
-either way, which is what makes a page a figure first and a tool second.
+always fills the page — [`molstar_ui`](spec.md#top-level-keys) whether Mol\*'s own
+panels start open or closed, and [`style`](spec.md#top-level-keys) whether the structure
+is shaded the way Mol\* shades it by default or with Mol\*'s illustrative look. Closed is
+not gone: the wrench in the viewport opens them either way, which is what makes a page a
+figure first and a tool second.
+
+Mol\*'s own Quick Styles panel sets the same shading, so a reader with the panels open can
+click **Default** there to see the structure the other way. **Reset view** puts the spec's
+style back, along with everything else.
 
 ## Saving an image
 

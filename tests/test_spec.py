@@ -288,16 +288,19 @@ def test_page_keys_default_to_todays_behaviour(tmp_path):
     spec = load_spec(_spec(tmp_path, _minimal()))
     assert spec.viewer_height == "70vh"
     assert spec.molstar_ui == "show"
+    assert spec.style == "default"
 
 
 def test_page_keys_can_be_set(tmp_path):
     body = _minimal().replace(
         "on_mismatch: report\n",
-        "on_mismatch: report\nviewer_height: 800px\nmolstar_ui: hide\n",
+        "on_mismatch: report\nviewer_height: 800px\nmolstar_ui: hide\n"
+        "style: illustrative\n",
     )
     spec = load_spec(_spec(tmp_path, body))
     assert spec.viewer_height == "800px"
     assert spec.molstar_ui == "hide"
+    assert spec.style == "illustrative"
 
 
 @pytest.mark.parametrize("value", ["800", "big", "800 px", "-3rem", "80vhh"])
@@ -315,6 +318,14 @@ def test_bad_molstar_ui_is_fatal(tmp_path):
         "on_mismatch: report\n", "on_mismatch: report\nmolstar_ui: maybe\n"
     )
     with pytest.raises(InputError, match="molstar_ui must be one of"):
+        load_spec(_spec(tmp_path, body))
+
+
+def test_bad_style_is_fatal(tmp_path):
+    body = _minimal().replace(
+        "on_mismatch: report\n", "on_mismatch: report\nstyle: cinematic\n"
+    )
+    with pytest.raises(InputError, match="style must be one of"):
         load_spec(_spec(tmp_path, body))
 
 

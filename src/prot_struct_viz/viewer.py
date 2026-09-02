@@ -73,14 +73,14 @@ def view_ref(slug: str) -> str:
     return f"view:{slug}"
 
 
-#: Representation used for each class of heteroatom the CSV does not name. Named
-#: through REPRESENTATIONS so the MVS spelling of a representation lives in one
-#: place.
+#: Representation used for each class of heteroatom the CSV does not name, as a
+#: REPRESENTATIONS token: the token is what the annotation table and the component
+#: grouping speak, and it resolves to MVS kwargs in one place, `_styled`.
 HETERO_LAYER_REPRESENTATIONS = {
-    "ligand": REPRESENTATIONS["ball-and-stick"],
-    "glycan": REPRESENTATIONS["carbohydrate"],
-    "ion": REPRESENTATIONS["spacefill"],
-    "water": REPRESENTATIONS["ball-and-stick"],
+    "ligand": "ball-and-stick",
+    "glycan": "carbohydrate",
+    "ion": "spacefill",
+    "water": "ball-and-stick",
 }
 
 #: Camera-facing offset, in Angstroms, so label text floats in front of the residue
@@ -102,6 +102,12 @@ def build_annotations(
     chain_representations: dict[str, str],
 ) -> list[dict]:
     """Build the JSON annotation table, one row per displayed residue that needs one.
+
+    ``base_rep`` and ``extra_rep`` carry a `prot_struct_viz._config.REPRESENTATIONS`
+    token rather than the MVS type it resolves to. Two tokens can share a type --
+    ``surface`` and ``gaussian-surface`` are both MVS ``surface`` -- and components
+    are grouped by these values, so the resolved type would merge them into one
+    component drawn one way.
 
     Every row carries the three selector fields (``auth_asym_id``,
     ``auth_seq_id``, ``pdbx_PDB_ins_code``) plus whichever dependent fields
@@ -143,18 +149,18 @@ def build_annotations(
             if spec.label is not None:
                 fields["tooltip"] = spec.label
             if spec.representation is not None:
-                fields["extra_rep"] = REPRESENTATIONS[spec.representation]
+                fields["extra_rep"] = spec.representation
 
         if residue_class == "polymer":
             base = chain_representations.get(chain, config.default_representation)
-            fields["base_rep"] = REPRESENTATIONS[base]
+            fields["base_rep"] = base
         elif spec is not None:
             # A CSV-named heteroatom. Polymer representations (cartoon by default)
             # draw nothing for a ligand or ion, so it always gets ball-and-stick as
             # its base -- including when chain_representation names its chain,
             # since that setting is about the chain's polymer. Anything in the row's
             # representation column still applies additively on top.
-            fields["base_rep"] = REPRESENTATIONS[HETERO_CSV_REPRESENTATION]
+            fields["base_rep"] = HETERO_CSV_REPRESENTATION
         else:
             layer = _default_layer(residue_class, config)
             if layer is not None:
@@ -349,8 +355,8 @@ def build_state(
         rows = build.rows
         has_color = any("color" in row for row in rows)
 
-        def _styled(component, representation_type):
-            representation = component.representation(type=representation_type)
+        def _styled(component, token):
+            representation = component.representation(**REPRESENTATIONS[token])
             representation.color(color=config.default_color)
             if has_color:
                 representation.color_from_uri(**annotation, field_name="color")
@@ -376,7 +382,9 @@ def build_state(
             component = structure.component_from_uri(
                 **annotation, field_name="het_layer", field_values=[value]
             )
-            component.representation(type=HETERO_LAYER_REPRESENTATIONS[value])
+            component.representation(
+                **REPRESENTATIONS[HETERO_LAYER_REPRESENTATIONS[value]]
+            )
 
         if any("tooltip" in row for row in rows):
             structure.tooltip_from_uri(**annotation, field_name="tooltip")
@@ -427,6 +435,7 @@ def render_html(
     show_label_toggle: bool,
     viewer_height: str,
     molstar_ui: str,
+    style: str,
 ) -> str:
     """Render the viewer template around a base64 MVSX payload.
 
@@ -450,6 +459,10 @@ def render_html(
         CSS length for the viewer box. The width always fills the page.
     molstar_ui
         ``"show"`` or ``"hide"``: whether Mol*'s own panels start open.
+    style
+        ``"default"`` or ``"illustrative"``: the page's rendering look. Only
+        ``"illustrative"`` emits anything, so a default page is exactly Mol*'s
+        own rendering.
     """
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(_TEMPLATE_DIR),
@@ -465,6 +478,7 @@ def render_html(
         show_label_toggle=show_label_toggle,
         viewer_height=viewer_height,
         molstar_ui_shown=molstar_ui == "show",
+        illustrative=style == "illustrative",
         # An empty #header collapses to nothing via :empty, which stops a page with
         # no captions from carrying a blank band under the structure.
         has_captions=any(view["caption"] for view in views),

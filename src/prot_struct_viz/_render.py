@@ -95,6 +95,7 @@ def render(spec: Spec) -> pathlib.Path:
         available = assembly_names(parsed)
         reporter.log(f"assemblies defined: {available or '(none)'}")
         reporter.log(f"assembly used: {spec.assembly}")
+        reporter.log(f"rendering style: {spec.style}")
 
         all_counts = residue_counts(parsed)
         reporter.log(f"chains found: {sorted(all_counts)}")
@@ -230,6 +231,7 @@ def render(spec: Spec) -> pathlib.Path:
             show_label_toggle=bool(drawn),
             viewer_height=spec.viewer_height,
             molstar_ui=spec.molstar_ui,
+            style=spec.style,
         )
 
         out_path.parent.mkdir(parents=True, exist_ok=True)

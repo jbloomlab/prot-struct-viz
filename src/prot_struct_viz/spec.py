@@ -35,8 +35,10 @@ import yaml
 
 from ._config import (
     DEFAULT_MOLSTAR_UI,
+    DEFAULT_STYLE,
     DEFAULT_VIEWER_HEIGHT,
     MOLSTAR_UI_MODES,
+    STYLES,
     InputError,
     ViewConfig,
 )
@@ -52,11 +54,11 @@ SHARED_KEYS = ("structure", "assembly", "on_mismatch")
 OUT_KEY = "out"
 
 #: Top-level keys that may be omitted. These describe the *page* -- how tall the
-#: viewport is, whether Mol*'s own panels start open -- rather than what is drawn,
-#: so a spec that says nothing about them is still a complete description of the
-#: figure. The no-defaults rule is about views: a view has to describe itself,
-#: because that is what makes a spec readable on its own.
-OPTIONAL_SHARED_KEYS = ("viewer_height", "molstar_ui")
+#: viewport is, whether Mol*'s own panels start open, how it is shaded -- rather
+#: than what is drawn, so a spec that says nothing about them is still a complete
+#: description of the figure. The no-defaults rule is about views: a view has to
+#: describe itself, because that is what makes a spec readable on its own.
+OPTIONAL_SHARED_KEYS = ("viewer_height", "molstar_ui", "style")
 
 #: Lengths the viewer height may be given in. Anything else is a typo, and a typo
 #: here collapses the viewport silently in the browser rather than failing here.
@@ -157,6 +159,7 @@ class Spec:
     on_mismatch: str = "report"
     viewer_height: str = DEFAULT_VIEWER_HEIGHT
     molstar_ui: str = DEFAULT_MOLSTAR_UI
+    style: str = DEFAULT_STYLE
 
 
 def _slug(name: str) -> str:
@@ -417,6 +420,9 @@ def load_spec(path: str | pathlib.Path, out: str | pathlib.Path | None = None) -
             f"{path}: molstar_ui must be one of {list(MOLSTAR_UI_MODES)}, got "
             f"{molstar_ui!r}"
         )
+    style = document.get("style", DEFAULT_STYLE)
+    if style not in STYLES:
+        raise InputError(f"{path}: style must be one of {list(STYLES)}, got {style!r}")
 
     return Spec(
         structure=structure.strip(),
@@ -426,4 +432,5 @@ def load_spec(path: str | pathlib.Path, out: str | pathlib.Path | None = None) -
         on_mismatch=on_mismatch,
         viewer_height=viewer_height,
         molstar_ui=molstar_ui,
+        style=style,
     )

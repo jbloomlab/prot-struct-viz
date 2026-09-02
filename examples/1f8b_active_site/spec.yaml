@@ -10,6 +10,10 @@ on_mismatch: report
 # The one example that opens with Mol*'s own panels showing, so the docs site
 # shows both states.
 molstar_ui: show
+# The one example rendered with the illustrative look, likewise so the docs site
+# shows both. Its panels are open, so Quick Styles > Default is a click away for
+# a reader who wants to compare.
+style: illustrative
 
 views:
   - name: Active site

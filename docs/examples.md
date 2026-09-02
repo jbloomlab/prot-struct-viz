@@ -80,7 +80,8 @@ prot-struct-viz spec.yaml
 
 A handful of hand-picked residues instead: insertion-coded author numbering, a ligand and a
 glycan colored from the CSV rather than by element, and a per-chain base representation. It
-is also the one example that opens with Mol\*'s own panels showing, rather than closed.
+is also the one example rendered with `style: illustrative`, and the one that opens with
+Mol\*'s own panels showing rather than closed.
 
 <!-- Bare filename in the iframe, source-relative path in the Markdown link — see the note
      on the first example for why the two differ. -->
