@@ -15,6 +15,10 @@ The exception is keys whose absence is itself the answer. ``chains`` omitted
 means every chain, ``title_md`` omitted means no caption, ``chain_representation``
 omitted means no per-chain overrides. There is nothing for the author to say.
 
+``out`` is a different sort of exception: it is required, but it may come from the
+spec or from `load_spec`'s ``out`` argument, and exactly one of the two must give
+it. See `OUT_KEY`.
+
 Key names are the field names of `prot_struct_viz.ViewConfig`, so the spec file
 and the Python API cannot drift apart about what an option is called. `OPTION_KEYS`
 is every one of them, and ``tests/test_docs.py`` checks each reaches the reference
@@ -38,7 +42,14 @@ from ._config import (
 )
 
 #: Top-level keys every spec must give.
-SHARED_KEYS = ("structure", "out", "assembly", "on_mismatch")
+SHARED_KEYS = ("structure", "assembly", "on_mismatch")
+
+#: Top-level key naming the output page. Conditionally required: exactly one of
+#: this key and `load_spec`'s ``out`` argument. It is the one path a spec names
+#: that the spec's own directory does not own -- every other names an input
+#: sitting beside the spec -- so a caller whose build system owns the output tree
+#: passes it instead of writing a path back out of the spec's directory.
+OUT_KEY = "out"
 
 #: Top-level keys that may be omitted. These describe the *page* -- how tall the
 #: viewport is, whether Mol*'s own panels start open -- rather than what is drawn,
@@ -82,6 +93,7 @@ ORIENTATION_KEYS = ("position", "target", "up", "radius")
 #: above rather than listed again, so it cannot fall behind them.
 OPTION_KEYS = (
     *SHARED_KEYS,
+    OUT_KEY,
     *OPTIONAL_SHARED_KEYS,
     "views",
     *REQUIRED_VIEW_KEYS,
@@ -290,13 +302,17 @@ def _build_view(raw: dict, index: int, path: pathlib.Path) -> View:
     )
 
 
-def load_spec(path: str | pathlib.Path) -> Spec:
+def load_spec(path: str | pathlib.Path, out: str | pathlib.Path | None = None) -> Spec:
     """Read and validate a spec file.
 
     Parameters
     ----------
     path
         The YAML file. Paths inside it resolve relative to it.
+    out
+        Output HTML file, resolved relative to the working directory rather than
+        to the spec file. Exactly one of this and the spec's own ``out`` key must
+        be given; see `OUT_KEY`.
 
     Returns
     -------
@@ -322,13 +338,29 @@ def load_spec(path: str | pathlib.Path) -> Spec:
 
     _check_keys(
         document,
-        (*SHARED_KEYS, *OPTIONAL_SHARED_KEYS, DEFINITIONS_KEY, "views"),
+        (*SHARED_KEYS, OUT_KEY, *OPTIONAL_SHARED_KEYS, DEFINITIONS_KEY, "views"),
         "top-level key",
         path,
     )
     missing = sorted({*SHARED_KEYS, "views"} - set(document))
     if missing:
         raise InputError(f"{path}: missing top-level {missing}")
+
+    # Exactly one source for the output path, so the two can never disagree about
+    # where the page went. A caller passing it does not resolve it against the
+    # spec file: it belongs to whoever owns the output tree.
+    if out is not None and OUT_KEY in document:
+        raise InputError(
+            f"{path}: out is set in the spec ({document[OUT_KEY]}) and also given "
+            f"as --out ({out}); give exactly one"
+        )
+    if out is None and OUT_KEY not in document:
+        raise InputError(f"{path}: no output path; set out in the spec or pass --out")
+    out_path = (
+        pathlib.Path(out)
+        if out is not None
+        else _as_path(document[OUT_KEY], OUT_KEY, path)
+    )
 
     raw_views = document["views"]
     if not isinstance(raw_views, list) or not raw_views:
@@ -388,7 +420,7 @@ def load_spec(path: str | pathlib.Path) -> Spec:
 
     return Spec(
         structure=structure.strip(),
-        out=_as_path(document["out"], "out", path),
+        out=out_path,
         views=views,
         assembly=assembly,
         on_mismatch=on_mismatch,

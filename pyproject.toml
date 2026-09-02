@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "prot-struct-viz"
-version = "0.1.0"
+version = "0.2.0"
 description = "Render a protein structure as a self-contained static HTML Mol* view, colored and labeled per residue from a CSV."
 readme = "README.md"
 requires-python = ">=3.11"

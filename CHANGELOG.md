@@ -3,6 +3,21 @@
 All notable changes to this project are documented here, in
 [Keep a Changelog](https://keepachangelog.com/) format.
 
+## [0.2.0] - 2026-09-02
+
+### Added
+
+- `--out PATH` on the CLI, and an `out` argument on `render_file` and `load_spec`, naming
+  the output HTML file. Unlike the spec's own `out`, it resolves relative to the working
+  directory, so a build system that owns the output tree does not need a path out of the
+  spec's directory written into the spec. The report follows it as `<stem>_report.txt`.
+
+### Changed
+
+- The output path must be given exactly once, either as the spec's `out` key or as
+  `--out`: giving both, or neither, is an error. A spec that names its own `out` is
+  unaffected.
+
 ## [0.1.0] - 2026-08-31
 
 ### Added

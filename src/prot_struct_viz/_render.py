@@ -42,9 +42,26 @@ from .viewer import (
 )
 
 
-def render_file(spec_path: str | pathlib.Path) -> pathlib.Path:
-    """Load a YAML spec file and render it. What the CLI does."""
-    return render(load_spec(spec_path))
+def render_file(
+    spec_path: str | pathlib.Path, out: str | pathlib.Path | None = None
+) -> pathlib.Path:
+    """Load a YAML spec file and render it. What the CLI does.
+
+    Parameters
+    ----------
+    spec_path
+        The YAML spec file.
+    out
+        Output HTML file, resolved relative to the working directory rather than
+        to the spec file. Exactly one of this and the spec's own ``out`` key must
+        be given.
+
+    Returns
+    -------
+    pathlib.Path
+        The path written.
+    """
+    return render(load_spec(spec_path, out=out))
 
 
 def render(spec: Spec) -> pathlib.Path:
