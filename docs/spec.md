@@ -6,9 +6,11 @@ The whole input is one YAML file:
 prot-struct-viz spec.yaml
 ```
 
-Paths inside a spec (`csv`, `out`, `title_md`, `chain_representation`) resolve
-relative to the spec file, not to the working directory, making a spec and its inputs a
-directory you can move or copy.
+Paths inside a spec (`csv`, `title_md`, `chain_representation`, and a local
+`structure`) resolve relative to the spec file, not to the working directory, making a
+spec and its inputs a directory you can move or copy. The output path is the exception,
+and may instead be given on the command line: see
+[Where the page is written](#where-the-page-is-written).
 
 ## Shape
 
@@ -52,12 +54,12 @@ per-chain overrides.
 
 ## Top-level keys
 
-Required keys, alongside `views`.
+Required keys, alongside `views` and the output path
+([below](#where-the-page-is-written)).
 
 | Key | Meaning |
 | --- | --- |
 | `structure` | PDB ID to fetch from RCSB, or path to a local `.cif`/`.pdb` file (`.gz` is decompressed). |
-| `out` | Output HTML file. Must end in `.html`. The report is written beside it as `<stem>_report.txt`. |
 | `assembly` | `au` for the deposited asymmetric unit, or an assembly id such as `"1"`. Quote it: YAML would otherwise read `1` as a number. See [Assemblies](#assemblies). |
 | `on_mismatch` | What to do when a CSV's residue set and the structure's differ. See [Checking the CSV against the structure](#checking-the-csv-against-the-structure). |
 
@@ -70,6 +72,25 @@ There are two optional top-level keys:
 | --- | --- |
 | `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. The value is used exactly as written, so a viewport-relative height gives a short viewer on a short window. |
 | `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels (Structure Tools, the left panel, and the sequence strip) start open or closed. Either way, the wrench in the viewport toggles them, so `hide` means closed, not unavailable. |
+
+## Where the page is written
+
+The output path can be specified either in the YAML or as a command-line argument:
+
+| source | resolved relative to |
+| --- | --- |
+| the spec's `out` key | the spec file |
+| `--out PATH` on the command line | the working directory |
+
+Exactly one of the two must be given: both is an error naming both values, and neither is
+an error asking for one.
+
+```bash
+prot-struct-viz --out results/prot-struct-viz/ha.html spec.yaml
+```
+
+Either way the path must end in `.html`, and the report is written beside it as
+`<stem>_report.txt`.
 
 ## Per-view keys
 

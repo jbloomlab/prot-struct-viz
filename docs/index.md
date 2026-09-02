@@ -57,7 +57,9 @@ prot-struct-viz spec.yaml
 ```
 
 That writes `view.html` (the page) and `view_report.txt` (the progress log, and a report
-on any disagreement between the CSV and the structure).
+on any disagreement between the CSV and the structure). The output file can also be
+specified at the command line by omitting `out` from the spec and passing `--out`
+instead; see [where the page is written](spec.md#where-the-page-is-written).
 
 See the [spec reference](spec.md) for details on how to write the YAML and CSV files.
 

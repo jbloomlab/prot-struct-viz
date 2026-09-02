@@ -11,6 +11,11 @@ from prot_struct_viz import render_file
 render_file("spec.yaml")
 ```
 
+`render_file` and `load_spec` both take an `out` argument, the API side of the CLI's
+`--out`: a spec that names no output is rendered where the caller says, resolved relative
+to the working directory. `Spec.out` is required either way, populated from whichever
+source gave it.
+
 To build a spec in Python instead of reading one, construct it directly. `ViewConfig`
 keeps its defaults here — the "no defaults" rule is a property of the spec *file*, which
 has to be readable on its own, not of the dataclass:

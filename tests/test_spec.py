@@ -4,6 +4,8 @@ The format's whole claim is that a spec says what it means: no defaults are
 filled in behind the author's back, and anything it gets wrong is named.
 """
 
+import pathlib
+
 import pytest
 
 from prot_struct_viz import load_spec
@@ -67,6 +69,28 @@ def test_paths_resolve_relative_to_the_spec(tmp_path):
     spec = load_spec(_spec(nested, _minimal()))
     assert spec.views[0].csv == nested / "coloring.csv"
     assert spec.out == nested / "view.html"
+
+
+def test_out_argument_replaces_the_key_and_is_not_spec_relative(tmp_path):
+    """The output path is the one a caller may own, so it is theirs to resolve."""
+    nested = tmp_path / "example"
+    nested.mkdir()
+    spec = load_spec(
+        _spec(nested, _minimal().replace("out: view.html\n", "")), out="page.html"
+    )
+    assert spec.out == pathlib.Path("page.html")
+    # Every other path still names an input sitting beside the spec.
+    assert spec.views[0].csv == nested / "coloring.csv"
+
+
+def test_out_given_twice_is_fatal(tmp_path):
+    with pytest.raises(InputError, match=r"spec \(view\.html\).*--out \(page\.html\)"):
+        load_spec(_spec(tmp_path, _minimal()), out="page.html")
+
+
+def test_out_given_nowhere_is_fatal(tmp_path):
+    with pytest.raises(InputError, match="no output path"):
+        load_spec(_spec(tmp_path, _minimal().replace("out: view.html\n", "")))
 
 
 def test_absolute_paths_are_left_alone(tmp_path):

@@ -37,6 +37,7 @@ def write_spec(tmp_path, write_csv, fixture_cif):
     """Write a spec file and return its path.
 
     ``views`` are dicts of whatever each view sets beyond `BASE_VIEW`.
+    ``out_name`` of None writes no ``out`` key, for the ``--out`` tests.
     """
 
     def _write(
@@ -51,7 +52,7 @@ def write_spec(tmp_path, write_csv, fixture_cif):
         views = views if views is not None else [{}]
         document = {
             "structure": str(fixture_cif),
-            "out": str(tmp_path / out_name),
+            **({} if out_name is None else {"out": str(tmp_path / out_name)}),
             "assembly": "au",
             "on_mismatch": "report",
             **shared,
@@ -61,6 +62,7 @@ def write_spec(tmp_path, write_csv, fixture_cif):
             ],
         }
         path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(yaml.safe_dump(document, sort_keys=False))
         return path
 
@@ -114,6 +116,47 @@ def test_extra_in_csv_is_fatal_in_its_mode(tmp_path, write_spec, write_csv):
 
 def test_bad_out_suffix_exits_nonzero(write_spec):
     result = _run([str(write_spec("view.htm"))])
+    assert result.exit_code == 1
+    assert "must end in '.html'" in result.output
+
+
+def test_out_flag_writes_there_with_its_report(tmp_path, write_spec):
+    """A caller whose build system owns the output tree passes the path in."""
+    target = tmp_path / "results" / "page.html"
+    result = _run(["--out", str(target), str(write_spec(out_name=None))])
+    assert result.exit_code == 0, result.output
+    assert target.is_file()
+    assert (target.parent / "page_report.txt").is_file()
+
+
+def test_out_flag_is_relative_to_the_working_directory(
+    tmp_path, write_spec, monkeypatch
+):
+    """Unlike the spec's own paths, which resolve beside the spec file."""
+    spec = write_spec(out_name=None, name="nested/spec.yaml")
+    workdir = tmp_path / "workdir"
+    workdir.mkdir()
+    monkeypatch.chdir(workdir)
+    result = _run(["--out", "page.html", str(spec)])
+    assert result.exit_code == 0, result.output
+    assert (workdir / "page.html").is_file()
+    assert not (spec.parent / "page.html").exists()
+
+
+def test_out_flag_and_spec_key_together_exit_nonzero(tmp_path, write_spec):
+    result = _run(["--out", str(tmp_path / "page.html"), str(write_spec())])
+    assert result.exit_code == 1
+    assert "give exactly one" in result.output
+
+
+def test_no_output_path_anywhere_exits_nonzero(write_spec):
+    result = _run([str(write_spec(out_name=None))])
+    assert result.exit_code == 1
+    assert "no output path" in result.output
+
+
+def test_bad_out_flag_suffix_exits_nonzero(tmp_path, write_spec):
+    result = _run(["--out", str(tmp_path / "page.htm"), str(write_spec(out_name=None))])
     assert result.exit_code == 1
     assert "must end in '.html'" in result.output
 

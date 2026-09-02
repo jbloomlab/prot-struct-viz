@@ -1,9 +1,11 @@
 """The ``prot-struct-viz`` command line interface.
 
 A thin wrapper around `prot_struct_viz.render_file`: it takes one YAML spec
-file and reports failures without a traceback. Every option lives in that file
-rather than in a flag, so the command has nothing to document that
-`prot_struct_viz.spec` does not already describe.
+file and reports failures without a traceback. Every option describing the
+figure lives in that file rather than in a flag, so the command has nothing to
+document that `prot_struct_viz.spec` does not already describe. The one
+exception is ``--out``: where the page is written belongs to whoever owns the
+output tree, not to the directory the spec sits in.
 """
 
 from __future__ import annotations
@@ -21,16 +23,26 @@ from ._config import InputError
 # No exists=True: load_spec checks the file itself, and click's own message would
 # pre-empt it, so the same check would exist in two places with two wordings.
 @click.argument("spec", type=click.Path(dir_okay=False, path_type=pathlib.Path))
+@click.option(
+    "--out",
+    type=click.Path(dir_okay=False, path_type=pathlib.Path),
+    default=None,
+    help="Output HTML file, relative to the working directory rather than to "
+    "SPEC. Give this or the spec's own 'out' key, not both.",
+)
 @click.version_option(__version__)
-def main(spec):
+def main(spec, out):
     """Render a protein structure as a self-contained static HTML Mol* view.
 
     SPEC is a YAML file describing one page: the structure to draw, where to
     write the HTML, and one or more named views of it. See the spec reference
     in the docs for every key it may carry.
+
+    Exactly one of --out and the spec's own 'out' key must say where the page
+    goes; unlike the spec's, --out resolves relative to the working directory.
     """
     try:
-        render_file(spec)
+        render_file(spec, out=out)
     except InputError as err:
         click.echo(f"\nERROR: {err}", err=True)
         sys.exit(1)
