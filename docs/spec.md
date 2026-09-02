@@ -66,12 +66,13 @@ Required keys, alongside `views` and the output path
 `views` is a non-empty list of views, in the order the rendered page offers them. The
 first is shown on load. With one view the page renders no selector at all.
 
-There are two optional top-level keys:
+There are three optional top-level keys:
 
 | Key | Meaning |
 | --- | --- |
 | `viewer_height` | Height of the viewer box as a CSS length — `px`, `rem`, `em`, `vh` or `%`. Default `70vh`. The width always fills the page. The value is used exactly as written, so a viewport-relative height gives a short viewer on a short window. |
 | `molstar_ui` | `show` (default) or `hide`, for whether Mol\*'s own panels (Structure Tools, the left panel, and the sequence strip) start open or closed. Either way, the wrench in the viewport toggles them, so `hide` means closed, not unavailable. |
+| `style` | `default` (default) or `illustrative`, for how the page is shaded: `illustrative` is Mol\*'s own flat unlit shading with silhouette outlines and ambient occlusion. It changes no color — every color still comes from the CSV — and it suits a surface or spacefill base more than a cartoon one. It applies to the whole page rather than to one view. |
 
 ## Where the page is written
 
@@ -101,7 +102,7 @@ Required in every view:
 | `name` | Label for this view in the selector. Must be unique. |
 | `csv` | Residue color/label/representation table for this view. See the [CSV schema](csv-schema.md). |
 | `default_color` | Color for structure residues that have no CSV row. Hex or a CSS color name, same as the CSV's `color` column. |
-| `default_representation` | Base representation for the whole displayed polymer: `cartoon`, `ball-and-stick`, `spacefill`, `surface`, or `carbohydrate`. |
+| `default_representation` | Base representation for the whole displayed polymer: `cartoon`, `ball-and-stick`, `spacefill`, `surface`, `gaussian-surface`, or `carbohydrate`. |
 | `waters` | `show` or `hide`. Waters are not individually addressable from the CSV. |
 | `ligands` | `show` or `hide` ligands not named in the CSV (element-colored ball-and-stick). |
 | `glycans` | `snfg` or `hide` for glycans not named in the CSV. A glycan named in the CSV is never drawn as an SNFG symbol. |
@@ -142,7 +143,11 @@ The representation of a residue is built in three layers:
 
 The third layer being additive is what produces the standard figure: a cartoon backbone
 with sticks on a handful of key residues. Allowed values at every layer are `cartoon`,
-`ball-and-stick`, `spacefill`, `surface`, and `carbohydrate`.
+`ball-and-stick`, `spacefill`, `surface`, `gaussian-surface`, and `carbohydrate`.
+
+`surface` is the solvent-excluded molecular surface and `gaussian-surface` the smoother
+Gaussian one, which usually reads better over a whole assembly. They are separate values,
+so one view can use both — on different chains, or one added over the other.
 
 `chain_representation` takes a small CSV:
 

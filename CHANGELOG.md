@@ -3,6 +3,17 @@
 All notable changes to this project are documented here, in
 [Keep a Changelog](https://keepachangelog.com/) format.
 
+## [0.3.0] - 2026-09-02
+
+### Added
+
+- `gaussian-surface` as a representation, wherever a representation can be named. It is
+  the smoother Gaussian surface; `surface` keeps meaning the solvent-excluded molecular
+  one, so no existing spec changes meaning, and a view may use both at once.
+- An optional top-level `style` key, `default` or `illustrative`. `illustrative` renders
+  the page with Mol\*'s flat unlit shading, silhouette outlines and ambient occlusion. It
+  changes no color: per-residue coloring still comes from the CSV.
+
 ## [0.2.0] - 2026-09-02
 
 ### Added

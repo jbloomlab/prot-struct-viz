@@ -54,9 +54,13 @@ commit of that submodule; update periodically with
   guard against the page's own writes.
 - **Defaults and allowed values live in `_config.py`**, each written once and imported
   by the parser and the renderer -- `REPRESENTATIONS`, `MISMATCH_MODES`,
-  `MOLSTAR_UI_MODES`, `HETERO_FLAG_CHOICES`, and the `DEFAULT_*` constants. Do not
-  restate a default or a set of allowed values anywhere else, including in a dataclass
-  field default that could name the constant instead.
+  `MOLSTAR_UI_MODES`, `STYLES`, `HETERO_FLAG_CHOICES`, and the `DEFAULT_*` constants. Do
+  not restate a default or a set of allowed values anywhere else, including in a dataclass
+  field default that could name the constant instead. A `REPRESENTATIONS` value is the
+  kwargs `representation()` is called with, so a token may name a parameterization
+  (`gaussian-surface` is `surface` plus a `surface_type`); everything else -- the
+  annotation fields, the component grouping -- speaks the **token**, because two tokens
+  can share an MVS type and grouping on the type would merge them.
 - **Docstring style is NumPy** (Parameters / Returns with the `----------` underline), to
   match `mkdocs.yml`'s `docstring_style: numpy`.
 - **Author numbering throughout.** Residues are keyed `(auth_asym_id, "<num><icode>")`
@@ -114,6 +118,13 @@ commit of that submodule; update periodically with
   attach to the structure and do survive. The template's **Reset view** button reloads the
   state from the payload still in the DOM, which is the only way back. Do not describe the
   Mol\* UI as freely editable without this caveat.
+- **Rendering style is not expressible in MVS.** The `canvas` node carries only
+  `background_color`, so `style: illustrative` is page-level: the template calls
+  `managers.structure.component.setOptions({ignoreLight: true})` and
+  `canvas3d.setProps({postprocessing: ...})`, which is what Mol\*'s own Quick Styles >
+  Illustrative does. Chain it onto `load()` rather than running it once -- each load mints
+  new representation cells, and **Reset view** reloads. Take the rendering half only: Mol\*
+  pairs that look with an illustrative *color theme* that would overwrite every CSV color.
 - **Releases are tag-driven.** Push a `v*` tag matching `pyproject.toml`'s `version` and
   `release.yml` publishes to PyPI by trusted publishing (OIDC, no stored token). The
   recipe is in that workflow's header comment.

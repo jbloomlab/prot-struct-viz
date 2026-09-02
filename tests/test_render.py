@@ -32,10 +32,6 @@ from prot_struct_viz.viewer import (
 #: Slug of the single view the state helpers below build.
 SLUG = "main"
 
-#: The MVS representation a CSV-named heteroatom gets, spelled the way the package
-#: spells it rather than repeated as a literal here.
-HETERO_CSV_REP = REPRESENTATIONS[HETERO_CSV_REPRESENTATION]
-
 
 @pytest.fixture(scope="module")
 def two_view_html(tmp_path_factory, fixture_cif):
@@ -162,8 +158,8 @@ def test_polymer_gets_the_base_representation(rows):
 
 def test_csv_named_heteroatom_is_not_drawn_as_cartoon(rows):
     """cartoon draws nothing for a ligand, so a CSV-named one falls back."""
-    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REP
-    assert _row(rows, "B", 1)["base_rep"] == HETERO_CSV_REP
+    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REPRESENTATION
+    assert _row(rows, "B", 1)["base_rep"] == HETERO_CSV_REPRESENTATION
 
 
 def test_csv_named_heteroatoms_leave_the_default_layers(rows):
@@ -216,8 +212,8 @@ def test_tooltips_are_annotation_fields(rows):
 
 def test_additive_representation_is_separate_from_base(rows):
     calcium = _row(rows, "A", 998)
-    assert calcium["base_rep"] == HETERO_CSV_REP
-    assert calcium["extra_rep"] == REPRESENTATIONS["spacefill"]
+    assert calcium["base_rep"] == HETERO_CSV_REPRESENTATION
+    assert calcium["extra_rep"] == "spacefill"
 
 
 def test_per_chain_representation_override(coloring, deposited):
@@ -304,9 +300,51 @@ def test_glycan_layer_uses_the_carbohydrate_representation(rows):
     layers = _components(state, "het_layer")
     for residue_class in ("glycan", "ion"):
         assert (
-            layers[residue_class][0]["params"]["type"]
-            == HETERO_LAYER_REPRESENTATIONS[residue_class]
+            layers[residue_class][0]["params"]
+            == REPRESENTATIONS[HETERO_LAYER_REPRESENTATIONS[residue_class]]
         )
+
+
+def test_gaussian_surface_is_a_parameterized_surface(coloring, deposited):
+    """Gaussian is a ``surface_type`` in MVS, not a representation type of its own."""
+    config = ViewConfig(default_representation="gaussian-surface")
+    rows = build_annotations(coloring, deposited, config, {})
+    params = _components(_state(rows, config), "base_rep")["gaussian-surface"][0][
+        "params"
+    ]
+    assert params == {"type": "surface", "surface_type": "gaussian"}
+
+
+def test_plain_surface_still_means_the_molecular_one(coloring, deposited):
+    """So a spec that already said ``surface`` draws exactly what it drew before."""
+    config = ViewConfig(default_representation="surface")
+    rows = build_annotations(coloring, deposited, config, {})
+    params = _components(_state(rows, config), "base_rep")["surface"][0]["params"]
+    assert params == {"type": "surface", "surface_type": "molecular"}
+
+
+def test_the_two_surfaces_are_separate_components(coloring):
+    """Both resolve to MVS ``surface``, so only the token tells them apart.
+
+    Components are grouped by the annotation's ``base_rep`` value. Were that the
+    resolved MVS type, these two would share it, collapse into one component, and
+    be drawn one way -- which is what the token buys.
+
+    The fixture has polymer on one chain only, so the two-chain case is stated
+    here rather than read off it.
+    """
+    config = ViewConfig(default_representation="surface")
+    deposited = {("A", "100"): "polymer", ("B", "200"): "polymer"}
+    rows = build_annotations(coloring, deposited, config, {"B": "gaussian-surface"})
+    components = _components(_state(rows, config), "base_rep")
+    assert components["surface"][0]["params"] == {
+        "type": "surface",
+        "surface_type": "molecular",
+    }
+    assert components["gaussian-surface"][0]["params"] == {
+        "type": "surface",
+        "surface_type": "gaussian",
+    }
 
 
 def test_state_adds_a_tooltip_node(rows):
@@ -670,6 +708,33 @@ def test_molstar_ui_hidden_starts_the_panels_closed(tmp_path, write_csv, make_sp
     assert "layoutShowControls: true" in out.read_text()
 
 
+def test_illustrative_style_is_applied_after_every_load(tmp_path, write_csv, make_spec):
+    """It has to hang off load(), which is also what Reset view calls.
+
+    Each load mints new representation cells and ignoreLight is a parameter on
+    each one, so a page that styled itself only at startup would come back lit.
+    """
+    out = tmp_path / "view.html"
+    spec = make_spec([("Only", write_csv(CSV))], out)
+
+    render(dataclasses.replace(spec, style="illustrative"))
+    illustrative = out.read_text()
+    assert ".then(applyStyle)" in illustrative
+    assert "ignoreLight: true" in illustrative
+    assert "outline: {name: 'on'" in illustrative
+    assert "occlusion: {name: 'on'" in illustrative
+
+    render(dataclasses.replace(spec, style="default"))
+    default = out.read_text()
+    assert "applyStyle" not in default
+    assert "ignoreLight" not in default
+    assert "postprocessing" not in default
+
+    # The style is the page's, not the state's: it must not reach a colour. The
+    # metadata is skipped because it carries the render timestamp.
+    assert _embedded_state(illustrative)["root"] == _embedded_state(default)["root"]
+
+
 def test_opening_orientation_becomes_the_mvs_camera(rows):
     """So the page opens already framed instead of snapping after the load."""
     from prot_struct_viz import Orientation
@@ -953,8 +1018,8 @@ def test_every_annotation_row_names_a_representation_or_layer(rows):
 def test_per_chain_override_does_not_reach_csv_named_heteroatoms(coloring, deposited):
     """A chain's polymer representation would draw nothing for its ligand."""
     rows = build_annotations(coloring, deposited, ViewConfig(), {"A": "cartoon"})
-    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REP
-    assert _row(rows, "A", 998)["base_rep"] == HETERO_CSV_REP
+    assert _row(rows, "A", 0)["base_rep"] == HETERO_CSV_REPRESENTATION
+    assert _row(rows, "A", 998)["base_rep"] == HETERO_CSV_REPRESENTATION
     # The polymer on that chain still follows the override.
     assert _row(rows, "A", 100)["base_rep"] == "cartoon"
 

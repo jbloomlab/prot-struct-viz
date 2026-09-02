@@ -160,13 +160,46 @@ view now on screen.">Copy camera</button>
         // Deliberately global: docs/spec.md tells an author to reach the raw camera
         // through `viewer.plugin.canvas3d.camera.getSnapshot()` in the console.
         window.viewer = viewer;
+{%- if illustrative %}
+
+        // Mol*'s own Quick Styles > Illustrative, which is exactly this: ignoreLight on
+        // every representation, plus outline and ambient occlusion in postprocessing.
+        // It deliberately says nothing about color -- Mol*'s illustrative *color theme*
+        // is a separate button that recolors by chain, and would throw away the
+        // per-residue coloring this page exists to show. The values are Mol*'s own.
+        //
+        // It runs after every load rather than once, because loadMvsData mints new
+        // representation cells and ignoreLight is a parameter on each one: Reset view
+        // would otherwise come back lit.
+        function applyStyle() {
+            var components = viewer.plugin.managers.structure.component;
+            return components.setOptions(
+                Object.assign({}, components.state.options, {ignoreLight: true})
+            ).then(function () {
+                viewer.plugin.canvas3d.setProps({
+                    postprocessing: {
+                        outline: {name: 'on', params: {
+                            scale: 1, color: 0x000000, threshold: 0.33,
+                            includeTransparent: true}},
+                        occlusion: {name: 'on', params: {
+                            multiScale: {name: 'off', params: {}}, radius: 5, bias: 0.8,
+                            blurKernelSize: 15, blurDepthBias: 0.5, samples: 32,
+                            resolutionScale: 1, color: 0x000000,
+                            transparentThreshold: 0.4}},
+                        shadow: {name: 'off', params: {}}
+                    }
+                });
+            });
+        }
+{%- endif %}
 
         // MVS attaches per-residue color to each representation it creates, so a
         // representation added later from the Components panel comes in uncolored
         // and cannot be colored from the UI. Reloading the state is the way back.
         // The payload is still sitting in the DOM, so keeping this costs nothing.
         function load() {
-            return viewer.loadMvsData('base64,' + payload, 'mvsx');
+            return viewer.loadMvsData('base64,' + payload, 'mvsx')
+{{- '.then(applyStyle)' if illustrative else '' }};
         }
 
         var PSO = molstar.lib.plugin.PluginStateObject;
